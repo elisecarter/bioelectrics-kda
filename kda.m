@@ -58,10 +58,17 @@ function LoadRawData(varargin)
         % remove anything that is not a subdirectory in curator folder
         CURdir(~[CURdir.isdir]) = [];
 
+        % get names of folders
+        CURnames = {CURdir.name};
+        
+        % remove parent dirs
+        mouseIDs = CURnames(~ismember(CURnames ,{'.','..'})); 
+        
+
         %else
         % call function to add to session or new session
     end
-    mouseIDs = SelectMice(CURdir);
+    mouseIDs = SelectMice(mouseIds);
 end
 
 
