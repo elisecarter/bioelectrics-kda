@@ -13,8 +13,8 @@ function kda
 %    interparc by John D'Errico
 %    arclength by John D'Errico
 
-
 %% Create GUI
+
 % create figure: "window"
 window = figure( ...
     'Name', 'Kinematic Data Analyis', ...
@@ -32,16 +32,15 @@ uicontrol(window, "Style", 'text', ...
 
 % load menu -- accelerators?
 menu_load = uimenu(window, 'Label', 'Load');
-uimenu(menu_load, 'Text', 'Load Raw Data', @LoadRawData)
+uimenu(menu_load, 'Text', 'Load Raw Data', @LoadData)
 
 % preallocation for callback function variables
 data = [];
 
-
 %% Nested Functions
 
 % UI navigate to dirs, UI select mice, load raw data
-function LoadRawData(varargin)
+    function LoadData(varargin)
     if  isempty(data)
         % user naviagate to Matlab_3D folder
         %f = msgbox('Select Matlab_3D Folder');
@@ -54,34 +53,13 @@ function LoadRawData(varargin)
         %uiwait(f)
         CURpath = uigetdir();
         CURdir = dir(CURpath);
-
-        % remove anything that is not a subdirectory in curator folder
-        CURdir(~[CURdir.isdir]) = [];
-
-        % get names of folders
-        CURnames = {CURdir.name};
         
-        % remove parent dirs
-        mouseIDs = CURnames(~ismember(CURnames ,{'.','..'})); 
-        
-
-        %else
+    %else
         % call function to add to session or new session
+
+    mouseIDs = SelectMice(CURdir); %does this go here?
+    data = LoadRawData(mouseIDs);
     end
-    mouseIDs = SelectMice(mouseIds);
-end
-
-
-
-% load selected mice
-function StoreMouseData
-
-    % load
-    for i = length(mouseIDs)
-        rawdata(i) = load(fullfile(path, files(i).name));
-
-    end
-    
 end
 
 
