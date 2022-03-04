@@ -6,7 +6,9 @@ function data = LoadRawData(mouseIDs)
      % create structrure x by 1 struct where x = n mice
     for i = 1:length(mouseIDs)
         data(i).MouseID = mouseIDs(i);
+        data(i).Path = 
     end
     
     data = FindSessions(data)
 end
+

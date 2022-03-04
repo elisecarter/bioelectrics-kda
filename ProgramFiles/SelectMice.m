@@ -8,12 +8,16 @@ CURdir(~[CURdir.isdir]) = [];
 CURnames = {CURdir.name};
 
 % remove parent dirs
-mouseIDs = CURnames(~ismember(CURnames ,{'.','..'}));
+CURdir = CURdir(~ismember(CURnames ,{'.','..'}));
+mouseIDs = {CURdir.name};
 
 % UI select mice
 prompt = 'Select Mice';
 [indx, ~] = listdlg('ListString',mouseIDs,'PromptString', prompt);
-mouseIDs = mouseIDs(indx);
+
+CURdir = CURdir(indx); 
+
+end
 
 
 

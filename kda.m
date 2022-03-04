@@ -57,8 +57,8 @@ data = [];
     %else
         % call function to add to session or new session
 
-    mouseIDs = SelectMice(CURdir); %does this go here?
-    data = LoadRawData(mouseIDs);
+    CURdir = SelectMice(CURdir); %does this go here?
+    data = LoadRawData(MATdir, CURdir);
     end
 end
 
