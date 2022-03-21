@@ -13,7 +13,11 @@ function kda
 %    interparc by John D'Errico
 %    arclength by John D'Errico
 
-%% Create GUI
+% to do:
+% check for empty cur folders
+
+%% Setup, Create GUI
+clc; clear;
 
 % create figure: "window"
 window = figure( ...
@@ -23,25 +27,27 @@ window = figure( ...
     'MenuBar', 'none'); 
 
 % text to display on window
-opening_str = {'','Kinematic Data Analysis of Mouse Reach Events', ...
-    '', '', '', '', 'Navigate using Toolbar'};
-uicontrol(window, "Style", 'text', ... 
-    'String', opening_str, ...
-    'BackgroundColor', '#DCFFE6', ...
-    'Position', [155 120 250 200]);
+%opening_str = {'','Kinematic Data Analysis of Mouse Reach Events', ...
+%    '', '', '', '', 'Navigate using Toolbar'};
+%uicontrol(window, "Style", 'text', ... 
+%    'String', opening_str, ...
+%    'BackgroundColor', '#DCFFE6', ...
+%    'Position', [155 120 250 200]);
 
 % load menu -- accelerators?
 menu_load = uimenu(window, 'Label', 'Load');
-uimenu(menu_load, 'Text', 'Load Raw Data', @LoadData)
+uimenu(menu_load, 'Text', 'Load Raw Data', 'Callback', @LoadData)
 
+% change directory to Program Files so functions are on path
+cd ProgramFiles/
 % preallocation for callback function variables
 data = [];
 
 %% Nested Functions
 
 % UI navigate to dirs, UI select mice, load raw data
-    function LoadData(varargin)
-    if  isempty(data)
+function data = LoadData(varargin)
+    %if  isempty(data)
         % user naviagate to Matlab_3D folder
         %f = msgbox('Select Matlab_3D Folder');
         %uiwait(f)
@@ -57,8 +63,10 @@ data = [];
     %else
         % call function to add to session or new session
 
-    CURdir = SelectMice(CURdir); %does this go here?
-    data = LoadRawData(MATdir, CURdir);
+    [CURdir, data] = SelectMice(CURdir); 
+    
+    for i = 1 : length(data)
+        data(i).Sessions = LoadRawData(data, MATpath, CURdir(i));
     end
 end
 
@@ -66,9 +74,6 @@ end
 % 
 % function LoadSavedSession
 % end
-% 
-% 
-% 
 % 
 % function ProcessReachVelocity
 % end
@@ -88,12 +93,6 @@ end
 % function FileExit(varargin)
 %         close all
 % end
-
-% 
-% function FindMouseSessions
-% end
-
-
 
 
 
@@ -116,3 +115,4 @@ end
 %     %Reach2Reach
 %     %Reach2Ideal
 % end
+end

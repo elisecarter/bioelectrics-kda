@@ -1,4 +1,4 @@
-function mouseIDs = SelectMice(CURdir)
+function [CURdir, data] = SelectMice(CURdir)
 % UI select mice to load data for
 
 % remove anything that is not a subdirectory in curator folder
@@ -16,7 +16,10 @@ prompt = 'Select Mice';
 [indx, ~] = listdlg('ListString',mouseIDs,'PromptString', prompt);
 
 CURdir = CURdir(indx); 
+mouseIDs = {CURdir.name};
 
+data = struct(...
+    'MouseIDs', mouseIDs);
 end
 
 
