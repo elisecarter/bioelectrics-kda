@@ -1,39 +1,38 @@
-function data = LoadRawData(data, MATpath, CURdir)
+function LoadRawData(MATpath, CURdir)
 % load raw data for selected mouse from Curator and Matlab 3D folders
 
-% go into the Curator folder for the mouse and pull out session names
-mouseDir = dir(fullfile(CURdir.folder, CURdir.name));
-mouseFiles = {mouseDir.name};
-% use only excel file names
-mouseFiles = mouseFiles(contains(mouseFiles,'.xlsx'));
+rawData = struct('Session',[],'ReachIndexPairs',[],'StimLogical',[],'pelletX_100',[],...
+    'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[],...
+    'pelletConfZ_10k',[],'handX_100',[],'handY_100',[],'handZ_100',[],...
+    'handConfXY_10k',[],'handConfZ_10k',[],'cropPts',[]); 
 
-% find Matlab_3D files with names matching mouse curator files and load
-for i = 1 : length(mouseFiles)
-fileStr = [mouseFiles{i}(1:27), '3D.mat'];
-MATfiles(i) = load(fullfile(MATpath,fileStr)); % uint16 array
-end
+for i = 1 : length(data) % i: mouse index
+    [sessionFiles,mouseDir] = FindSessions(CURdir(i));
 
-rawData = struct('pelletX_100',[],'pelletY_100',[],'pelletZ_100',[],...
-    'pelletConfXY_10k',[],'pelletConfZ_10k',[],'handX_100',[],...
-    'handY_100',[],'handZ_100',[],'handConfXY_10k',[],...
-    'handConfZ_10k',[],'cropPts',[]);
-% convert uint16 data in table3D to double, store in rawData
-for i = 1 : length(MATfiles)
-    for j = 1 : 10
-    %rawData(i).table3D{1,j}{:,:}=double(MATfiles(i).table3D{1,j}{:,:});
-    rawData(i).pelletX_100 = double(MATfiles(i).table3D{1,1}{:,:});
-    rawData(i).pelletY_100 = double(MATfiles(i).table3D{1,2}{:,:});
-    rawData(i).pelletZ_100 = double(MATfiles(i).table3D{1,3}{:,:});
-    rawData(i).pelletConfXY_10k = double(MATfiles(i).table3D{1,4}{:,:});
-    rawData(i).pelletConfZ_10k = double(MATfiles(i).table3D{1,5}{:,:});
-    rawData(i).handX_100 = double(MATfiles(i).table3D{1,6}{:,:});
-    rawData(i).handY_100 = double(MATfiles(i).table3D{1,7}{:,:});
-    rawData(i).handZ_100 = double(MATfiles(i).table3D{1,8}{:,:});
-    rawData(i).handConfXY_10k = double(MATfiles(i).table3D{1,9}{:,:});
-    rawData(i).handConfZ_10k = double(MATfiles(i).table3D{1,10}{:,:});
-    rawData(i).cropPts = MATfiles(i).table3D{1,11}{:,:};
+    % find Matlab_3D files with names matching mouse curator files and load
+    for j = 1 : length(sessionFiles) % j: session index
+        fileStr = [sessionFiles{j}(1:27), '3D.mat'];
+        MATdata = load(fullfile(MATpath,fileStr)); % uint16 array
+        CURdata = readtable(fullfile(mouseDir(j).folder,mouseDir(j).name));
+        % convert uint16 data in table3D to double, store in rawData
+        rawData(j).Session = MATdata.table3D.Properties.RowNames;
+        rawData(j).ReachIndexPairs = CURdata(:,1:3);
+        rawData(j).StimLogical = CURdata(:,4);
+        rawData(j).pelletX_100 = double(MATdata.table3D{1,1}{:,:});
+        rawData(j).pelletY_100 = double(MATdata.table3D{1,2}{:,:});
+        rawData(j).pelletZ_100 = double(MATdata.table3D{1,3}{:,:});
+        rawData(j).pelletConfXY_10k = double(MATdata.table3D{1,4}{:,:});
+        rawData(j).pelletConfZ_10k = double(MATdata.table3D{1,5}{:,:});
+        rawData(j).handX_100 = double(MATdata.table3D{1,6}{:,:});
+        rawData(j).handY_100 = double(MATdata.table3D{1,7}{:,:});
+        rawData(j).handZ_100 = double(MATdata.table3D{1,8}{:,:});
+        rawData(j).handConfXY_10k = double(MATdata.table3D{1,9}{:,:});
+        rawData(j).handConfZ_10k = double(MATdata.table3D{1,10}{:,:});
+        rawData(j).cropPts = MATdata.table3D{1,11}{:,:};
     end
+    % store raw data in data structure
+    data(i).RawData = rawData;
 end
 
-data = struct(...
-    'RawData', rawData);
+% data saved to files to be shared between callback functions
+save('datafiles.mat','data','-v7.3')

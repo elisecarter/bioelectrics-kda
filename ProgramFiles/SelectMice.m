@@ -14,7 +14,6 @@ mouseIDs = {CURdir.name};
 % UI select mice
 prompt = 'Select Mice';
 [indx, ~] = listdlg('ListString',mouseIDs,'PromptString', prompt);
-
 CURdir = CURdir(indx); 
 mouseIDs = {CURdir.name};
 
