@@ -46,8 +46,8 @@ uimenu(menu_file, 'Text', 'Export', 'Callback', @FileExport)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @QuitProgram)
 
 % process menu
-menu_file = uimenu(window, 'Label', 'File');
-uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @LoadData)
+%menu_file = uimenu(window, 'Label', 'File');
+%uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @LoadData)
 
 % change directory to Program Files so functions are on path
 cd ProgramFiles/
@@ -75,14 +75,12 @@ data = [];
         %else
         % call function to add to session or new session
 
-        [CURdir,data] = SelectMice(CURdir); %put inside load raw data?
+        [CURdir, data] = SelectMice(CURdir); %put inside load raw data?
         %meta = SelectMeta;
         data = LoadRawData(data, MATpath, CURdir);
-        
+         
     end
 
-%function ProcessReachVelocity
-%end
 
 % 
 % function LoadSavedSession

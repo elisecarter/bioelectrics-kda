@@ -1,6 +1,8 @@
 function data = LoadRawData(data, MATpath, CURdir)
 % load raw data for selected mouse from Curator and Matlab 3D folders
 
+f = waitbar(0,'Please wait...'); % create wait bar
+
 rawData = struct('Session',[],'ReachIndexPairs',[],...
     'StimLogical',[],'pelletX_100',[],...
     'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[],...
@@ -8,6 +10,10 @@ rawData = struct('Session',[],'ReachIndexPairs',[],...
     'handConfXY_10k',[],'handConfZ_10k',[]); 
 
 for i = 1 : length(data) % i: mouse index
+    
+    waitstr = "Loading and preprocessing data... (" + data(i).MouseIDs + ")";
+    waitbar(i/length(data),f,waitstr);
+
     [sessionFiles,mouseDir] = FindSessions(CURdir(i));
 
     % find Matlab_3D files with names matching mouse curator files and load
@@ -35,5 +41,6 @@ for i = 1 : length(data) % i: mouse index
     data(i).Sessions = PreprocessData(rawData);
 end
 
+close(f) % close waitbar
 
-save('tempdata.mat','data','-v7.3')
+save('temp.mat','data','-v7.3')
