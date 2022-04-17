@@ -18,7 +18,7 @@ CURdir = CURdir(indx);
 mouseIDs = {CURdir.name};
 
 data = struct(...
-    'MouseIDs', mouseID);
+    'MouseID', mouseIDs);
 end
 
 

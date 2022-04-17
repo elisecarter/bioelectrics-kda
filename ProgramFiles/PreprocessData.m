@@ -104,5 +104,4 @@ for i = 1 : length(RawData) % i: session
         Session(i).InitialToEnd(j).InterpolatedHandY_100 = interpY_end;
         Session(i).InitialToEnd(j).InterpolatedHandZ_100 = interpZ_end;
     end
-
 end

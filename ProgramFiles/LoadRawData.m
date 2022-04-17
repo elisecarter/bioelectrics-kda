@@ -3,18 +3,24 @@ function data = LoadRawData(data, MATpath, CURdir)
 
 f = waitbar(0,'Please wait...'); % create wait bar
 
-rawData = struct('Session',[],'ReachIndexPairs',[],...
-    'StimLogical',[],'pelletX_100',[],...
-    'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[],...
-    'pelletConfZ_10k',[],'handX_100',[],'handY_100',[],'handZ_100',[],...
-    'handConfXY_10k',[],'handConfZ_10k',[]); 
+% rawData = struct('Session',[],'ReachIndexPairs',[],...
+%     'StimLogical',[],'pelletX_100',[],...
+%     'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[],...
+%     'pelletConfZ_10k',[],'handX_100',[],'handY_100',[],'handZ_100',[],...
+%     'handConfXY_10k',[],'handConfZ_10k',[]); 
 
 for i = 1 : length(data) % i: mouse index
     
-    waitstr = "Loading and preprocessing data... (" + data(i).MouseIDs + ")";
+    waitstr = "Loading and preprocessing data... (" + data(i).MouseID + ")";
     waitbar(i/length(data),f,waitstr);
 
     [sessionFiles,mouseDir] = FindSessions(CURdir(i));
+    
+    rawData = struct('Session',[],'ReachIndexPairs',[],...
+            'StimLogical',[],'pelletX_100',[],...
+            'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[],...
+            'pelletConfZ_10k',[],'handX_100',[],'handY_100',[], ...
+            'handZ_100',[],'handConfXY_10k',[],'handConfZ_10k',[]);
 
     % find Matlab_3D files with names matching mouse curator files and load
     for j = 1 : length(sessionFiles) % j: session index
@@ -44,6 +50,8 @@ end
 waitstr = "Plotting final session trajectories...";
 waitbar(1,f,waitstr);
 PlotTrajectories(data)
+waitstr = "Done!";
+waitbar(1,f,waitstr);
 close(f) % close waitbar
 
 save('temp.mat','data','-v7.3')

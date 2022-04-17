@@ -38,7 +38,7 @@ for i = 1 : numMice
     plot(ax,avgReach(:,1), avgReach(:,2),'LineWidth', 2 ,'Color','#000000')
     xlabel(ax,'x (mm)')
     ylabel(ax,'y (mm)')
-    str = "Final session reaches: " + data(i).MouseIDs;
+    str = "Final session reaches: " + data(i).MouseID;
     title(ax,str)
 
     if i == numMice
@@ -54,6 +54,3 @@ for i = 1 : numMice
     set(fig, 'visible', 'off');
     hold(ax,"off")
 end
-
-waitstr = "Done!";
-waitbar(1,f,waitstr);
