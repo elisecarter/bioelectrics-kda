@@ -14,11 +14,11 @@ function kda
 
 % to do:
 % check for empty cur folders
-% size figures
+% size/center figures
 % checkboxes for add meta
 % opening text/pic/README
-% add wait bar for loadrawdata
 % load error when csv is open
+% raw velocity in preproccesing
 
 %% Setup, Create GUI
 clc; clear;
@@ -29,6 +29,7 @@ window = figure( ...
     'NumberTitle', 'off', ...
     'Color', '#DCFFE6', ...
     'MenuBar', 'none'); 
+ movegui(window,'center')
 
 % text to display on window
 %opening_str = {'','Kinematic Data Analysis of Mouse Reach Events', ...
@@ -46,8 +47,8 @@ uimenu(menu_file, 'Text', 'Export', 'Callback', @FileExport)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @QuitProgram)
 
 % process menu
-%menu_file = uimenu(window, 'Label', 'File');
-%uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @LoadData)
+menu_file = uimenu(window, 'Label', 'Process');
+uimenu(menu_file, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
 
 % change directory to Program Files so functions are on path
 cd ProgramFiles/
@@ -56,6 +57,8 @@ cd ProgramFiles/
 data = [];
 
 %% Callback Functions
+
+% File Menu
 
 % UI navigate to dirs, UI select mice, load raw data
     function LoadData(varargin)
@@ -81,11 +84,9 @@ data = [];
          
     end
 
-
-% 
 % function LoadSavedSession
 % end
-% 
+
 
 % 
 % % function PlotHistogram
@@ -94,16 +95,18 @@ data = [];
 % function PlotBoxPlot
 % end
 % 
-% function ExportJSON
-% JSONFILE_name= sprintf('JSON.json'); 
-%     fid=fopen(JSONFILE_name,'w'); 
-%     encodedJSON = jsonencode(data(1), PrettyPrint=true); 
-%     fprintf(fid, encodedJSON);
-% end
-% 
+function FileExportJSON
+    
+    [file,path,indx] = uiputfile('kda.json');
+    fid=fopen(file,'w'); 
+    encodedJSON = jsonencode(data(1), PrettyPrint=true); 
+    fprintf(fid, encodedJSON);
+end
+
 % function ExportMAT
 % end
 %     end
+
 function FileExit(varargin)
          close all
 end
@@ -111,9 +114,9 @@ end
 
 
 
-% %% Process
+% Process
 
-% function CalculateReachVelocities
+ function ProcessDynamicTimeWarping()
 %     %raw velocity
 %     %interp velocity
 %     %interp position
@@ -128,5 +131,5 @@ end
 %     %Day2Day
 %     %Reach2Reach
 %     %Reach2Ideal
-% end
+ end
 end

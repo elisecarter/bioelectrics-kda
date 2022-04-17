@@ -41,6 +41,9 @@ for i = 1 : length(data) % i: mouse index
     data(i).Sessions = PreprocessData(rawData);
 end
 
+waitstr = "Plotting final session trajectories...";
+waitbar(1,f,waitstr);
+PlotTrajectories(data)
 close(f) % close waitbar
 
 save('temp.mat','data','-v7.3')
