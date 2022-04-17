@@ -3,12 +3,10 @@ function PlotTrajectories(data)
 % final session for each mouse 
 
 numMice = length(data);
-fig = uifigure("Position",[100 100 700 550],'Visible','off');
+fig = uifigure('Name','Final Session Reaches', ...
+    'Position',[100 100 700 550],'Visible','off');
 movegui(fig,'center')
-ax = uiaxes(fig, Position=[75 75 550 400]);
-
-%fig = uifigure('visible','on'); %turn off
-%faxes = axes;
+ax = uiaxes(fig, Position=[75 75 550 450]);
 
 % iterate through reaches from final session
 for i = 1 : numMice
@@ -22,8 +20,6 @@ for i = 1 : numMice
     end
 
     numReaches = size(handX,2); %number of reaches in final session
-    %hold off %remove previous trajector MOVE THIS
-
     for k = 1 : numReaches
         % average reaches elementwise (x,y)
         avgReach(k,1) = mean(handX(k,:));
@@ -35,22 +31,24 @@ for i = 1 : numMice
     end
 
     % plot the average reach trajectory of final session
-    plot(ax,avgReach(:,1), avgReach(:,2),'LineWidth', 2 ,'Color','#000000')
+    plot(ax,avgReach(:,1), avgReach(:,2),'LineWidth', 1.5 ,'Color','#000000')
     xlabel(ax,'x (mm)')
     ylabel(ax,'y (mm)')
-    str = "Final session reaches: " + data(i).MouseID;
-    title(ax,str)
+    str1 = "Mouse ID: " + data(i).MouseID;
+    str2 = "Number of reaches: " + numReaches;
+    str3 = "Session: " + data(i).Sessions(end).SessionID;
+    title(ax,[str1, str2, str3],'Interpreter', 'none')
 
-    if i == numMice
-        btn = uicontrol(fig,'Position', [500 30 100 22], 'String', 'Close', ...
+    if i == numMice % see next mouse
+        btn = uicontrol(fig,'Position', [510 30 100 22], 'String', 'Close', ...
             'Callback', 'uiresume(gcbf)');
-    else
-        btn = uicontrol(fig,'Position', [500 30 100 22], 'String', 'Next', ...
+    else % seeing last mouse
+        btn = uicontrol(fig,'Position', [510 30 100 22], 'String', 'Next', ...
             'Callback', 'uiresume(gcbf)');
     end
 
-    set(fig, 'visible', 'on');
-    uiwait(fig)
-    set(fig, 'visible', 'off');
-    hold(ax,"off")
+    set(fig, 'visible', 'on'); % make figure visible after plotting
+    uiwait(fig) % wait for button press
+    set(fig, 'visible', 'off'); % make figure invisible
+    hold(ax,"off") % remove plotted lines
 end
