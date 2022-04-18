@@ -81,6 +81,7 @@ for i = 1 : length(RawData) % i: session
         interpX_max = interp1(samplePts,init2max.handX_100,queryPts,'pchip')';
         interpY_max = interp1(samplePts,init2max.handY_100,queryPts,'pchip')';
         interpZ_max = interp1(samplePts,init2max.handZ_100,queryPts,'pchip')';
+        interpEuc_max = [interpX_max interpY_max interpZ_max];
 
         % hand position preprocessing - initial to end
         samplePts = 1:length(init2end.handX_100);
@@ -89,19 +90,22 @@ for i = 1 : length(RawData) % i: session
         interpX_end = interp1(samplePts,init2end.handX_100,queryPts,'pchip')';
         interpY_end = interp1(samplePts,init2end.handY_100,queryPts,'pchip')';
         interpZ_end = interp1(samplePts,init2end.handZ_100,queryPts,'pchip')';
+        interpEuc_end = [interpX_end interpY_end interpZ_end];
 
         % store initial to max data
         Session(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
         Session(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
-        Session(i).InitialToMax(j).InterpolatedHandX_100 = interpX_max;
-        Session(i).InitialToMax(j).InterpolatedHandY_100 = interpY_max;
-        Session(i).InitialToMax(j).InterpolatedHandZ_100 = interpZ_max;
-        
+%         Session(i).InitialToMax(j).InterpolatedHandX_100 = interpX_max;
+%         Session(i).InitialToMax(j).InterpolatedHandY_100 = interpY_max;
+%         Session(i).InitialToMax(j).InterpolatedHandZ_100 = interpZ_max;
+        Session(i).InitialToMax(j).InterpolatedHandEuclidean_100 = interpEuc_max;
+
         %store initial to end data
         Session(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
         Session(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
-        Session(i).InitialToEnd(j).InterpolatedHandX_100 = interpX_end;
-        Session(i).InitialToEnd(j).InterpolatedHandY_100 = interpY_end;
-        Session(i).InitialToEnd(j).InterpolatedHandZ_100 = interpZ_end;
+%         Session(i).InitialToEnd(j).InterpolatedHandX_100 = interpX_end;
+%         Session(i).InitialToEnd(j).InterpolatedHandY_100 = interpY_end;
+%         Session(i).InitialToEnd(j).InterpolatedHandZ_100 = interpZ_end;
+        Session(i).InitialToEnd(j).InterpolatedHandEuclidean_100 = interpEuc_end;
     end
 end
