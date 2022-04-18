@@ -3,30 +3,25 @@ function kda
 %     Performs kinematic data analysis of mouse reach events
 %     with data obtained from the CLARA system. Locations of Curator
 %     and Matlab_3D folders are required. Users have the ability to run
-%     for certain mice or for all mice found in folder. Data can be
-%     exported in .json format. Data can also be saved
-% 
+%     for certain mice or for all mice found in folder. 
+%
 % Authors:
 %     Spencer Bowles
-% 
-%     Elise Carter 
-%         elise.carter@cuanschutz.edu
+%     Elise Carter (elise.carter@cuanschutz.edu)
 % 
 % Required add-ons:
 %     interparc by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34874-interparc
 %     arclength by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34871-arclength
-
+%
 % to do:
-% check for empty cur folders
-% size/center figures
-% checkboxes for add meta
-% opening text/pic/README
-% load error when csv is open
-% raw velocity in preproccesing
-% units: fps, or mm/sec
-% make traj plots figure title (Final Session Reaches)
-% add day, number of reaches to plot title
-% pick reach max/end for trajectory plots, option to see traj plots?
+%   add option to add meta (day of training, performance, end category,
+%   behaviors)
+%   opening text/read me for guidance
+%   raw velocity in preproccesing
+%   units: everything in mm? get rid of multipliers?
+%   pick reach max/end for trajectory plots?
+%   filter reaches (during exporting or during preprocessing?)
+%   .json file for each mouse? or collective?
 
 %% Create GUI
 
@@ -39,30 +34,36 @@ window = figure( ...
 movegui(window,'center')
 
 % text to display on window
-%opening_str = {'','Kinematic Data Analysis of Mouse Reach Events', ...
-%    '', '', '', '', 'Navigate using Toolbar'};
-%uicontrol(window, "Style", 'text', ...
-%    'String', opening_str, ...
-%    'BackgroundColor', '#DCFFE6', ...
-%    'Position', [155 120 250 200]);
+opening_str = {'','Kinematic Data Analysis of Mouse Reach Events', ...
+   '', '', '', '', 'Navigate using Toolbar'};
+uicontrol(window, "Style", 'text', ...
+   'String', opening_str, ...
+   'BackgroundColor', '#DCFFE6', ...
+   'Position', [155 120 250 200]);
 
-% file menu -- add accelerators?
+% file menu 
 menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
 uimenu(menu_file, 'Text', 'Load Saved Session', 'Callback', @FileLoadSavedSession)
 uimenu(menu_file, 'Text', 'Save As', 'Callback', @FileSaveAs)
-uimenu(menu_file, 'Text', 'Export', 'Callback', @FileExport)
+uimenu(menu_file, 'Text', 'Export', 'Callback', @FileExportJSON)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
 % process menu
 menu_file = uimenu(window, 'Label', 'Process');
-uimenu(menu_file, 'Text', 'Filter Reaches', 'Callback', @ProcessFilterReaches)
+uimenu(menu_file, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
+uimenu(menu_file, 'Text', 'Hand Arc Length', 'Callback', @ProcessFilterReaches)
+uimenu(menu_file, 'Text', 'Filter Reaches', 'Callback', @ProcessFilterReaches) %part of export json?
+
+% plot menu
+menu_file = uimenu(window, 'Label', 'Plot');
+uimenu(menu_file, 'Text', 'Reach Duration', 'Callback', @ProcessFilterReaches)
 uimenu(menu_file, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
 
-% change directory to Program Files so functions are on path
+% change directory to Program Files so program functions are on path
 cd ProgramFiles/
 
-% preallocation for callback function variables
+% initialize data for nested functions 
 data = [];
 
 %% Callback Functions
@@ -84,29 +85,35 @@ data = [];
         CURpath = uigetdir();
         CURdir = dir(CURpath);
 
-        %else
+        % else
         % call function to add to session or new session
-
-        [CURdir, data] = SelectMice(CURdir); %put inside load raw data?
-        %meta = SelectMeta;
-        data = LoadRawData(data, MATpath, CURdir);
+        
+        data = LoadRawData(MATpath, CURdir);
     end
 
-    function FileLoadSavedSession %%%%
+    function FileLoadSavedSession(varargin) %%%%
+        % add to current session or new session
+        %else 
+        % new
+        [file, path] = uigetfile('*.kda', 'Select Session File');
+        data = load(fullfile(path,file),'-mat');
     end
 
-
-    function FileSaveAs %%%%
+    function FileSaveAs(varargin) %%%%
+        % save data as .kda file (.mat file)
+        [file,path,~] = uiputfile('Session1.kda');
+        filename = fullfile(path,file);
+        save(filename,'data', '-mat')
     end
 
-
-    function FileExportJSON
-        [file,path,indx] = uiputfile('kda.json');
+    function FileExportJSON(varargin) %select mice??
+        % if empty,error
+        % else name file and save selected mice
+        [file,~,~] = uiputfile('Session1.json');
         fid=fopen(file,'w');
-        encodedJSON = jsonencode(data(1), PrettyPrint=true);
+        encodedJSON = jsonencode(data, PrettyPrint=true);
         fprintf(fid, encodedJSON);
     end
-
 
     function FileQuit(varargin)
         close all
@@ -114,21 +121,9 @@ data = [];
 
 % Process Menu
 
-    function ProcessDynamicTimeWarping()
-        %     %raw velocity
-        %     %interp velocity
-        %     %interp position
+    function ProcessDynamicTimeWarping
         %     %dynamic time warping normalized to pellet
         %     %hand arc length
-        % end
-        %
-        % function StoreMetaData
-        % end
-        %
-        % function ReachCorrelation
-        %     %Day2Day
-        %     %Reach2Reach
-        %     %Reach2Ideal
     end
 
 % Plot Menu
@@ -137,4 +132,10 @@ data = [];
 
     function PlotBoxPlot
     end
+    
+% function PlotReachCorrelation
+%     %Day2Day
+%     %Reach2Reach
+%     %Reach2Ideal
+% end
 end

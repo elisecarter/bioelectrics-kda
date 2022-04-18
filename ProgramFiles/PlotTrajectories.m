@@ -11,8 +11,8 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 % iterate through reaches from final session
 for i = 1 : numMice
     for j = 1 : length(data(i).Sessions(end).InitialToEnd)
-        tempX = data(i).Sessions(end).InitialToEnd(j).InterpolatedHandX_100;
-        tempY = data(i).Sessions(end).InitialToEnd(j).InterpolatedHandY_100;
+        tempX = data(i).Sessions(end).InitialToMax(j).InterpolatedHandEuclidean_100(:,1);
+        tempY = data(i).Sessions(end).InitialToMax(j).InterpolatedHandEuclidean_100(:,2);
 
         %9 pixels per mm, stored data from CLARA is multiplied by 100
         handX(:,j) = tempX./900;
@@ -40,10 +40,10 @@ for i = 1 : numMice
     title(ax,[str1, str2, str3],'Interpreter', 'none')
 
     if i == numMice % see next mouse
-        btn = uicontrol(fig,'Position', [510 30 100 22], 'String', 'Close', ...
+        btn = uicontrol(fig,'Position', [515 30 100 22], 'String', 'Close', ...
             'Callback', 'uiresume(gcbf)');
     else % seeing last mouse
-        btn = uicontrol(fig,'Position', [510 30 100 22], 'String', 'Next', ...
+        btn = uicontrol(fig,'Position', [515 30 100 22], 'String', 'Next', ...
             'Callback', 'uiresume(gcbf)');
     end
 
