@@ -2,11 +2,10 @@ function kda
 % Main function
 %     Performs kinematic data analysis of mouse reach events
 %     with data obtained from the CLARA system. Locations of Curator
-%     and Matlab_3D folders are required. Users have the ability to run
-%     for certain mice or for all mice found in folder. 
+%     and Matlab_3D folders are required. 
 %
 % Authors:
-%     Spencer Bowles
+%     Spencer Bowles 
 %     Elise Carter (elise.carter@cuanschutz.edu)
 % 
 % Required add-ons:
@@ -15,13 +14,19 @@ function kda
 %
 % to do:
 %   add option to add meta (day of training, performance, end category,
-%   behaviors)
+%   behaviors, add cohort tag(check is exists in cur))
 %   opening text/read me for guidance
-%   raw velocity in preproccesing
-%   units: everything in mm? get rid of multipliers?
-%   pick reach max/end for trajectory plots?
-%   filter reaches (during exporting or during preprocessing?)
-%   .json file for each mouse? or collective?
+%   store arclength when doing DTW
+%   add start and end of reaches to data
+%   add a back button on trajectory plots, save figure as
+%   folder w saved session data and saved figures (title: Mouse number, session)
+%   add summary data summary to program 
+%   
+% meeting:
+%   units: everything in mm? get rid of multipliers? (leave raw, convert
+%   processed)
+%   filter reaches during exporting or during preprocessing?
+%   
 
 %% Create GUI
 
@@ -80,7 +85,7 @@ data = [];
         %MATdir = dir(fullfile(MATpath, '*.mat'));
 
         % user navigate to curator folder
-        msg2 = msgbox('Select Curator Folder');
+        msg2 = msgbox('Select Curators Folder');
         uiwait(msg2)
         CURpath = uigetdir();
         CURdir = dir(CURpath);
@@ -106,7 +111,7 @@ data = [];
         save(filename,'data', '-mat')
     end
 
-    function FileExportJSON(varargin) %select mice??
+    function FileExportJSON(varargin) 
         % if empty,error
         % else name file and save selected mice
         [file,~,~] = uiputfile('Session1.json');
@@ -138,4 +143,5 @@ data = [];
 %     %Reach2Reach
 %     %Reach2Ideal
 % end
+% ADD RAW VELOCITY
 end
