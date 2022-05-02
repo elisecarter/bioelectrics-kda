@@ -55,12 +55,13 @@ for i = 1 : length(RawData) % i: session
             interpVel_max(k,:)=tempeuc_max(k+1,:) - tempeuc_max(k,:); %(x, y, z)
             
         end
-        interpVel_max(:,2)=interpVel_max(:,2)*-1;
-        samplePts=1:size(interpVel_max,1);
-        temp=(length(samplePts)-1)/99;
-        queryPts=1:temp:length(samplePts); % interpolate to have 100 pts
-        interpVel_max=interp1(samplePts,interpVel_max,queryPts,'pchip');
-        absVel_max=interp1(samplePts,absVel_max,queryPts,'pchip')';
+        interpVel_max(:,2) = interpVel_max(:,2)*-1;
+        rawVel_max = interpVel_max;
+        samplePts = 1:size(interpVel_max,1);
+        temp = (length(samplePts)-1)/99;
+        queryPts = 1:temp:length(samplePts); % interpolate to have 100 pts
+        interpVel_max = interp1(samplePts,interpVel_max,queryPts,'pchip');
+        absVel_max = interp1(samplePts,absVel_max,queryPts,'pchip')';
 
         % velocity preprocessing - intitial to end (pixels/frame)
         for k = 1 : height(tempeuc_end) - 1
@@ -68,6 +69,7 @@ for i = 1 : length(RawData) % i: session
             interpVel_end(k,:)=tempeuc_end(k+1,:) - tempeuc_end(k,:); %(x, y, z)
         end
         interpVel_end(:,2) = interpVel_end(:,2)*-1;
+        rawVel_end = interpVel_end;
         samplePts = 1:size(interpVel_end,1);
         temp = (length(samplePts)-1)/99;
         queryPts = 1:temp:length(samplePts); % interpolate to have 100 pts
@@ -93,6 +95,7 @@ for i = 1 : length(RawData) % i: session
         interpEuc_end = [interpX_end interpY_end interpZ_end];
 
         % store initial to max data
+        Session(i).InitialToMax(j).RawVelocity = rawVel_max;
         Session(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
         Session(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
 %         Session(i).InitialToMax(j).InterpolatedHandX_100 = interpX_max;
@@ -101,6 +104,7 @@ for i = 1 : length(RawData) % i: session
         Session(i).InitialToMax(j).InterpolatedHandEuclidean_100 = interpEuc_max;
 
         %store initial to end data
+        Session(i).InitialToEnd(j).RawVelocity = rawVel_end;
         Session(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
         Session(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
 %         Session(i).InitialToEnd(j).InterpolatedHandX_100 = interpX_end;
