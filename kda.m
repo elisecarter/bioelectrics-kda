@@ -14,13 +14,15 @@ function kda
 %
 % to do:
 %   add option to add meta (day of training, performance, end category,
-%   behaviors, add cohort tag(check is exists in cur))
-%   opening text/read me for guidance
-%   store arclength when doing DTW
-%   add start and end of reaches to data
+%   behaviors, add cohort tag (check if exists in cur)
+%   opening text/read me for guidance, data guide (units,multiplier)
+%%%   store arclength when doing DTW
+%   add start and end of reaches to data, reach dur?
 %   add a back button on trajectory plots, save figure as
 %   folder w saved session data and saved figures (title: Mouse number, session)
-%   add summary data summary to program 
+%   add data summary to program 
+%%%   check that all data matches spencers
+%   chackbox for processing steps (DTW,
 %   
 % meeting:
 %   units: everything in mm? get rid of multipliers? (leave raw, convert
@@ -71,9 +73,8 @@ cd ProgramFiles/
 % initialize data for nested functions 
 data = [];
 
-%% Callback Functions
 
-% File Menu
+%% File Menu
 
 % UI navigate to dirs, UI select mice, load raw data
     function FileLoadData(varargin)
@@ -82,7 +83,6 @@ data = [];
         msg1 = msgbox('Select Matlab_3D Folder');
         uiwait(msg1)
         MATpath = uigetdir();
-        %MATdir = dir(fullfile(MATpath, '*.mat'));
 
         % user navigate to curator folder
         msg2 = msgbox('Select Curators Folder');
@@ -94,6 +94,7 @@ data = [];
         % call function to add to session or new session
         
         data = LoadRawData(MATpath, CURdir);
+        %ShowSumary(window,data)
     end
 
     function FileLoadSavedSession(varargin) %%%%
@@ -115,7 +116,7 @@ data = [];
         % if empty,error
         % else name file and save selected mice
         [file,~,~] = uiputfile('Session1.json');
-        fid=fopen(file,'w');
+        fid = fopen(file,'w');
         encodedJSON = jsonencode(data, PrettyPrint=true);
         fprintf(fid, encodedJSON);
     end
@@ -124,14 +125,14 @@ data = [];
         close all
     end
 
-% Process Menu
+%% Process Menu
 
     function ProcessDynamicTimeWarping
         %     %dynamic time warping normalized to pellet
         %     %hand arc length
     end
 
-% Plot Menu
+%% Plot Menu
     function PlotHistogram
     end
 
@@ -143,5 +144,8 @@ data = [];
 %     %Reach2Reach
 %     %Reach2Ideal
 % end
-% ADD RAW VELOCITY
+
+    function ShowSummary(window,data)
+    end
+
 end

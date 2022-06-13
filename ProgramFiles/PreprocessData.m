@@ -75,24 +75,48 @@ for i = 1 : length(RawData) % i: session
         queryPts = 1:temp:length(samplePts); % interpolate to have 100 pts
         interpVel_end = interp1(samplePts,interpVel_end,queryPts,'pchip'); 
         absVel_end = interp1(samplePts,absVel_end,queryPts,'pchip')';
-        
+
         % hand position preprocessing - initial to max
+        x_smooth = smoothdata(init2max.handX_100, 'movmedian',3);
+        y_smooth = smoothdata(init2max.handY_100, 'movmedian',3);
+        z_smooth = smoothdata(init2max.handZ_100, 'movmedian',5);
+
         samplePts = 1:length(init2max.handX_100);
         temp = (length(samplePts)-1)/99;
         queryPts = 1:temp:length(samplePts);
-        interpX_max = interp1(samplePts,init2max.handX_100,queryPts,'pchip')';
-        interpY_max = interp1(samplePts,init2max.handY_100,queryPts,'pchip')';
-        interpZ_max = interp1(samplePts,init2max.handZ_100,queryPts,'pchip')';
+        interpX_max = interp1(samplePts,x_smooth,queryPts,'pchip')';
+        interpY_max = interp1(samplePts,y_smooth,queryPts,'pchip')';
+        interpZ_max = interp1(samplePts,z_smooth,queryPts,'pchip')';
         interpEuc_max = [interpX_max interpY_max interpZ_max];
 
         % hand position preprocessing - initial to end
+        x_smooth = smoothdata(init2end.handX_100, 'movmedian',3);
+        y_smooth = smoothdata(init2end.handY_100, 'movmedian',3);
+        z_smooth = smoothdata(init2end.handZ_100, 'movmedian',5);
+
         samplePts = 1:length(init2end.handX_100);
         temp = (length(samplePts)-1)/99;
         queryPts = 1:temp:length(samplePts);
-        interpX_end = interp1(samplePts,init2end.handX_100,queryPts,'pchip')';
-        interpY_end = interp1(samplePts,init2end.handY_100,queryPts,'pchip')';
-        interpZ_end = interp1(samplePts,init2end.handZ_100,queryPts,'pchip')';
+        interpX_end = interp1(samplePts,x_smooth,queryPts,'pchip')';
+        interpY_end = interp1(samplePts,y_smooth,queryPts,'pchip')';
+        interpZ_end = interp1(samplePts,z_smooth,queryPts,'pchip')';
         interpEuc_end = [interpX_end interpY_end interpZ_end];
+
+
+
+        %data = DynamicTimeWarping(init2end)
+        % dynamic time warping 
+        try
+            [pt,dudt,fofthandle] = interparc(0:0.01:1,...
+                init2max.,sessionReaches.DTWHandY{m},sessionReaches.DTWHandZ{m});
+        catch
+            B =(diff(sessionReaches.DTWHandX{m})~=0 & diff(sessionReaches.DTWHandY{m})~=0 & diff(sessionReaches.DTWHandZ{m})~=0);
+            sessionReaches.DTWHandX{m}=sessionReaches.DTWHandX{m}(B);
+            sessionReaches.DTWHandY{m}=sessionReaches.DTWHandY{m}(B);
+            sessionReaches.DTWHandZ{m}=sessionReaches.DTWHandZ{m}(B);
+            [pt,dudt,fofthandle] = interparc(0:0.01:1,...
+                sessionReaches.DTWHandX{m},sessionReaches.DTWHandY{m},sessionReaches.DTWHandZ{m});
+        end
 
         % store initial to max data
         Session(i).InitialToMax(j).RawVelocity = rawVel_max;
@@ -111,5 +135,7 @@ for i = 1 : length(RawData) % i: session
 %         Session(i).InitialToEnd(j).InterpolatedHandY_100 = interpY_end;
 %         Session(i).InitialToEnd(j).InterpolatedHandZ_100 = interpZ_end;
         Session(i).InitialToEnd(j).InterpolatedHandEuclidean_100 = interpEuc_end;
+
+
     end
 end
