@@ -77,9 +77,9 @@ for i = 1 : length(RawData) % i: session
         absVel_end = interp1(samplePts,absVel_end,queryPts,'pchip')';
 
         % hand position preprocessing - initial to max
-        x_smooth = smoothdata(init2max.handX_100, 'movmedian',3);
-        y_smooth = smoothdata(init2max.handY_100, 'movmedian',3);
-        z_smooth = smoothdata(init2max.handZ_100, 'movmedian',5);
+        x_smooth_max = smoothdata(init2max.handX_100, 'movmedian',3);
+        y_smooth_max = smoothdata(init2max.handY_100, 'movmedian',3);
+        z_smooth_max = smoothdata(init2max.handZ_100, 'movmedian',5);
 
         samplePts = 1:length(init2max.handX_100);
         temp = (length(samplePts)-1)/99;
@@ -90,9 +90,9 @@ for i = 1 : length(RawData) % i: session
         interpEuc_max = [interpX_max interpY_max interpZ_max];
 
         % hand position preprocessing - initial to end
-        x_smooth = smoothdata(init2end.handX_100, 'movmedian',3);
-        y_smooth = smoothdata(init2end.handY_100, 'movmedian',3);
-        z_smooth = smoothdata(init2end.handZ_100, 'movmedian',5);
+        x_smooth_end = smoothdata(init2end.handX_100, 'movmedian',3);
+        y_smooth_end = smoothdata(init2end.handY_100, 'movmedian',3);
+        z_smooth_end = smoothdata(init2end.handZ_100, 'movmedian',5);
 
         samplePts = 1:length(init2end.handX_100);
         temp = (length(samplePts)-1)/99;
@@ -102,21 +102,12 @@ for i = 1 : length(RawData) % i: session
         interpZ_end = interp1(samplePts,z_smooth,queryPts,'pchip')';
         interpEuc_end = [interpX_end interpY_end interpZ_end];
 
-
-
         %data = DynamicTimeWarping(init2end)
+
         % dynamic time warping 
-        try
-            [pt,dudt,fofthandle] = interparc(0:0.01:1,...
-                init2max.,sessionReaches.DTWHandY{m},sessionReaches.DTWHandZ{m});
-        catch
-            B =(diff(sessionReaches.DTWHandX{m})~=0 & diff(sessionReaches.DTWHandY{m})~=0 & diff(sessionReaches.DTWHandZ{m})~=0);
-            sessionReaches.DTWHandX{m}=sessionReaches.DTWHandX{m}(B);
-            sessionReaches.DTWHandY{m}=sessionReaches.DTWHandY{m}(B);
-            sessionReaches.DTWHandZ{m}=sessionReaches.DTWHandZ{m}(B);
-            [pt,dudt,fofthandle] = interparc(0:0.01:1,...
-                sessionReaches.DTWHandX{m},sessionReaches.DTWHandY{m},sessionReaches.DTWHandZ{m});
-        end
+        DTW_euc_max = DynamicTimeWarping(x_smooth_max,y_smooth_max,z_smooth_max);
+        DTW_euc_end = DynamicTimeWarping(x_smooth_end,y_smooth_end,z_smooth_end);
+        
 
         % store initial to max data
         Session(i).InitialToMax(j).RawVelocity = rawVel_max;

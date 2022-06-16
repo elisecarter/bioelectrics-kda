@@ -14,21 +14,21 @@ function kda
 %
 % to do:
 %   add option to add meta (day of training, performance, end category,
-%   behaviors, add cohort tag (check if exists in cur)
+%       behaviors, add cohort tag (check if exists in cur)
 %   opening text/read me for guidance, data guide (units,multiplier)
-%%%   store arclength when doing DTW
-%   add start and end of reaches to data, reach dur?
+%   STORE ARCLENGTH WHEN DOING DTW
+%   add start and end of reaches to data,     reach dur?
 %   add a back button on trajectory plots, save figure as
 %   folder w saved session data and saved figures (title: Mouse number, session)
 %   add data summary to program 
-%%%   check that all data matches spencers
-%   chackbox for processing steps (DTW,
+%   CHECK THAT ALL DATA MATCHES SPENCERS
+%   checkbox for processing steps (DTW,etc)
+%   CLEAN UP DATA PREPROCESSING
 %   
 % meeting:
 %   units: everything in mm? get rid of multipliers? (leave raw, convert
 %   processed)
 %   filter reaches during exporting or during preprocessing?
-%   
 
 %% Create GUI
 
@@ -68,11 +68,10 @@ uimenu(menu_file, 'Text', 'Reach Duration', 'Callback', @ProcessFilterReaches)
 uimenu(menu_file, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
 
 % change directory to Program Files so program functions are on path
-cd ProgramFiles/
+%cd ProgramFiles/
 
 % initialize data for nested functions 
 data = [];
-
 
 %% File Menu
 
