@@ -1,4 +1,8 @@
-function DTW_euclidean = DynamicTimeWarping(x,y,z)
+function [DTW_euclidean, arc_length] = DynamicTimeWarping(euc)
+
+x = euc(:,1);
+y = euc(:,2);
+z = euc(:,3);
 
 try
     [pt,~,~] = interparc(0:0.01:1, x, y, z);
@@ -12,5 +16,7 @@ catch % error in interparc due to position values staying same
 end
 
 DTW_euclidean = pt;
+
+arc_length = arclength(pt(:,1), pt(:,2), pt(:,3),'spline');
 
 end

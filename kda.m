@@ -15,11 +15,11 @@ function kda
 % to do:
 %   add option to add meta (day of training, performance, end category,
 %       behaviors, add cohort tag (check if exists in cur)
-%   opening text/read me for guidance, data guide (units,multiplier)
-%   STORE ARCLENGTH WHEN DOING DTW
-%   add start and end of reaches to data,     reach dur?
+%   opening text/read me for guidance, data guide (units, multiplier)
+%   STORE ARCLENGTH WHEN DOING DTW 
+%   add start and end of reaches to data, reach dur?
 %   add a back button on trajectory plots, save figure as
-%   folder w saved session data and saved figures (title: Mouse number, session)
+%   FOLDER W SAVED SESSION DATA AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
 %   add data summary to program 
 %   CHECK THAT ALL DATA MATCHES SPENCERS
 %   checkbox for processing steps (DTW,etc)
