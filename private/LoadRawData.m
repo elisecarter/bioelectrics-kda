@@ -10,7 +10,7 @@ for i = 1 : length(data) % i: mouse index
 
     [sessionFiles,mouseDir] = FindSessions(CURdir(i));
     
-    rawData = struct('Session',[],'ReachIndexPairs',[],...
+    raw_data = struct('Session',[],'ReachIndexPairs',[],...
             'StimLogical',[],'pelletX_100',[],...
             'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[],...
             'pelletConfZ_10k',[],'handX_100',[],'handY_100',[], ...
@@ -23,22 +23,22 @@ for i = 1 : length(data) % i: mouse index
         CURdata = readtable(fullfile(mouseDir(j).folder,mouseDir(j).name));
 
         % convert uint16 data in table3D to double, store in rawData
-        rawData(j).Session = MATdata.table3D.Properties.RowNames;
-        rawData(j).ReachIndexPairs = CURdata(:,1:3);
-        rawData(j).StimLogical = logical(table2array(CURdata(:,4)));
-        rawData(j).pelletX_100 = double(MATdata.table3D{1,1}{:,:});
-        rawData(j).pelletY_100 = double(MATdata.table3D{1,2}{:,:});
-        rawData(j).pelletZ_100 = double(MATdata.table3D{1,3}{:,:});
-        rawData(j).pelletConfXY_10k = double(MATdata.table3D{1,4}{:,:});
-        rawData(j).pelletConfZ_10k = double(MATdata.table3D{1,5}{:,:});
-        rawData(j).handX_100 = double(MATdata.table3D{1,6}{:,:});
-        rawData(j).handY_100 = double(MATdata.table3D{1,7}{:,:});
-        rawData(j).handZ_100 = double(MATdata.table3D{1,8}{:,:});
-        rawData(j).handConfXY_10k = double(MATdata.table3D{1,9}{:,:});
-        rawData(j).handConfZ_10k = double(MATdata.table3D{1,10}{:,:});
+        raw_data(j).Session = MATdata.table3D.Properties.RowNames;
+        raw_data(j).ReachIndexPairs = CURdata(:,1:3);
+        raw_data(j).StimLogical = logical(table2array(CURdata(:,4)));
+        raw_data(j).pelletX_100 = double(MATdata.table3D{1,1}{:,:});
+        raw_data(j).pelletY_100 = double(MATdata.table3D{1,2}{:,:});
+        raw_data(j).pelletZ_100 = double(MATdata.table3D{1,3}{:,:});
+        raw_data(j).pelletConfXY_10k = double(MATdata.table3D{1,4}{:,:});
+        raw_data(j).pelletConfZ_10k = double(MATdata.table3D{1,5}{:,:});
+        raw_data(j).handX_100 = double(MATdata.table3D{1,6}{:,:});
+        raw_data(j).handY_100 = double(MATdata.table3D{1,7}{:,:});
+        raw_data(j).handZ_100 = double(MATdata.table3D{1,8}{:,:});
+        raw_data(j).handConfXY_10k = double(MATdata.table3D{1,9}{:,:});
+        raw_data(j).handConfZ_10k = double(MATdata.table3D{1,10}{:,:});
     end
     % preprocess, store session reach data in data struct
-    data(i).Sessions = PreprocessData(rawData);
+    data(i).Sessions = ProcessReachEvents(raw_data);
 end
 
 waitstr = "Plotting final session trajectories...";
@@ -48,4 +48,4 @@ waitstr = "Done!";
 waitbar(1,f,waitstr);
 close(f) % close waitbar
 
-save('temp.mat','data','-v7.3')
+%save('temp.mat','data','-v7.3')

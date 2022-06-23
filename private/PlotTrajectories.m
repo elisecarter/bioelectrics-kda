@@ -11,8 +11,8 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 % iterate through reaches from final session
 for i = 1 : numMice
     for j = 1 : length(data(i).Sessions(end).InitialToEnd)
-        tempX = data(i).Sessions(end).InitialToMax(j).InterpolatedHandEuclidean_100(:,1);
-        tempY = data(i).Sessions(end).InitialToMax(j).InterpolatedHandEuclidean_100(:,2);
+        tempX = data(i).Sessions(end).InitialToMax(j).InterpolatedHandEuc_100(:,1);
+        tempY = data(i).Sessions(end).InitialToMax(j).InterpolatedHandEuc_100(:,2);
 
         %9 pixels per mm, stored data from CLARA is multiplied by 100
         handX(:,j) = tempX./900;
