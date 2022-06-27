@@ -43,9 +43,9 @@ end
 
 waitstr = "Plotting final session trajectories...";
 waitbar(1,f,waitstr);
-PlotTrajectories(data)
+ReviewFinalTrajectories(data)
 waitstr = "Done!";
 waitbar(1,f,waitstr);
 close(f) % close waitbar
 
-%save('temp.mat','data','-v7.3')
+save('temp.mat','data','-v7.3')

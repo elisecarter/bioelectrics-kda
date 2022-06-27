@@ -16,14 +16,13 @@ function kda
 %   add option to add meta (day of training, performance, end category,
 %       behaviors, add cohort tag (check if exists in cur)
 %   opening text/read me for guidance, data guide (units, multiplier)
-%   STORE ARCLENGTH WHEN DOING DTW 
 %   add start and end of reaches to data, reach dur?
-%   add a back button on trajectory plots, save figure as
-%   FOLDER W SAVED SESSION DATA AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
+%   FOLDER W SAVED SESSION DATA (.CSV for each mouse) AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
 %   add data summary to program 
-%   CHECK THAT ALL DATA MATCHES SPENCERS
 %   checkbox for processing steps (DTW,etc)
-%   CLEAN UP DATA PREPROCESSING
+%   fix wait bar
+%   after click load data, ask user if they want to save figures
+%   error catching
 %   
 % meeting:
 %   units: everything in mm? get rid of multipliers? (leave raw, convert
@@ -52,7 +51,7 @@ uicontrol(window, "Style", 'text', ...
 menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
 uimenu(menu_file, 'Text', 'Load Saved Session', 'Callback', @FileLoadSavedSession)
-uimenu(menu_file, 'Text', 'Save As', 'Callback', @FileSaveAs)
+uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
 uimenu(menu_file, 'Text', 'Export', 'Callback', @FileExportJSON)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
@@ -66,9 +65,6 @@ uimenu(menu_file, 'Text', 'Filter Reaches', 'Callback', @ProcessFilterReaches) %
 menu_file = uimenu(window, 'Label', 'Plot');
 uimenu(menu_file, 'Text', 'Reach Duration', 'Callback', @ProcessFilterReaches)
 uimenu(menu_file, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
-
-% change directory to Program Files so program functions are on path
-%cd ProgramFiles/
 
 % initialize data for nested functions 
 data = [];
@@ -89,10 +85,18 @@ data = [];
         CURpath = uigetdir();
         CURdir = dir(CURpath);
 
+        % user navigate to output directory
+        msg3 = msgbox('Navigate to Output Directory');
+        uiwait(msg3)
+        OUTpath = uigetdir();
+
         % else
         % call function to add to session or new session
         
+        % clean this up eventually
         data = LoadRawData(MATpath, CURdir);
+        OutputData(data, OUTpath)
+
         %ShowSumary(window,data)
     end
 
@@ -104,7 +108,7 @@ data = [];
         data = load(fullfile(path,file),'-mat');
     end
 
-    function FileSaveAs(varargin) %%%%
+    function FileSaveSession(varargin) %%%%
         % save data as .kda file (.mat file)
         [file,path,~] = uiputfile('Session1.kda');
         filename = fullfile(path,file);
