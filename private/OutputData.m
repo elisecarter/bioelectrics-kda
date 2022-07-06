@@ -1,20 +1,16 @@
 function OutputData(data, OUTpath)
 
-%csvfolder_name = "CSV Files";
-trajplot_folder = "Trajectory Plots";
-
+plot_folder = "Trajectory Plots";
 for i = 1:length(data)
     folder_name = data(i).MouseID;
-    folder_path = sprintf('%s/%s',OUTpath,folder_name);
+    folder_path = fullfile(OUTpath,folder_name);
     mkdir(folder_path)
     
-%     csv_path = sprintf('%s/%s',folder_path,csvfolder_name);
-%     mkdir(csv_path)
-% 
-%     CreateCSV(data(i),csv_path);
-    traj_plot_path = sprintf('%s/%s',folder_path,trajplot_folder);
-    mkdir(traj_plot_path)
-    PlotTrajectories(data(i),traj_plot_path)
+    plot_path = fullfile(folder_path,plot_folder);
+    mkdir(plot_path)
 
+    PlotTrajectories(data(i),plot_path)
+    SaveJSON(data(i), folder_path)
+    
 end
 

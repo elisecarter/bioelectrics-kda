@@ -1,6 +1,6 @@
 function PlotTrajectories(mouse_data,path)
 
-figure("Visible","on") %change visibilty
+figure("Visible","off") %change visibilty
 
 for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
     session_data = mouse_data.Sessions(i);
