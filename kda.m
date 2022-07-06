@@ -17,12 +17,13 @@ function kda
 %       behaviors, add cohort tag (check if exists in cur)
 %   opening text/read me for guidance, data guide (units, multiplier)
 %   add start and end of reaches to data, reach dur?
-%   FOLDER W SAVED SESSION DATA (.CSV for each mouse) AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
+%   FOLDER W SAVED SESSION DATA (.json, .mat for each mouse) AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
 %   add data summary to program 
-%   checkbox for processing steps (DTW,etc)
+%   checkbox for processing steps (DTW,arclength,velocity?)
 %   fix wait bar
 %   after click load data, ask user if they want to save figures
-%   error catching
+%   error catching - which mouse?
+%   if there is an empty cell make it a zero (stim)
 %   
 % meeting:
 %   units: everything in mm? get rid of multipliers? (leave raw, convert
