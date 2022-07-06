@@ -10,7 +10,7 @@ function  [SessionData] = ProcessReachEvents(RawData)
 SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
     'InitialToEnd',[],'StimLogical',[]);
 
-for i = 1 : length(RawData) % i: session
+for i = 1 : length(RawData) %iterate thru sessions
     session_data = RawData(i);
     indx = table2array(session_data.ReachIndexPairs);
 
@@ -24,18 +24,16 @@ for i = 1 : length(RawData) % i: session
         'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[], ...
         'pelletConfZ_10k',[]);
 
-    % preprocessing 
-    k = 1;
-    for j = 1 : height(indx)
-         reach_start = indx(j,1);
-         reach_end = indx(j,3);
+    % remove impossibly short reaches
+    end_duration = indx(:,3) - indx(:,1); %frames
+    max_duration = indx(:,2) - indx(:,1);
+    too_short = end_duration < 5 | max_duration < 2;
+    indx(too_short) = [];
 
-        % remove impossibly short reaches (<5 frames)
-        reach_dur = reach_end - reach_start; %frames
-        if reach_dur < 5
-            indx(j,:) = [];
-        end
-            
+    % preprocessing
+    k = 1;
+    for j = 1 : height(indx) %iterate thru session reaches
+         reach_start = indx(j,1);
         % find pellet location
         init_frames = reach_start:reach_start+3; %first 3 frames of reach
         conf_xy = session_data.pelletConfXY_10k(init_frames); 
