@@ -4,8 +4,8 @@ function data = LoadRawData(MATpath, CURdir)
 [CURdir, data] = SelectMice(CURdir);
 f = waitbar(0,'Please wait...'); % create wait bar
 
-for i = 1 : length(data) % i: mouse index
-    waitstr = "Loading and preprocessing data... (" + data(i).MouseID + ")";
+for i = 1:length(data) % i: mouse index
+    waitstr = "Loading raw data... (" + data(i).MouseID + ")";
     waitbar(i/length(data),f,waitstr);
 
     [sessionFiles,mouseDir] = FindSessions(CURdir(i));
@@ -17,7 +17,8 @@ for i = 1 : length(data) % i: mouse index
             'handZ_100',[],'handConfXY_10k',[],'handConfZ_10k',[]);
 
     % find Matlab_3D files with names matching mouse curator files and load
-    for j = 1 : length(sessionFiles) % j: session index
+    for j = 1:length(sessionFiles) % j: session index
+
         fileStr = [sessionFiles{j}(1:27), '3D.mat'];
         MATdata = load(fullfile(MATpath,fileStr)); % uint16 array
         CURdata = readtable(fullfile(mouseDir(j).folder,mouseDir(j).name));
@@ -37,15 +38,7 @@ for i = 1 : length(data) % i: mouse index
         raw_data(j).handConfXY_10k = double(MATdata.table3D{1,9}{:,:});
         raw_data(j).handConfZ_10k = double(MATdata.table3D{1,10}{:,:});
     end
-    % preprocess, store session reach data in data struct
-    data(i).Sessions = ProcessReachEvents(raw_data);
+    data(i).RawData = raw_data;
 end
-
-waitstr = "Plotting final session trajectories...";
-waitbar(1,f,waitstr);
-ReviewFinalTrajectories(data)
-waitstr = "Done!";
-waitbar(1,f,waitstr);
-close(f) % close waitbar
-
-save('temp.mat','data','-v7.3')
+close(f)
+    
