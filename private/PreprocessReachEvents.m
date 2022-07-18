@@ -1,10 +1,8 @@
-function  [SessionData] = ProcessReachEvents(RawData)
+function  [SessionData] = PreprocessReachEvents(RawData)
 % iterates through all reaches in each session and filters data to 
 % keep only reach events, calculates interpolated position/velocity, 
 % dynamic time warping of hand position, hand arc length, 
 % and normalizes dynamic time warped hand data to pellet location
-
-% NEXT STEPS: add a function to select number of interpolated pts?
 
 % preallocate session structure
 SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
@@ -13,16 +11,6 @@ SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
 for i = 1 : length(RawData) %iterate thru sessions
     session_data = RawData(i);
     indx = table2array(session_data.ReachIndexPairs);
-
-    %preallocate structs to hold data indexed at reach events for each session
-    init2max = struct('handX_100',[],'handY_100',[],'handZ_100',[], ...
-        'handConfXY_10k',[],'handConfZ_10k',[],'pelletX_100',[], ...
-        'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[], ...
-        'pelletConfZ_10k',[]);
-    init2end = struct('handX_100',[],'handY_100',[],'handZ_100',[], ...
-        'handConfXY_10k',[],'handConfZ_10k',[],'pelletX_100',[], ...
-        'pelletY_100',[],'pelletZ_100',[],'pelletConfXY_10k',[], ...
-        'pelletConfZ_10k',[]);
 
     % remove impossibly short reaches
     end_duration = indx(:,3) - indx(:,1); %frames
@@ -67,11 +55,7 @@ for i = 1 : length(RawData) %iterate thru sessions
             'UniformOutput', false);
         init2end = structfun(@(x) x(startInd:endInd), session_data, ...
             'UniformOutput', false);
-
-        % mean pellet location in this reach 
-        % (given confidence in the location of pellet at beginning of reach > 90 percent)
         
-
         % euclidean matrix of raw hand position data
         tempeuc_max =[init2max.handX_100' init2max.handY_100' init2max.handZ_100'];
         tempeuc_end =[init2end.handX_100' init2end.handY_100' init2end.handZ_100'];
