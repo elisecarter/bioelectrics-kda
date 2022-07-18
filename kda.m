@@ -24,7 +24,7 @@ movegui(window,'center')
 
 % text to display on window
 opening_str = {'','Kinematic Data Analysis of Mouse Reach Events', ...
-   '', '', '', '', 'Navigate using Toolbar'};
+   '', '', '', 'Navigate using Toolbar'};
 uicontrol(window, "Style", 'text', ...
    'String', opening_str, ...
    'BackgroundColor', '#DCFFE6', ...
@@ -35,21 +35,20 @@ menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
 uimenu(menu_file, 'Text', 'Load Saved Session', 'Callback', @FileLoadSavedSession)
 uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
-%uimenu(menu_file, 'Text', 'Export', 'Callback', @FileExportJSON)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
 % process menu
-menu_file = uimenu(window, 'Label', 'Process');
-%uimenu(menu_file, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
-%uimenu(menu_file, 'Text', 'Hand Arc Length', 'Callback', @ProcessFilterReaches)
-%uimenu(menu_file, 'Text', 'Filter Reaches', 'Callback', @ProcessFilterReaches) %part of export json?
+%menu_process = uimenu(window, 'Label', 'Process');
+%uimenu(menu_process, 'Text', 'Dynamic Time Warping', 'Callback', @ProcessDynamicTimeWarping)
+%uimenu(menu_process, 'Text', 'Hand Arc Length', 'Callback', @ProcessFilterReaches)
+%uimenu(menu_process, 'Text', 'Filter Reaches', 'Callback', @ProcessFilterReaches) %part of export json?
 
 % Statistics menu
-menu_file = uimenu(window, 'Label', 'Statistics');
-uimenu(menu_file, 'Text', 'Reach Duration', 'Callback', @StatsReachDuration)
-uimenu(menu_file, 'Text', 'Velocity', 'Callback', @StatsVelocity)
-uimenu(menu_file, 'Text', 'Velocity', 'Callback', @StatsVelocity)
-
+menu_stats = uimenu(window, 'Label', 'Statistics');
+uimenu(menu_stats, 'Text', 'Reach Duration', 'Callback', @StatsReachDuration)
+uimenu(menu_stats, 'Text', 'Velocity', 'Callback', @StatsVelocity)
+uimenu(menu_stats, 'Text', 'Path Length', 'Callback', @StatsPathLength)
+uimenu(menu_stats, 'Text', 'Path Length', 'Callback', @StatsPathLength)
 
 % initialize data for nested functions 
 data = [];
@@ -58,7 +57,11 @@ data = [];
 
 % UI navigate to dirs, UI select mice, load raw data
     function FileLoadData(varargin)
-        %if  isempty(data)
+      %add to session or new session
+      %if  ~isempty(data)    
+      %else
+      %end
+        
         % user naviagate to Matlab_3D folder
         msg1 = msgbox('Select Matlab_3D Folder');
         uiwait(msg1)
@@ -87,8 +90,6 @@ data = [];
             return
         end
 
-        % else
-        % call function to add to session or new session
         
         % clean this up eventually
         data = LoadRawData(MATpath, CURdir);
@@ -112,40 +113,10 @@ data = [];
         save(filename,'data', '-mat')
     end
 
-    function FileExportJSON(varargin) 
-        % if empty,error
-        % else name file and save selected mice
-        [file,~,~] = uiputfile('Session1.json');
-        fid = fopen(file,'w');
-        encodedJSON = jsonencode(data, PrettyPrint=true);
-        fprintf(fid, encodedJSON);
-    end
-
     function FileQuit(varargin)
         close all
     end
 
-%% Process Menu
 
-    function ProcessDynamicTimeWarping
-        %     %dynamic time warping normalized to pellet
-        %     %hand arc length
-    end
-
-%% Plot Menu
-    function PlotHistogram
-    end
-
-    function PlotBoxPlot
-    end
-    
-% function PlotReachCorrelation
-%     %Day2Day
-%     %Reach2Reach
-%     %Reach2Ideal
-% end
-
-    function ShowSummary(window,data)
-    end
 
 end
