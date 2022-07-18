@@ -17,14 +17,17 @@ function kda
 %       behaviors, add cohort tag (check if exists in cur)
 %   opening text/read me for guidance, data guide (units, multiplier)
 %   add start and end of reaches to data, reach dur?
-%   FOLDER W SAVED SESSION DATA (.json, .mat for each mouse) AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
+%   FOLDER W SAVED SESSION DATA (.json, .kda for each mouse) AND SAVED FIGURES (TITLE: MOUSE NUMBER, SESSION)
 %   add data summary to program 
 %   checkbox for processing steps (DTW,arclength,velocity?)
 %   fix wait bar
 %   after click load data, ask user if they want to save figures
-%   error catching - which mouse?
+%   error catching - tell user which mouse
 %   if there is an empty cell make it a zero (stim)
-%   
+%   units
+%   add key to plots
+%   make sure loading saved sessions will let you load multiple (either a
+%   whole folder or select indiv .kda files
 % meeting:
 %   units: everything in mm? get rid of multipliers? (leave raw, convert
 %   processed)
@@ -79,17 +82,29 @@ data = [];
         msg1 = msgbox('Select Matlab_3D Folder');
         uiwait(msg1)
         MATpath = uigetdir();
+        if MATpath == 0
+            warning('User cancelled: No Matlab_3D folder selected.')
+            return
+        end
 
         % user navigate to curator folder
         msg2 = msgbox('Select Curators Folder');
         uiwait(msg2)
         CURpath = uigetdir();
+        if CURpath == 0
+            warning('User cancelled: No Curator folder selected.')
+            return
+        end
         CURdir = dir(CURpath);
 
         % user navigate to output directory
         msg3 = msgbox('Navigate to Output Directory');
         uiwait(msg3)
         OUTpath = uigetdir();
+        if OUTpath == 0
+            warning('User cancelled: No Output folder selected.')
+            return
+        end
 
         % else
         % call function to add to session or new session
