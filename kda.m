@@ -95,7 +95,7 @@ data = [];
             data{datacount+i} = struct('MouseID',mouseIDs(i));
         end
         data = LoadRawData(data, MATpath,CURdir);
-        %DataSummary(data)
+        DataSummary(data,window)
     end
 
     function FileLoadSavedSession(varargin)
@@ -126,6 +126,8 @@ data = [];
             datacount = datacount+1;
             data{datacount} = load(fullfile(path,file),'-mat');
         end
+        
+        DataSummary(data,window)
     end
 
     function FileSaveSession(varargin) %%%%
@@ -160,11 +162,12 @@ data = [];
             waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
             waitbar(i/length(data),f,waitstr);
             data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
+            data{i}.Status = 'Preprocessed';
         end
         close(f)
         ReviewFinalTrajectories(data)
         OutputData(data, OUTpath)
-        %DataSummary(data)
+        DataSummary(data,window)
     end
 
 end

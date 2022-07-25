@@ -38,6 +38,7 @@ for i = 1:length(data) % i: mouse index
         raw_data(j).handConfZ_10k = double(MATdata.table3D{1,10}{:,:});
     end
     data{i}.RawData = raw_data;
+    data{i}.Status = 'Raw';
 end
 close(f)
     
