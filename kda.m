@@ -33,7 +33,7 @@ uicontrol(window, "Style", 'text', ...
 % file menu
 menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
-uimenu(menu_file, 'Text', 'Load Saved Session', 'Callback', @FileLoadSavedSession)
+uimenu(menu_file, 'Text', 'Load Saved Session File(s)', 'Callback', @FileLoadSavedSession)
 uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
@@ -46,7 +46,6 @@ menu_stats = uimenu(window, 'Label', 'Statistics');
 uimenu(menu_stats, 'Text', 'Reach Duration', 'Callback', @StatsReachDuration)
 uimenu(menu_stats, 'Text', 'Velocity', 'Callback', @StatsVelocity)
 uimenu(menu_stats, 'Text', 'Path Length', 'Callback', @StatsPathLength)
-%uimenu(menu_stats, 'Text', 'Path Length', 'Callback', @StatsPathLength)
 
 % initialize data for nested functions
 data = [];
@@ -56,9 +55,18 @@ data = [];
 % UI navigate to dirs, UI select mice, load raw data
     function FileLoadData(varargin)
         %add to session or new session
-        %if  ~isempty(data)
-        %else
-        %end
+        if  ~isempty(data)
+            quest = 'Would you like to start a new session or add the the current session?';
+            dlgtitle = 'New Session or Add to Session';
+            btn1 = 'New Session';
+            btn2 = 'Add to current session';
+            defbtn = 'Add to current session';
+            answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
+
+            if strcmpi(answer,btn1)
+                data = [];
+            end
+        end
 
         % user naviagate to Matlab_3D folder
         msg1 = msgbox('Select Matlab_3D Folder');
@@ -79,11 +87,64 @@ data = [];
         end
         CURdir = dir(CURpath);
 
-        data = LoadRawData(MATpath, CURdir);
+        [CURdir, mouseIDs] = SelectMice(CURdir);
+        
+        datacount = length(data);
+        for i = 1:length(mouseIDs)
+            data{datacount+i} = struct('MouseID',mouseIDs(i));
+        end
+        data = LoadRawData(data, MATpath,CURdir);
         %DataSummary(data)
     end
 
-    function ProcessPreprocessData(varargin)
+    function FileLoadSavedSession(varargin)
+        %add to session or new session
+        if  ~isempty(data)
+            quest = 'Would you like to start a new session or add the the current session?';
+            dlgtitle = 'New Session or Add to Session';
+            btn1 = 'New Session';
+            btn2 = 'Add to current session';
+            defbtn = 'Add to current session';
+            answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
+
+            if strcmpi(answer,btn1)
+                data = [];
+            end
+        end
+
+        datacount = length(data);
+
+        %user navigate to .kda file(s)
+        [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
+        if iscell(file)
+            for i = 1:length(file)
+                datacount = datacount+1;
+                data{datacount} = load(fullfile(path,file{i}),'-mat');
+            end
+        else
+            datacount = datacount+1;
+            data{datacount} = load(fullfile(path,file),'-mat');
+        end
+    end
+
+    function FileSaveSession(varargin) %%%%
+        if isempty(data)
+            error('No session data to save.')
+        end
+
+        % save data as .kda file (.mat file)
+        path = uigetdir();
+        for i = 1:length(data)
+            SaveKdaFile(data{i},path)
+        end
+    end
+
+    function FileQuit(varargin)
+        close all
+    end 
+
+%% Process Menu
+function ProcessPreprocessData(varargin)
         % user navigate to output directory
         msg3 = msgbox('Navigate to Output Directory');
         uiwait(msg3)
@@ -95,33 +156,14 @@ data = [];
 
         f = waitbar(0,'Please wait...'); % create wait bar
         for i = 1:length(data)
-            waitstr = "Preprocessing raw data... (" + data(i).MouseID + ")";
+            waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
             waitbar(i/length(data),f,waitstr);
-            data(i).Sessions = PreprocessReachEvents(data(i).RawData);
+            data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
         end
         close(f)
         ReviewFinalTrajectories(data)
         OutputData(data, OUTpath)
         %DataSummary(data)
     end
-
-    function FileLoadSavedSession(varargin) %%%%
-        % add to current session or new session
-        %else
-        % new
-        [file, path] = uigetfile('*.kda', 'Select Session File');
-        data = load(fullfile(path,file),'-mat');
-    end
-
-    function FileSaveSession(varargin) %%%%
-        % save data as .kda file (.mat file)
-        [file,path,~] = uiputfile('Session1.kda');
-        filename = fullfile(path,file);
-        save(filename,'data', '-mat')
-    end
-
-    function FileQuit(varargin)
-        close all
-    end 
 
 end
