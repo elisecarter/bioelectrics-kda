@@ -85,10 +85,11 @@ data = [];
             warning('User cancelled: No Curator folder selected.')
             return
         end
-        CURdir = dir(CURpath);
 
-        [CURdir, mouseIDs] = SelectMice(CURdir);
-        
+        [mouseIDs,CURdir] = GetMouseIDs(CURpath);
+        [mouseIDs,indx] = SelectMice(mouseIDs);
+        CURdir = CURdir(indx);
+
         datacount = length(data);
         for i = 1:length(mouseIDs)
             data{datacount+i} = struct('MouseID',mouseIDs(i));
@@ -141,10 +142,10 @@ data = [];
 
     function FileQuit(varargin)
         close all
-    end 
+    end
 
 %% Process Menu
-function ProcessPreprocessData(varargin)
+    function ProcessPreprocessData(varargin)
         % user navigate to output directory
         msg3 = msgbox('Navigate to Output Directory');
         uiwait(msg3)
