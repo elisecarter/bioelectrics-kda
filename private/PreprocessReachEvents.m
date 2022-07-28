@@ -9,8 +9,17 @@ SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
     'InitialToEnd',[],'StimLogical',[]);
 
 for i = 1 : length(RawData) %iterate thru sessions
-    session_data = RawData(i);
-    indx = table2array(session_data.ReachIndexPairs);
+    session_raw = RawData(i);
+    indx = table2array(session_raw.ReachIndexPairs);%pull out reach indices
+
+    % save session level info before deleting so we can use structfun
+    SessionData(i).SessionID = session_raw.Session;
+    SessionData(i).StimLogical = session_raw.StimLogical;
+    
+    % remove unneeded fields
+    session_raw = rmfield(session_raw,'Session');
+    session_raw = rmfield(session_raw,'ReachIndexPairs');
+    session_raw = rmfield(session_raw,'StimLogical');
 
     % remove impossibly short reaches
     end_duration = indx(:,3) - indx(:,1); %frames
@@ -21,29 +30,21 @@ for i = 1 : length(RawData) %iterate thru sessions
     % preprocessing
     k = 1;
     for j = 1 : height(indx) %iterate thru session reaches
-         reach_start = indx(j,1);
+        reach_start = indx(j,1);
         % find pellet location
         init_frames = reach_start:reach_start+3; %first 3 frames of reach
-        conf_xy = session_data.pelletConfXY_10k(init_frames); 
-        conf_z = session_data.pelletConfZ_10k(init_frames);
+        conf_xy = session_raw.pelletConfXY_10k(init_frames);
+        conf_z = session_raw.pelletConfZ_10k(init_frames);
+        % if pellet confidence high (> 90%)
         if mean(conf_xy) > 9000 && mean(conf_z) > 9000
-            x = session_data.pelletX_100(init_frames)';
-            y = session_data.pelletY_100(init_frames)';
-            z = session_data.pelletZ_100(init_frames)';
+            x = (session_raw.pelletX_100(init_frames)./900)'; %mm
+            y = (session_raw.pelletY_100(init_frames)./900)'; %mm
+            z = (session_raw.pelletZ_100(init_frames)./900)'; %mm
             pellet_loc(k,:) = mean([x,y,z]);
             k = k + 1;
         end
     end
-    
-    % save session level info before deleting so we can use structfun
-    SessionData(i).SessionID = session_data.Session;
-    SessionData(i).StimLogical = session_data.StimLogical;
     SessionData(i).PelletLocation = median(pellet_loc);
-
-    % remove unneeded fields
-    session_data = rmfield(session_data,'Session');
-    session_data = rmfield(session_data,'ReachIndexPairs');
-    session_data = rmfield(session_data,'StimLogical');
     
     for j = 1 : height(indx) % j: reach event
         startInd = indx(j,1); % reach start index
@@ -51,14 +52,22 @@ for i = 1 : length(RawData) %iterate thru sessions
         endInd = indx(j,3); % reach end index
 
         % index only reach events
-        init2max = structfun(@(x) x(startInd:maxInd), session_data, ...
+        init2max = structfun(@(x) x(startInd:maxInd), session_raw, ...
             'UniformOutput', false);
-        init2end = structfun(@(x) x(startInd:endInd), session_data, ...
+        init2end = structfun(@(x) x(startInd:endInd), session_raw, ...
             'UniformOutput', false);
         
-        % euclidean matrix of raw hand position data
-        tempeuc_max =[init2max.handX_100' init2max.handY_100' init2max.handZ_100'];
-        tempeuc_end =[init2end.handX_100' init2end.handY_100' init2end.handZ_100'];
+        % store raw data
+        SessionData(i).InitialToEnd(j).RawData = init2end; 
+        SessionData(i).InitialToMax(j).RawData = init2max; 
+
+        % convert hand position units to mm
+        init2max = ConvertPositionUnits(init2max);
+        init2end = ConvertPositionUnits(init2end);
+
+        % euclidean matrix of raw hand position data - mm
+        tempeuc_max =[init2max.handX' init2max.handY' init2max.handZ'];
+        tempeuc_end =[init2end.handX' init2end.handY' init2end.handZ']; 
 
         % velocity - interpolated, absolute, and raw
         [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
@@ -81,22 +90,20 @@ for i = 1 : length(RawData) %iterate thru sessions
         DTW_norm_end = DTW_euc_end - SessionData(i).PelletLocation;
 
         % store initial to max data
-        SessionData(i).InitialToMax(j).RawData = init2max; 
         SessionData(i).InitialToMax(j).RawVelocity = rawVel_max;
         SessionData(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
         SessionData(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
-        SessionData(i).InitialToMax(j).InterpolatedHandEuc_100 = interp_hand_max;
-        SessionData(i).InitialToMax(j).DTWHandEuc = DTW_euc_max;
+        SessionData(i).InitialToMax(j).InterpolatedHand = interp_hand_max;
+        SessionData(i).InitialToMax(j).DTWHand = DTW_euc_max;
         SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
         SessionData(i).InitialToMax(j).DTWHandNormalized = DTW_norm_max;
 
         % store initial to end data
-        SessionData(i).InitialToEnd(j).RawData = init2end; 
         SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
         SessionData(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
-        SessionData(i).InitialToEnd(j).InterpolatedHandEuc_100 = interp_hand_end;
-        SessionData(i).InitialToEnd(j).DTWHandEuc = DTW_euc_end;
+        SessionData(i).InitialToEnd(j).InterpolatedHand = interp_hand_end;
+        SessionData(i).InitialToEnd(j).DTWHand = DTW_euc_end;
         SessionData(i).InitialToEnd(j).HandArcLength = arc_length_end;
         SessionData(i).InitialToEnd(j).DTWHandNormalized = DTW_norm_end;
     end
