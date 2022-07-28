@@ -10,7 +10,7 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 
 % iterate through reaches from final session
 for i = 1 : numMice
-    session_data = data(i).Sessions(end).InitialToMax;
+    session_data = data{i}.Sessions(end).InitialToMax;
     [avg_traj,x_all,y_all,~] = CalculateAvgTrajectory(session_data);
 
     numReaches = length(session_data); %number of reaches in final session
@@ -24,9 +24,9 @@ for i = 1 : numMice
     plot(ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 1.5 ,'Color','#000000')
     xlabel(ax,'x (mm)')
     ylabel(ax,'y (mm)')
-    str1 = "Mouse ID: " + data(i).MouseID;
+    str1 = "Mouse ID: " + data{i}.MouseID;
     str2 = "Number of reaches: " + numReaches;
-    str3 = "Session: " + data(i).Sessions(end).SessionID;
+    str3 = "Session: " + data{i}.Sessions(end).SessionID;
     title(ax,[str1, str2, str3],'Interpreter', 'none')
 
     if i == numMice % see next mouse

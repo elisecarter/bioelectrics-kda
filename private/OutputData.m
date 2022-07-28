@@ -1,8 +1,8 @@
 function OutputData(data, OUTpath)
-
 plot_folder = "Trajectory Plots";
+
 for i = 1:length(data)
-    folder_name = data(i).MouseID;
+    folder_name = data{i}.MouseID;
     folder_path = fullfile(OUTpath,folder_name);
      if ~exist(folder_path,'dir')
          mkdir(folder_path)
@@ -13,9 +13,9 @@ for i = 1:length(data)
          mkdir(plot_path)
      end
 
-    PlotTrajectories(data(i),plot_path)
-    SaveJSON(data(i), folder_path)
-    SaveMATFile(data(i), folder_path)
+    PlotTrajectories(data{i},plot_path)
+    SaveJSON(data{i}, folder_path)
+    SaveKdaFile(data{i}, folder_path)
     
 end
 
