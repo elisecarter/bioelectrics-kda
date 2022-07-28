@@ -8,7 +8,7 @@ for i = 1:length(data)
             disp_text{2,i} = sprintf('Status: %s ',data{i}.Status);
             disp_text{3,i} = '';
 
-        case 'Preprocessed'
+        case 'Kinematics Extracted'
             disp_text{1,i} = sprintf('Mouse ID: %s ',data{i}.MouseID);
             disp_text{2,i} = sprintf('Status: %s ',data{i}.Status);
             disp_text{3,i} = '';

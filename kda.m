@@ -13,6 +13,8 @@ function kda
 %     arclength by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34871-arclength
 
 %% Create GUI
+% turn off TEX interpreter
+set(0, 'DefaulttextInterpreter', 'none');
 
 % create figure: "window"
 window = figure( ...
@@ -39,7 +41,7 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
 % process menu
 menu_process = uimenu(window, 'Label', 'Process');
-uimenu(menu_process, 'Text', 'Preprocess Data', 'Callback', @ProcessPreprocessData)
+uimenu(menu_process, 'Text', 'Extract Kinematics', 'Callback', @ProcessPreprocessData)
 
 % Statistics menu
 menu_stats = uimenu(window, 'Label', 'Statistics');
@@ -162,12 +164,12 @@ data = [];
             waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
             waitbar(i/length(data),f,waitstr);
             data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
-            data{i}.Status = 'Preprocessed';
+            data{i}.Status = 'Kinematics Extracted';
         end
         close(f)
+        DataSummary(data,window)
         ReviewFinalTrajectories(data)
         OutputData(data, OUTpath)
-        DataSummary(data,window)
     end
 
 end
