@@ -95,8 +95,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
         SessionData(i).InitialToMax(j).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(j).DTWHand = DTW_euc_max;
-        SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
         SessionData(i).InitialToMax(j).DTWHandNormalized = DTW_norm_max;
+        SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
 
         % store initial to end data
         SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
@@ -104,7 +104,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(j).DTWHand = DTW_euc_end;
-        SessionData(i).InitialToEnd(j).HandArcLength = arc_length_end;
         SessionData(i).InitialToEnd(j).DTWHandNormalized = DTW_norm_end;
+        SessionData(i).InitialToEnd(j).HandArcLength = arc_length_end;
     end
 end
