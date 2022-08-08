@@ -94,6 +94,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         DTW_norm_end = DTW_euc_end - SessionData(i).PelletLocation;
 
         % store initial to max data
+        SessionData(i).InitialToMax(j).StartIndex = start_ind;
+        SessionData(i).InitialToMax(j).EndIndex = max_ind;
         SessionData(i).InitialToMax(j).ReachDuration = duration_max;
         SessionData(i).InitialToMax(j).RawVelocity = rawVel_max;
         SessionData(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
@@ -104,6 +106,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
 
         % store initial to end data
+        SessionData(i).InitialToEnd(j).StartIndex = start_ind;
+        SessionData(i).InitialToEnd(j).EndIndex = end_ind;
         SessionData(i).InitialToEnd(j).ReachDuration = duration_end;
         SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
