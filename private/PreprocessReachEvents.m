@@ -47,19 +47,23 @@ for i = 1 : length(RawData) %iterate thru sessions
     SessionData(i).PelletLocation = median(pellet_loc);
     
     for j = 1 : height(indx) % j: reach event
-        startInd = indx(j,1); % reach start index
-        maxInd = indx(j,2); % reach max index
-        endInd = indx(j,3); % reach end index
+        start_ind = indx(j,1); % reach start index
+        max_ind = indx(j,2); % reach max index
+        end_ind = indx(j,3); % reach end index
 
         % index only reach events
-        init2max = structfun(@(x) x(startInd:maxInd), session_raw, ...
+        init2max = structfun(@(x) x(start_ind:max_ind), session_raw, ...
             'UniformOutput', false);
-        init2end = structfun(@(x) x(startInd:endInd), session_raw, ...
+        init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
         
         % store raw data
         SessionData(i).InitialToEnd(j).RawData = init2end; 
-        SessionData(i).InitialToMax(j).RawData = init2max; 
+        SessionData(i).InitialToMax(j).RawData = init2max;
+
+        % reach duration
+        duration_max = (max_ind - start_ind) / 150; %sec
+        duration_end = (end_ind - start_ind) / 150; %sec
 
         % convert hand position units to mm
         init2max = ConvertPositionUnits(init2max);
@@ -90,6 +94,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         DTW_norm_end = DTW_euc_end - SessionData(i).PelletLocation;
 
         % store initial to max data
+        SessionData(i).InitialToMax(j).ReachDuration = duration_max;
         SessionData(i).InitialToMax(j).RawVelocity = rawVel_max;
         SessionData(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
         SessionData(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
@@ -99,6 +104,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
 
         % store initial to end data
+        SessionData(i).InitialToEnd(j).ReachDuration = duration_end;
         SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
         SessionData(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
