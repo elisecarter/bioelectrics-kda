@@ -43,11 +43,11 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 menu_process = uimenu(window, 'Label', 'Process');
 uimenu(menu_process, 'Text', 'Extract Kinematics', 'Callback', @ProcessPreprocessData)
 
-% Statistics menu
-menu_stats = uimenu(window, 'Label', 'Statistics');
-uimenu(menu_stats, 'Text', 'Reach Duration', 'Callback', @StatsReachDuration)
-uimenu(menu_stats, 'Text', 'Velocity', 'Callback', @StatsVelocity)
-uimenu(menu_stats, 'Text', 'Path Length', 'Callback', @StatsPathLength)
+% plotting menu
+menu_plot = uimenu(window, 'Label', 'Plot');
+uimenu(menu_plot, 'Text', 'Day-to-Day Averages', 'Callback', @PlotDay2Day)
+uimenu(menu_plot, 'Text', 'Reach-to-Reach Averages', 'Callback', @PlotReach2Reach)
+uimenu(menu_plot, 'Text', 'Cohort Comparisons', 'Callback', @PlotCohortComp, 'Enable','off')
 
 % initialize data for nested functions
 data = [];
@@ -163,5 +163,13 @@ data = [];
         DataSummary(data,window)
         OutputData(data, OUTpath)
     end
+
+%% Plot Menu
+    function PlotDay2Day()
+    end
+
+    function PlotReach2Reach()
+    end
+
 
 end
