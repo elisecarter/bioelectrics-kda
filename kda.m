@@ -96,7 +96,7 @@ data = [];
         for i = 1:length(mouseIDs)
             data{datacount+i} = struct('MouseID',mouseIDs(i));
         end
-        data = LoadRawData(data, MATpath,CURdir);
+        data = LoadRawData(data,MATpath,CURdir);
         DataSummary(data,window)
     end
 
@@ -159,16 +159,8 @@ data = [];
             return
         end
 
-        f = waitbar(0,'Please wait...'); % create wait bar
-        for i = 1:length(data)
-            waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
-            waitbar(i/length(data),f,waitstr);
-            data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
-            data{i}.Status = 'Kinematics Extracted';
-        end
-        close(f)
+        data = PreprocessMice(data);
         DataSummary(data,window)
-        ReviewFinalTrajectories(data)
         OutputData(data, OUTpath)
     end
 

@@ -3,8 +3,8 @@ function [mouseIDs,indx] = SelectMice(mouseIDs)
 
 prompt = 'Select Mice';
 [indx, ~] = listdlg('ListString',mouseIDs,'PromptString',prompt);
-mouseIDs = mouseIDs(indx);
 
+mouseIDs = mouseIDs(indx);
 
 
 
