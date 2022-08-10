@@ -21,7 +21,8 @@ window = figure( ...
     'Name', 'Kinematic Data Analyis', ...
     'NumberTitle', 'off', ...
     'Color', '#DCFFE6', ...
-    'MenuBar', 'none');
+    'MenuBar', 'none', ...
+    'HandleVisibility','off');
 movegui(window,'center')
 
 % text to display on window
@@ -46,7 +47,7 @@ uimenu(menu_process, 'Text', 'Extract Kinematics', 'Callback', @ProcessPreproces
 % plotting menu
 menu_plot = uimenu(window, 'Label', 'Plot');
 uimenu(menu_plot, 'Text', 'Day-to-Day Averages', 'Callback', @PlotDay2Day)
-uimenu(menu_plot, 'Text', 'Reach-to-Reach Averages', 'Callback', @PlotReach2Reach)
+uimenu(menu_plot, 'Text', 'Reach-to-Reach Averages', 'Callback', @PlotReach2Reach,'Enable','off')
 uimenu(menu_plot, 'Text', 'Cohort Comparisons', 'Callback', @PlotCohortComp, 'Enable','off')
 
 % initialize data for nested functions
@@ -145,7 +146,7 @@ data = [];
     end
 
     function FileQuit(varargin)
-        close all
+        close ('all','hidden')
     end
 
 %% Process Menu

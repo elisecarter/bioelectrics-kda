@@ -10,7 +10,7 @@ SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
 
 for i = 1 : length(RawData) %iterate thru sessions
     session_raw = RawData(i);
-    indx = table2array(session_raw.ReachIndexPairs);%pull out reach indices
+    indx = table2array(session_raw.ReachIndexPairs); %pull out reach indices
 
     % save session level info before deleting so we can use structfun
     SessionData(i).SessionID = session_raw.Session;
@@ -35,7 +35,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         init_frames = reach_start:reach_start+3; %first 3 frames of reach
         conf_xy = session_raw.pelletConfXY_10k(init_frames);
         conf_z = session_raw.pelletConfZ_10k(init_frames);
-        % if pellet confidence high (> 90%)
+        % if pellet confidence high (> 90%) / 10k multiplier
         if mean(conf_xy) > 9000 && mean(conf_z) > 9000
             x = (session_raw.pelletX_100(init_frames)./900)'; %mm
             y = (session_raw.pelletY_100(init_frames)./900)'; %mm
@@ -52,7 +52,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         end_ind = indx(j,3); % reach end index
 
         % index only reach events
-        init2max = structfun(@(x) x(start_ind:max_ind), session_raw, ...
+        %init2max = structfun(@(x) x(start_ind:max_ind), session_raw, ...
             'UniformOutput', false);
         init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
@@ -71,7 +71,11 @@ for i = 1 : length(RawData) %iterate thru sessions
 
         % euclidean matrix of raw hand position data - mm
         tempeuc_max =[init2max.handX' init2max.handY' init2max.handZ'];
-        tempeuc_end =[init2end.handX' init2end.handY' init2end.handZ']; 
+        tempeuc_end =[init2end.handX' init2end.handY' init2end.handZ'];
+
+        % hand relative to pellet
+        hand_max = tempeuc_max - SessionData(i).PelletLocation;
+        hand_end = tempeuc_end - SessionData(i).PelletLocation;
 
         % velocity - interpolated, absolute, and raw
         [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
@@ -97,6 +101,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(j).StartIndex = start_ind;
         SessionData(i).InitialToMax(j).EndIndex = max_ind;
         SessionData(i).InitialToMax(j).ReachDuration = duration_max;
+        SessionData(i).InitialToMax(j).HandPosition = hand_max;
         SessionData(i).InitialToMax(j).RawVelocity = rawVel_max;
         SessionData(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
         SessionData(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
@@ -109,6 +114,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(j).StartIndex = start_ind;
         SessionData(i).InitialToEnd(j).EndIndex = end_ind;
         SessionData(i).InitialToEnd(j).ReachDuration = duration_end;
+        SessionData(i).InitialToEnd(j).HandPosition = hand_end;
         SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
         SessionData(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
