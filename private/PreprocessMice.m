@@ -14,6 +14,8 @@ for i = 1:length(newdata)
 end
 close(f)
 
+newdata = SessionLevelData(newdata);
+
 data(indx) = newdata;
 
 ReviewFinalTrajectories(data)
