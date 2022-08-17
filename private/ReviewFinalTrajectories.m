@@ -11,7 +11,7 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 % iterate through reaches from final session
 for i = 1 : numMice
     session_data = data{i}.Sessions(end).InitialToMax;
-    [avg_traj,x_all,y_all,~] = CalculateAvgTrajectory(session_data);
+    [avg_traj,x_all,y_all,~] = AverageTrajectory(session_data);
 
     numReaches = length(session_data); %number of reaches in final session
     for j = 1 : numReaches

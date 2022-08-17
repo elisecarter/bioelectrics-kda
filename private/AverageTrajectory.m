@@ -1,4 +1,5 @@
-function [avg_trajectory,x,y,z] = CalculateAvgTrajectory(session_data)
+function [avg_trajectory,x,y,z] = AverageTrajectory(session_data)
+% I dont think I need to output x,y,z as its easily accesible
 
 x = zeros(100,length(session_data));
 y = zeros(100,length(session_data));
