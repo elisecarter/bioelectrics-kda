@@ -1,10 +1,9 @@
 function PlotTrajectories(mouse_data,path)
 
 p = figure("Visible","off","HandleVisibility","on"); 
-p_ax = axes(p);
 
 for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
-    
+    p_ax = axes(p);
     session_data = mouse_data.Sessions(i);
     session_str = session_data.SessionID{1}; %this will break when I take session ID out of cell
     [avg_traj,x,y,~] = AverageTrajectory(session_data.InitialToMax);
