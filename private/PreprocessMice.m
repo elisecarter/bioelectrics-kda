@@ -1,21 +1,22 @@
 function data = PreprocessMice(data)
 
-temp = [data{1:end}];
-MouseIDs = {temp.MouseID};
-[~,indx] = SelectMice(MouseIDs);
+%temp = [data{1:end}];
+%MouseIDs = {temp.MouseID};
+%[~,indx] = SelectMice(MouseIDs);
 newdata = data(indx);
 
 f = waitbar(0,'Please wait...'); % create wait bar
-for i = 1:length(newdata)
-    waitstr = "Preprocessing raw data... (" + newdata{i}.MouseID + ")";
-    waitbar(i/length(newdata),f,waitstr);
-    newdata{i}.Sessions = PreprocessReachEvents(newdata{i}.RawData);
-    newdata{i}.Status = 'Kinematics Extracted';
+for i = 1:length(data)
+    waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
+    waitbar(i/length(data),f,waitstr);
+    data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
+    % index reach max here or in PRE ?
+    data{i}.Status = 'Kinematics Extracted';
 end
 close(f)
 
-newdata = SessionLevelData(newdata);
+data = SessionLevelData(data);
 
-data(indx) = newdata;
+%data(indx) = newdata;
 
 ReviewFinalTrajectories(data)
