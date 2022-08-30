@@ -1,8 +1,8 @@
 function kda
 % Main function
 %     Performs kinematic data analysis of mouse reach events
-%     with data obtained from the CLARA system. Locations of Curator
-%     and Matlab_3D folders are required.
+%     with data obtained from the CLARA system. User is required to 
+%     navigate to Curator and Matlab_3D folders.
 %
 % Authors:
 %     Spencer Bowles
@@ -16,7 +16,7 @@ function kda
 % turn off TEX interpreter
 set(0, 'DefaulttextInterpreter', 'none');
 
-% create figure: "window"
+% create main window
 window = figure( ...
     'Name', 'Kinematic Data Analyis', ...
     'NumberTitle', 'off', ...
@@ -40,15 +40,16 @@ uimenu(menu_file, 'Text', 'Load Saved Session File(s)', 'Callback', @FileLoadSav
 uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
-% process menu
-menu_process = uimenu(window, 'Label', 'Process');
-uimenu(menu_process, 'Text', 'Extract Kinematics', 'Callback', @ProcessPreprocessData)
+% analysis menu
+menu_process = uimenu(window, 'Label', 'Analysis');
+uimenu(menu_process, 'Text', 'Extract Kinematics', 'Callback', @AnalysisExtractKinematics)
+uimenu(menu_process, 'Text', 'Correlations', 'Callback', @AnalysisCorrelations,'Enable','off')
+uimenu(menu_process, 'Text', 'Compare Cohorts', 'Callback', @AnalysisCompareCohorts,'Enable','off')
 
-% plotting menu
-menu_plot = uimenu(window, 'Label', 'Plot');
-uimenu(menu_plot, 'Text', 'Day-to-Day Averages', 'Callback', @PlotDay2Day)
-uimenu(menu_plot, 'Text', 'Reach-to-Reach Averages', 'Callback', @PlotReach2Reach,'Enable','off')
-uimenu(menu_plot, 'Text', 'Cohort Comparisons', 'Callback', @PlotCohortComp, 'Enable','off')
+% % plotting menu
+% menu_plot = uimenu(window, 'Label', 'Plot');
+% uimenu(menu_plot, 'Text', 'Reach-to-Reach Averages', 'Callback', @PlotReach2Reach,'Enable','off')
+% uimenu(menu_plot, 'Text', 'Cohort Comparisons', 'Callback', @PlotCohortComp, 'Enable','off')
 
 % initialize data for nested functions
 data = [];
@@ -92,11 +93,15 @@ data = [];
         [mouseIDs,CURdir] = GetMouseIDs(CURpath);
         [mouseIDs,indx] = SelectMice(mouseIDs);
         CURdir = CURdir(indx);
-
+        
+        % datacount should be zero if nothing loaded
         datacount = length(data);
+        
+        % create data structures for mice to process
         for i = 1:length(mouseIDs)
             data{datacount+i} = struct('MouseID',mouseIDs(i));
         end
+        
         data = LoadRawData(data,MATpath,CURdir);
         DataSummary(data,window)
     end
@@ -149,8 +154,8 @@ data = [];
         close ('all','hidden')
     end
 
-%% Process Menu
-    function ProcessPreprocessData(varargin)
+%% Analysis Menu
+    function AnalysisExtractKinematics(varargin)
         % user navigate to output directory
         msg3 = msgbox('Navigate to Output Directory');
         uiwait(msg3)
@@ -164,13 +169,5 @@ data = [];
         DataSummary(data,window)
         OutputData(data, OUTpath)
     end
-
-%% Plot Menu
-    function PlotDay2Day()
-    end
-
-    function PlotReach2Reach()
-    end
-
 
 end
