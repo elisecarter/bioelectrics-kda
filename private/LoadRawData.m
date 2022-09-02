@@ -25,7 +25,7 @@ for i = 1:length(data) % iterate thru mice
         
         % convert uint16 data in table3D to double, store in rawData
         for k = 1:length(fieldnames)-1 % everything expect crop pts
-            raw_data(j).(fieldnames{k}) = double(MATdata.table3D{1,k}{:,:});
+            raw_data(j).(fieldnames{k}) = double(MATdata.table3D{1,k}{:,:})';
         end
 
     end
