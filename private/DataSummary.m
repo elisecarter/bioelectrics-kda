@@ -9,9 +9,9 @@ for i = 1:length(data)
             disp_text{3,i} = sprintf('Status: %s ',data{i}.Status);
             disp_text{4,i} = '';
 
-        case 'Kinematics Extracted'
+        case 'Kinematics_Extracted'
             disp_text{1,i} = sprintf('Mouse ID: %s ',data{i}.MouseID);
-            disp_text{2,i} = sprintf('Number of Sessions: %d ',length(data{i}.RawData));
+            disp_text{2,i} = sprintf('Number of Sessions: %d ',length(data{i}.Sessions));
             disp_text{3,i} = sprintf('Status: %s ',data{i}.Status);
             disp_text{4,i} = '';
     end
