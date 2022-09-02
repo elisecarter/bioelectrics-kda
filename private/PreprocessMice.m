@@ -1,24 +1,22 @@
-function data = PreprocessMice(data)
-
-%temp = [data{1:end}];
-%MouseIDs = {temp.MouseID};
-%[~,indx] = SelectMice(MouseIDs);
-%newdata = data(indx);
+function data = PreprocessMice(data,user_selections)
 
 f = waitbar(0,'Please wait...'); % create wait bar
 for i = 1:length(data)
     waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
     waitbar(i/length(data),f,waitstr);
-    data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
+    data{i}.Sessions = PreprocessReachEvents(data{i}.RawData,user_selections);
+    
     % raw data indexed at reaches & saved in previous step
     data{i} = rmfield(data{i},'RawData');
-    % index reach max here or in PRE ?
-    data{i}.Status = 'Kinematics Extracted';
+    
+    % expert reach is mean trajectory on final day of training
+    [data{i}.ExpertReach,~,~,~] = AverageTrajectory(data{i}.Sessions(end).InitialToMax);
+    
+    % compute session means 
+    data{i} = SessionMeans(data{i});
+
+    data{i}.Status = 'Kinematics_Extracted';
 end
 close(f)
-
-data = SessionLevelData(data);
-
-%data(indx) = newdata;
 
 ReviewFinalTrajectories(data)
