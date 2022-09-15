@@ -24,7 +24,7 @@ for i = 1 : length(RawData) %iterate thru sessions
     % remove impossibly short reaches
     end_duration = indx(:,3) - indx(:,1); %frames from start to end
     max_duration = indx(:,2) - indx(:,1); %from start to max
-    too_short = end_duration < 5 | max_duration < 2;
+    too_short = end_duration < 5 | max_duration < 3;
     indx(too_short) = [];
 
     % preprocessing
