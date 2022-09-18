@@ -30,7 +30,7 @@ Load saved .kda files - these can be raw or processed data files.
 
 #### Save Session
 
-The current workspace is saved in the user specifified output folder.
+The current workspace is saved in a user specifified output folder.
 
 ### Analysis Menu
 
@@ -42,12 +42,16 @@ Reach events are located using start, max, and end frames from session curator f
 
 Each mouse will have the following data in the resulting output structure:
 
+
+
 |Feature         |Units           | Description    |
 |:---------------|:---------------|:---------------|
-|ExpertReach     |Frames          |Euclidean Matrix|
-|*Sessions*      |                |                |
-
-
-
+|StartIndex      |frames          |frame that initialtion of the reach occurs|
+|EndIndex        |frames          |frame that reach max or end occurs|
+|ReachDuration   |seconds         |time from reach start to reach max/end|
+|HandPosition    |mm              |euclidean matrix of hand position relative to pellet| 
+|RawVelocity     |mm/sec          |
+|Stim Logical    |unitless        |logical array to indicate if a reach resulted in a stimulus|
+|ExpertReach     |frames          |Average of succussful reaches on final day of training|
 
 
