@@ -170,10 +170,24 @@ data = [];
             return
         end
         
-        user_selections = UserSelections();
+        user_selections = UserSelections('ExtractKinematics');
         data = PreprocessMice(data, user_selections);
         DataSummary(data,window)
         OutputData(data, OUTpath,user_selections)
+    end
+
+    function AnalysisCorrelations
+        % user navigate to output directory
+        msg3 = msgbox('Navigate to Output Directory');
+        uiwait(msg3)
+        OUTpath = uigetdir();
+        if OUTpath == 0
+            warning('User cancelled: No Output folder selected.')
+            return
+        end
+        
+        user_selections = UserSelections('Correlations');
+
     end
 
 %% Plot Menu
