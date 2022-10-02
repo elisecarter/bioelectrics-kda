@@ -9,8 +9,8 @@ for i = 1:length(data)
     % raw data indexed at reaches & saved in previous step
     data{i} = rmfield(data{i},'RawData');
     
-    % expert reach is mean trajectory on final day of training
-    [data{i}.ExpertReach,~,~,~] = AverageTrajectory(data{i}.Sessions(end).InitialToMax);
+    % expert reach is mean trajectory of successful reaches on the final day of training
+    data{i} = CalculateExpertReach(data{i});
     
     % compute session means 
     data{i} = SessionMeans(data{i});
