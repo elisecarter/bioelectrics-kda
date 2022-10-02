@@ -22,6 +22,8 @@ for i = 1:length(data) % iterate thru mice
         raw_data(j).Session = MATdata.table3D.Properties.RowNames;
         raw_data(j).ReachIndexPairs = CURdata(:,1:3);
         raw_data(j).StimLogical = logical(table2array(CURdata(:,4)));
+        raw_data(j).Behaviors = table2array(CURdata(:,6));
+        raw_data(j).EndCategory = table2array(CURdata(:,5));
         
         % convert uint16 data in table3D to double, store in rawData
         for k = 1:length(fieldnames)-1 % everything expect crop pts
