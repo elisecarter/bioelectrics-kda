@@ -15,11 +15,15 @@ for i = 1 : length(RawData) %iterate thru sessions
     % save session level info before deleting so we can use structfun
     SessionData(i).SessionID = session_raw.Session;
     SessionData(i).StimLogical = session_raw.StimLogical;
+    SessionData(i).Behavior = session_raw.Behaviors;
+    SessionData(i).EndCategory = session_raw.EndCategory;
 
     % remove unneeded fields
     session_raw = rmfield(session_raw,'Session');
     session_raw = rmfield(session_raw,'ReachIndexPairs');
     session_raw = rmfield(session_raw,'StimLogical');
+    session_raw = rmfield(session_raw,'Behaviors');
+    session_raw = rmfield(session_raw,'EndCategory');
 
     % remove impossibly short reaches
     end_duration = indx(:,3) - indx(:,1); %frames from start to end
