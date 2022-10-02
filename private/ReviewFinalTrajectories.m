@@ -1,5 +1,5 @@
 function ReviewFinalTrajectories(data)
-% this function plots the average and individual reach events from the 
+% plots the average and individual reach events from the 
 % final session for each mouse 
 
 numMice = length(data);
@@ -11,12 +11,12 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 % iterate through reaches from final session
 for i = 1 : numMice
     session_data = data{i}.Sessions(end).InitialToMax;
-    [avg_traj,x_all,y_all,~] = AverageTrajectory(session_data);
+    [avg_traj,stats] = AverageTrajectory(session_data);
 
     numReaches = length(session_data); %number of reaches in final session
     for j = 1 : numReaches
         % plot each reach trajectory
-        plot(ax,x_all(:,j), y_all(:,j),'Color','#918e8e')
+        plot(ax,stats.x(:,j), stats.y(:,j),'Color','#918e8e')
         hold(ax,"on")
     end
 
