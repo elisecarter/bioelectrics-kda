@@ -1,4 +1,4 @@
-function [DTW_euclidean, arc_length] = DynamicTimeWarping(euc)
+function DTW_euclidean = DynamicTimeWarping(euc)
 
 x = euc(:,1);
 y = euc(:,2);
