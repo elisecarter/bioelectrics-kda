@@ -1,4 +1,4 @@
-function mean_velocity = SessionVelocity(session_data)
+function mean_velocity = SessionMeanVelocity(session_data)
 
 reach_velocities = zeros(length(session_data),3);
 for i = 1:length(session_data)
