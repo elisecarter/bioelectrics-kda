@@ -11,19 +11,23 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 % iterate through reaches from final session
 for i = 1 : numMice
     session_data = data{i}.Sessions(end).InitialToMax;
-    [avg_traj,stats] = AverageTrajectory(session_data);
+    [avg_traj,ind_traj] = AverageTrajectory(session_data);
 
     numReaches = length(session_data); %number of reaches in final session
     for j = 1 : numReaches
         % plot each reach trajectory
-        plot(ax,stats.x(:,j), stats.y(:,j),'Color','#918e8e')
+        plot(ax,ind_traj.x(:,j), ind_traj.y(:,j),'Color','#918e8e')
+        set(ax,'YDir','reverse') 
         hold(ax,"on")
     end
 
+    % plot the pellet location
+    plot(ax,0,0,'.','MarkerSize',30,'Color',"#77AC30")
+
     % plot the average reach trajectory of final session
     plot(ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 1.5 ,'Color','#000000')
-    xlabel(ax,'x (mm)')
-    ylabel(ax,'y (mm)')
+    xlabel(ax,'X (mm)')
+    ylabel(ax,'Y (mm)')
     str1 = "Mouse ID: " + data{i}.MouseID;
     str2 = "Number of reaches: " + numReaches;
     str3 = "Session: " + data{i}.Sessions(end).SessionID;
