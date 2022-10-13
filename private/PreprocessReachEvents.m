@@ -50,42 +50,41 @@ for i = 1 : length(RawData) %iterate thru sessions
     SessionData(i).PelletLocation = median(pellet_loc);
 
     for j = 1 : height(indx) % j: reach event
-        start_ind = indx(j,1); % reach start index
-        max_ind = indx(j,2); % reach max index
-        end_ind = indx(j,3); % reach end index
+        start_ind = indx(j,1); % start index
+        max_ind = indx(j,2); % max index
+        end_ind = indx(j,3); % end index
 
-        % reach duration
+        % reach duration - 150 fps
         duration_max = (max_ind - start_ind) / 150; %sec
         duration_end = (end_ind - start_ind) / 150; %sec
 
-        % index only reach events from raw data - start to end
+        % index only reach events from raw data (start to end)
         init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
 
-        % store raw data
+        % store initial to end raw data
         SessionData(i).InitialToEnd(j).RawData = struct2table(init2end);
-        %SessionData(i).InitialToMax(j).RawData = init2max;
 
         % convert hand position units to mm
         init2end = ConvertPositionUnits(init2end);
 
-        % euclidean matrix of raw hand position data - mm
+        % euclidean matrix of raw hand position data [mm]
         tempeuc = [init2end.handX init2end.handY init2end.handZ];
 
-        % index out initial to max euclidean matrix to pass into the
-        % velocity function
-        relative_max = max_ind - start_ind;
-        tempeuc_max = tempeuc(1:relative_max,:);
+        % index out initial to max euclidean matrix for further processing
+        frames_max = max_ind - start_ind + 1; % number of frames from start to max
+        tempeuc_max = tempeuc(1:frames_max,:);
 
-        % hand relative to pellet
-        relative_hand = tempeuc - SessionData(i).PelletLocation;
+        % hand relative to pellet - ALL POSITION DATA RELATIVE TO PELLET
+        % FROM NOW ON
+        relative_hand_end = tempeuc - SessionData(i).PelletLocation;
+        relative_hand_max = tempeuc_max - SessionData(i).PelletLocation;
 
-        % hand position smoothing - should this be used to find hand
-        % relative to pellet?
-        smooth_hand_end = HandSmoothing(tempeuc);
-        smooth_hand_max = HandSmoothing(tempeuc_max);
+        % hand position smoothing
+        smooth_hand_end = HandSmoothing(relative_hand_end);
+        smooth_hand_max = HandSmoothing(relative_hand_max);
 
-        % velocity - interpolated, absolute, and raw
+        % velocity - interpolated, absolute, and raw 
         [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
         [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
 
@@ -114,25 +113,25 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(j).StartIndex = start_ind;
         SessionData(i).InitialToMax(j).EndIndex = max_ind;
         SessionData(i).InitialToMax(j).ReachDuration = duration_max;
-        SessionData(i).InitialToMax(j).HandPosition = relative_hand(1:relative_max);
+        SessionData(i).InitialToMax(j).HandPositionNormalized = relative_hand_max;
         SessionData(i).InitialToMax(j).RawVelocity = rawVel_max;
         SessionData(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
         SessionData(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
         SessionData(i).InitialToMax(j).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(j).DTWHand = DTW_max;
-        SessionData(i).InitialToMax(j).DTWHandNormalized = DTW_norm_max;
+        SessionData(i).InitialToMax(j).DTWHandNormalized = DTW_max;
 
         % store initial to end data
         SessionData(i).InitialToEnd(j).StartIndex = start_ind;
         SessionData(i).InitialToEnd(j).EndIndex = end_ind;
         SessionData(i).InitialToEnd(j).ReachDuration = duration_end;
-        SessionData(i).InitialToEnd(j).HandPosition = relative_hand;
+        SessionData(i).InitialToEnd(j).HandPositionNormalized = relative_hand_end;
         SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
         SessionData(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
         SessionData(i).InitialToEnd(j).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(j).DTWHand = DTW_end;
-        SessionData(i).InitialToEnd(j).DTWHandNormalized = DTW_norm_end;
+        SessionData(i).InitialToEnd(j).DTWHandNormalized = DTW_end;
 
     end
 end
