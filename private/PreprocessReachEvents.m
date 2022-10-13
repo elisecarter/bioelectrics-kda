@@ -29,7 +29,12 @@ for i = 1 : length(RawData) %iterate thru sessions
     end_duration = indx(:,3) - indx(:,1); %frames from start to end
     max_duration = indx(:,2) - indx(:,1); %from start to max
     too_short = end_duration < 5 | max_duration < 2;
-    indx(too_short) = [];
+    indx(too_short,:) = [];
+    if any(too_short==1)
+        SessionData(i).StimLogical(too_short) = [];
+        SessionData(i).Behavior(too_short) = [];
+        SessionData(i).EndCategory(too_short) = [];
+    end
 
     % preprocessing
     k = 1;
@@ -40,10 +45,9 @@ for i = 1 : length(RawData) %iterate thru sessions
         conf_z = session_raw.pelletConfZ_10k(init_frames);
         % if pellet confidence high (> 90%) w/ 10k multiplier
         if mean(conf_xy) > 9000 && mean(conf_z) > 9000
-            x = (session_raw.pelletX_100(init_frames)./900)'; %mm
-            y = (session_raw.pelletY_100(init_frames)./900)'; %mm
-            z = (session_raw.pelletZ_100(init_frames)./900)'; %mm
-            pellet_loc(k,:) = mean([x,y,z]);
+            pellet_loc(k,1) = mean(session_raw.pelletX_100(init_frames)./900); %mm
+            pellet_loc(k,2) = mean(session_raw.pelletY_100(init_frames)./900); %mm
+            pellet_loc(k,3) = mean(session_raw.pelletZ_100(init_frames)./900); %mm
             k = k + 1;
         end
     end
