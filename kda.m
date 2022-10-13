@@ -126,17 +126,18 @@ data = [];
 
         %user navigate to .kda file(s)
         [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
-        if file == 0
-            warning('User cancelled: No session folder selected.')
-            return
+        if ~iscell(file)
+            if file == 0
+                warning('User cancelled: No session folder selected.')
+                return
+            end
+            datacount = datacount+1;
+            data{datacount} = load(fullfile(path,file),'-mat');
         elseif iscell(file)
             for i = 1:length(file)
                 datacount = datacount+1;
                 data{datacount} = load(fullfile(path,file{i}),'-mat');
             end
-        else
-            datacount = datacount+1;
-            data{datacount} = load(fullfile(path,file),'-mat');
         end
 
         DataSummary(data,window)
