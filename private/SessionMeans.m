@@ -7,7 +7,7 @@ for i = 1:length(data.Sessions)
     % session level velocity
     data.Sessions(i).MeanVelocity = SessionMeanVelocity(session_data.InitialToMax);
     data.Sessions(i).MaxAbsVelocity = SessionMaxVelocity(session_data.InitialToMax);
-    %data.Sessions(i).MeanDistanceToPellet = ClosestDistanceToPellet(session_data.InitialToMax);
+    data.Sessions(i).MeanTargetLocation = SessionMeanTarget(session_data);
     
     % percent of successful reaches
     num_success = sum(strcmp(session_data.Behavior,'success'));
