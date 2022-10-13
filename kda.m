@@ -43,7 +43,7 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 % analysis menu
 menu_analysis = uimenu(window, 'Label', 'Analysis');
 uimenu(menu_analysis, 'Text', 'Extract Kinematics', 'Callback', @AnalysisExtractKinematics)
-uimenu(menu_analysis, 'Text', 'Correlations', 'Callback', @AnalysisCorrelations,'Enable','off')
+uimenu(menu_analysis, 'Text', 'Correlations', 'Callback', @AnalysisCorrelations)
 uimenu(menu_analysis, 'Text', 'Compare Cohorts', 'Callback', @AnalysisCompareCohorts,'Enable','off')
 
 % plot menu
@@ -74,6 +74,7 @@ data = [];
 
         % user naviagate to Matlab_3D folder
         msg1 = msgbox('Select Matlab_3D Folder');
+        %if canceled then return
         uiwait(msg1)
         MATpath = uigetdir();
         if MATpath == 0
@@ -125,7 +126,10 @@ data = [];
 
         %user navigate to .kda file(s)
         [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
-        if iscell(file)
+        if file == 0
+            warning('User cancelled: No session folder selected.')
+            return
+        elseif iscell(file)
             for i = 1:length(file)
                 datacount = datacount+1;
                 data{datacount} = load(fullfile(path,file{i}),'-mat');
@@ -146,7 +150,7 @@ data = [];
         % save data as .kda file (.mat file)
         path = uigetdir();
         if path == 0
-            warning('User cancelled: No Output folder selected.')
+            warning('User cancelled: No output folder selected.')
             return
         end
 
@@ -166,7 +170,7 @@ data = [];
         uiwait(msg3)
         OUTpath = uigetdir();
         if OUTpath == 0
-            warning('User cancelled: No Output folder selected.')
+            warning('User cancelled: No output folder selected.')
             return
         end
         
@@ -176,18 +180,35 @@ data = [];
         OutputData(data, OUTpath,user_selections)
     end
 
-    function AnalysisCorrelations
+    function AnalysisCorrelations(varargin)
         % user navigate to output directory
         msg3 = msgbox('Navigate to Output Directory');
         uiwait(msg3)
         OUTpath = uigetdir();
         if OUTpath == 0
-            warning('User cancelled: No Output folder selected.')
+            warning('User cancelled: No output folder selected.')
             return
         end
         
-        user_selections = UserSelections('Correlations');
+        %user_selections = UserSelections('Correlations');
+        for i = 1: length(data)
+            data{i} = CalculateCorrelationCoeff(data{i});
+        end
+        OutputCorrelationsData(data,OUTpath)
+    end
 
+    function AnalysisCompareCohorts
+        % user navigate to output directory
+        msg3 = msgbox('Navigate to Output Directory');
+        uiwait(msg3)
+        OUTpath = uigetdir();
+        if OUTpath == 0
+            warning('User cancelled: No output folder selected.')
+            return
+        end
+
+        % user input number of cohorts
+        prompt = {'Enter the number of cohorts:'}
     end
 
 %% Plot Menu
@@ -205,7 +226,7 @@ data = [];
             uiwait(msg4)
             OUTpath = uigetdir();
             if OUTpath == 0
-                warning('User cancelled: No Output folder selected.')
+                warning('User cancelled: No output folder selected.')
                 return
             end
         else
