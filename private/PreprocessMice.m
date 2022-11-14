@@ -10,7 +10,8 @@ for i = 1:length(data)
     data{i} = rmfield(data{i},'RawData');
     
     % expert reach is mean trajectory of successful reaches on the final day of training
-    data{i} = CalculateExpertReach(data{i});
+    success = data{i}.Sessions(end).StimLogical;
+    [data{i}.ExpertReach,~,~,~] = AverageTrajectory(data{i}.Sessions(end).InitialToMax(stims));
     
     % compute session means 
     data{i} = SessionMeans(data{i});
