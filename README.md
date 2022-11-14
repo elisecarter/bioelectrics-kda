@@ -4,12 +4,10 @@
 
 Elise Carter - elise.carter@cuanschutz.edu
 
-Spencer Bowles
-
 ## Overview
 
 Performs kinematic data analysis of mouse reach events
-with data obtained from the CLARA system. Locations of Curator
+with CLARA generated data. Paths to Curator
 and Matlab_3D folders are required. 
 
 ## Required Toolboxes
@@ -20,10 +18,12 @@ arclength by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange
 
 ## General Workflow
 
+Note: At any time, the session may be saved using the File menu. This creates a file within the kdaFiles folder in the output directory with the following naming convention: MOUSEID_STATUS.kda
 
-## Data Info
+1) Load raw data using the File menu. 
 
+2) Extract kinematic features using the Analysis menu.
 
-## Common Error Fixes
+3) Compute correlation coefficients using the Analysis menu.
 
-
+4) Export session means to an excel file using the Export menu.
