@@ -4,10 +4,6 @@ function kda
 %     with data obtained from the CLARA system. User is required to 
 %     navigate to Curator and Matlab_3D folders.
 %
-% Authors:
-%     Spencer Bowles
-%     Elise Carter (elise.carter@cuanschutz.edu)
-%
 % Required add-ons:
 %     interparc by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34874-interparc
 %     arclength by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34871-arclength
@@ -44,12 +40,11 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 menu_analysis = uimenu(window, 'Label', 'Analysis');
 uimenu(menu_analysis, 'Text', 'Extract Kinematics', 'Callback', @AnalysisExtractKinematics)
 uimenu(menu_analysis, 'Text', 'Correlations', 'Callback', @AnalysisCorrelations)
-uimenu(menu_analysis, 'Text', 'Compare Cohorts', 'Callback', @AnalysisCompareCohorts,'Enable','off')
+%uimenu(menu_analysis, 'Text', 'Compare Cohorts', 'Callback', @AnalysisCompareCohorts,'Enable','off')
 
-% plot menu
-menu_plot = uimenu(window, 'Label', 'Plot');
-uimenu(menu_plot, 'Text', 'Session Means', 'Callback', @PlotSessionMeans,'Enable','off')
-
+% export menu
+menu_export = uimenu(window, 'Label', 'Export');
+uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
 
 % initialize data for nested functions
 data = [];
@@ -198,49 +193,48 @@ data = [];
         OutputCorrelationsData(data,OUTpath)
     end
 
-    function AnalysisCompareCohorts
+%% Export Menu
+    function ExportSessionMeans(varargin)
         % user navigate to output directory
-        msg3 = msgbox('Navigate to Output Directory');
-        uiwait(msg3)
+        msg4 = msgbox('Navigate to Output Directory');
+        uiwait(msg4)
         OUTpath = uigetdir();
         if OUTpath == 0
             warning('User cancelled: No output folder selected.')
             return
         end
 
-        % user input number of cohorts
-        prompt = {'Enter the number of cohorts:'}
-    end
-
-%% Plot Menu
-    function PlotSessionMeans(varargin)
-        quest = 'Would you like save session mean plots?';
-        dlgtitle = 'Session Plots Save Option';
+        quest = 'Would you like to group by cohort?';
+        dlgtitle = 'Group Option';
         btn1 = 'Yes';
         btn2 = 'No';
         defbtn = 'Yes';
         answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
-
+        
+        % ui select mice to group
         if strcmpi(answer,btn1)
-            % user navigate to output directory
-            msg4 = msgbox('Navigate to Output Directory');
-            uiwait(msg4)
-            OUTpath = uigetdir();
-            if OUTpath == 0
-                warning('User cancelled: No output folder selected.')
-                return
-            end
-        else
-            OUTpath = 0;
+            % user input number of cohorts
+            prompt = {'Enter the number of cohorts:'};
+            dlgtitle = 'Number of Cohorts';
+            dims = [1 35];
+            definput = {'2'};
+            num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
+            [cohort, cohortID] = SelectCohorts(data,num_cohorts);  
+
+        elseif strcmpi(answer,btn2)
+            % single cohort
+            cohort{1} = data;
+            % name cohort
+            prompt = sprintf('Enter the identifier for cohort 1');
+            dlgtitle = 'Input Cohort Name';
+            dims = [1 35];
+            definput = {''};
+            cohortID{i} = inputdlg(prompt,dlgtitle,dims,definput);
         end
+        
+        OutputSessionMeans(cohort,cohortID,OUTpath)
 
-        MouseIDs = [data{1:end}.MouseID];
-        %MouseIDs = {temp.MouseID};
-        [~,indx] = SelectMice(MouseIDs);
-        plotdata = data(indx);
-
-        PlotMeans(plotdata,OUTpath)
-
+       
     end
 
 end
