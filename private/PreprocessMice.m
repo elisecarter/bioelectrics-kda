@@ -15,7 +15,7 @@ for i = 1:length(data)
     % compute session means 
     data{i} = SessionMeans(data{i});
 
-    data{i}.Status = 'Kinematics_Extracted';
+    data{i}.Status = 'KinematicsExtracted';
 end
 close(f)
 
