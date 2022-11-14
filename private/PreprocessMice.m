@@ -11,7 +11,7 @@ for i = 1:length(data)
     
     % expert reach is mean trajectory of successful reaches on the final day of training
     success = data{i}.Sessions(end).StimLogical;
-    [data{i}.ExpertReach,~,~,~] = AverageTrajectory(data{i}.Sessions(end).InitialToMax(stims));
+    [data{i}.ExpertReach,~] = AverageTrajectory(data{i}.Sessions(end).InitialToMax(stims));
     
     % compute session means 
     data{i} = SessionMeans(data{i});
