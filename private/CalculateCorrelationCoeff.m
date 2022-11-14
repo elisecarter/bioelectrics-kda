@@ -1,7 +1,7 @@
 function data = CalculateCorrelationCoeff(data)
 %calculate different correlation coefficients (based on user seelctions?)
 
-for i = 1:length(data.Sessions)
+for i = 1:length(data.Sessions) % iterate thru sessions
     session = data.Sessions(i);
     % pull out successful reach indices
     success_ind = strcmp(session.Behavior,'success');
