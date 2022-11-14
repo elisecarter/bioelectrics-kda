@@ -18,7 +18,7 @@ arclength by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange
 
 ## General Workflow
 
-Note: At any time, the session may be saved using the File menu. This creates a file within the kdaFiles folder in the output directory with the following naming convention: MOUSEID_STATUS.kda
+Note: At any time, the session may be saved using the File menu. This creates a file within the kdaFiles folder in the output directory with the following naming convention: mouseID_status.kda
 
 1) Load raw data using the File menu. 
 
