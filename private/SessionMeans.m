@@ -13,8 +13,11 @@ for i = 1:length(data.Sessions)
     num_success = sum(strcmp(session_data.Behavior,'success'));
     num_reaches = length(session_data.Behavior);
     data.Sessions(i).PercentSuccess = num_success/num_reaches;
+    
+    % path length
+    data.Sessions(i).MeanArcLength = mean([session_data.InitialToMax.HandArcLength]);
 
-    if exist('session_data.HandArcLength','var')
-        data.Sessions(i).MeanArcLength = mean([session_data.HandArcLength]);
+    % duration
+    data.Sessions(i).MeanDuration = mean([session_data.InitialToMax.ReachDuration]);
     end
 end

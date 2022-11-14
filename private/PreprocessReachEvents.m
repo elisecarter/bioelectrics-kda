@@ -1,4 +1,4 @@
-function  [SessionData] = PreprocessReachEvents(RawData, user_selections)
+function  [SessionData] = PreprocessReachEvents(RawData)
 % iterates through all reaches in each session and filters data to
 % keep only reach events, calculates interpolated position/velocity,
 % dynamic time warping of hand position, hand arc length,
@@ -100,18 +100,13 @@ for i = 1 : length(RawData) %iterate thru sessions
         DTW_max = DynamicTimeWarping(smooth_hand_max);
         DTW_end = DynamicTimeWarping(smooth_hand_end);
 
-        % arc length
-        if user_selections.ArcLength == 1
-            arc_length_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
-            arc_length_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
-
-            SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
-            SessionData(i).InitialToEnd(j).HandArcLength = arc_length_end;
-        end
-
         % DTW normalized to pellet
         DTW_norm_max = DTW_max - SessionData(i).PelletLocation;
         DTW_norm_end = DTW_end - SessionData(i).PelletLocation;
+
+        % arc length
+        arc_length_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
+        arc_length_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
 
         % store initial to max data
         SessionData(i).InitialToMax(j).StartIndex = start_ind;
@@ -124,6 +119,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(j).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(j).DTWHand = DTW_max;
         SessionData(i).InitialToMax(j).DTWHandNormalized = DTW_max;
+        SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
 
         % store initial to end data
         SessionData(i).InitialToEnd(j).StartIndex = start_ind;
@@ -136,6 +132,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(j).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(j).DTWHand = DTW_end;
         SessionData(i).InitialToEnd(j).DTWHandNormalized = DTW_end;
+        SessionData(i).InitialToEnd(j).HandArcLength = arc_length_end;
 
     end
 end
