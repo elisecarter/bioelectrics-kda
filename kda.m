@@ -171,7 +171,7 @@ data = [];
         end
         
         user_selections = UserSelections('ExtractKinematics');
-        data = PreprocessMice(data, user_selections);
+        data = PreprocessMice(data);
         DataSummary(data,window)
         OutputData(data, OUTpath,user_selections)
     end

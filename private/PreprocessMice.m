@@ -1,4 +1,4 @@
-function data = PreprocessMice(data,user_selections)
+function data = PreprocessMice(data)
 
 f = waitbar(0,'Please wait...'); % create wait bar
 for i = 1:length(data)
@@ -9,9 +9,8 @@ for i = 1:length(data)
     % raw data indexed at reaches & saved in previous step
     data{i} = rmfield(data{i},'RawData');
     
-    % expert reach is mean trajectory of successful reaches on the final day of training
-    success = data{i}.Sessions(end).StimLogical;
-    [data{i}.ExpertReach,~] = AverageTrajectory(data{i}.Sessions(end).InitialToMax(stims));
+    % calculate expert reach 
+    data{i} = CalculateExpertReach(data{i});
     
     % compute session means 
     data{i} = SessionMeans(data{i});
