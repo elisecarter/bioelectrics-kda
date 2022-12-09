@@ -88,7 +88,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         smooth_hand_end = HandSmoothing(relative_hand_end);
         smooth_hand_max = HandSmoothing(relative_hand_max);
 
-        % velocity - interpolated, absolute, and raw 
+        % velocity - interpolated, absolute, and raw in mm/sec
         [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
         [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
 

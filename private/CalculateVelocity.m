@@ -18,6 +18,7 @@ queryPts = 1:temp:length(samplePts);
 interp_delta = interp1(samplePts,delta,queryPts,'pchip');
 delta_mag = interp1(samplePts,delta_mag,queryPts,'pchip')';
 
+% multiply by fps to get units of mm/sec
 interp_velocity = interp_delta .* fps;
 abs_velocity = delta_mag .* fps; 
 raw_velocity = delta .* fps;
