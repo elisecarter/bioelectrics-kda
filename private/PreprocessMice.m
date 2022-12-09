@@ -8,6 +8,9 @@ for i = 1:length(data)
     
     % raw data indexed at reaches & saved in previous step
     data{i} = rmfield(data{i},'RawData');
+
+    % filter reaches using velocity threshold
+    data{i} = FilterReaches(data{i});
     
     % calculate expert reach 
     data{i} = CalculateExpertReach(data{i});
@@ -15,6 +18,10 @@ for i = 1:length(data)
     % compute session means 
     data{i} = SessionMeans(data{i});
 
+    % compute correlation coefficients
+    data{i} = CalculateCorrelationCoeff(data{i});
+    
+    % change status from raw to kinematic extracted
     data{i}.Status = 'KinematicsExtracted';
 end
 close(f)
