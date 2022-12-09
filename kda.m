@@ -39,8 +39,8 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 % analysis menu
 menu_analysis = uimenu(window, 'Label', 'Analysis');
 uimenu(menu_analysis, 'Text', 'Extract Kinematics', 'Callback', @AnalysisExtractKinematics)
-uimenu(menu_analysis, 'Text', 'Correlations', 'Callback', @AnalysisCorrelations)
-%uimenu(menu_analysis, 'Text', 'Compare Cohorts', 'Callback', @AnalysisCompareCohorts,'Enable','off')
+%uimenu(menu_analysis, 'Text', 'Filter Reaches', 'Callback', @AnalysisFilterReaches)
+%uimenu(menu_analysis, 'Text', 'Correlations', 'Callback', @AnalysisCorrelations) 
 
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
@@ -175,23 +175,23 @@ data = [];
         DataSummary(data,window)
         OutputData(data, OUTpath,user_selections)
     end
-
-    function AnalysisCorrelations(varargin)
-        % user navigate to output directory
-        msg3 = msgbox('Navigate to Output Directory');
-        uiwait(msg3)
-        OUTpath = uigetdir();
-        if OUTpath == 0
-            warning('User cancelled: No output folder selected.')
-            return
-        end
-        
-        %user_selections = UserSelections('Correlations');
-        for i = 1: length(data)
-            data{i} = CalculateCorrelationCoeff(data{i});
-        end
-        OutputCorrelationsData(data,OUTpath)
-    end
+% 
+%     function AnalysisCorrelations(varargin)
+% %         % user navigate to output directory
+% %         msg3 = msgbox('Navigate to Output Directory');
+% %         uiwait(msg3)
+% %         OUTpath = uigetdir();
+% %         if OUTpath == 0
+% %             warning('User cancelled: No output folder selected.')
+% %             return
+% %         end
+%         
+%         %user_selections = UserSelections('Correlations');
+%         for i = 1: length(data)
+%             data{i} = CalculateCorrelationCoeff(data{i});
+%         end
+%         OutputCorrelationsData(data,OUTpath)
+%     end
 
 %% Export Menu
     function ExportSessionMeans(varargin)
@@ -229,12 +229,11 @@ data = [];
             dlgtitle = 'Input Cohort Name';
             dims = [1 35];
             definput = {''};
-            cohortID{i} = inputdlg(prompt,dlgtitle,dims,definput);
+            cohortID{1} = inputdlg(prompt,dlgtitle,dims,definput);
         end
         
         OutputSessionMeans(cohort,cohortID,OUTpath)
 
-       
     end
 
 end
