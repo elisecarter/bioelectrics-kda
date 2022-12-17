@@ -8,9 +8,6 @@ for i = 1:length(data)
     
     % raw data indexed at reaches & saved in previous step
     data{i} = rmfield(data{i},'RawData');
-
-    % filter reaches using velocity threshold
-    data{i} = FilterReaches(data{i});
     
     % calculate expert reach 
     data{i} = CalculateExpertReach(data{i});

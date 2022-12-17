@@ -8,6 +8,8 @@ function  [SessionData] = PreprocessReachEvents(RawData)
 SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
     'InitialToEnd',[],'StimLogical',[]);
 
+vel_threshold = 1000; %mm/sec - for filtering by absolute velocity
+
 for i = 1 : length(RawData) %iterate thru sessions
     session_raw = RawData(i);
     indx = table2array(session_raw.ReachIndexPairs); %pull out reach indices
@@ -52,8 +54,12 @@ for i = 1 : length(RawData) %iterate thru sessions
         end
     end
     SessionData(i).PelletLocation = median(pellet_loc);
-
-    for j = 1 : height(indx) % j: reach event
+    
+    num_reaches = height(indx);
+    deleted_log = zeros(1, num_reaches); % initialize for use for filtering
+    for j = 1 : num_reaches % j: reach event
+        k = j - sum(deleted_log); % subtract total # of reaches deleted to adjust index for storage
+        
         start_ind = indx(j,1); % start index
         max_ind = indx(j,2); % max index
         end_ind = indx(j,3); % end index
@@ -63,13 +69,13 @@ for i = 1 : length(RawData) %iterate thru sessions
         duration_end = (end_ind - start_ind) / 150; %sec
 
         % index only reach events from raw data (start to end)
+        init2max = structfun(@(x) x(start_ind:max_ind), session_raw, ...
+            'UniformOutput', false);
         init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
 
-        % store initial to end raw data
-        SessionData(i).InitialToEnd(j).RawData = struct2table(init2end);
-
         % convert hand position units to mm
+        init2max = ConvertPositionUnits(init2max);
         init2end = ConvertPositionUnits(init2end);
 
         % euclidean matrix of raw hand position data [mm]
@@ -79,7 +85,21 @@ for i = 1 : length(RawData) %iterate thru sessions
         frames_max = max_ind - start_ind + 1; % number of frames from start to max
         tempeuc_max = tempeuc(1:frames_max,:);
 
-        % hand relative to pellet - ALL POSITION DATA RELATIVE TO PELLET
+        % velocity - interpolated, absolute, and raw in mm/sec
+        [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
+        [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
+        
+        % if absolute velocity is greater than thresh, delete this reach
+        % done here to minimize run time - DTW and arclength are expensive)
+        if any(absVel_max > vel_threshold)
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];    
+            deleted_log(j) = true; % mark this iteration as deleted
+            continue
+        end
+
+        % hand relative to pellet - POSITION DATA RELATIVE TO PELLET
         % FROM NOW ON
         relative_hand_end = tempeuc - SessionData(i).PelletLocation;
         relative_hand_max = tempeuc_max - SessionData(i).PelletLocation;
@@ -87,10 +107,6 @@ for i = 1 : length(RawData) %iterate thru sessions
         % hand position smoothing
         smooth_hand_end = HandSmoothing(relative_hand_end);
         smooth_hand_max = HandSmoothing(relative_hand_max);
-
-        % velocity - interpolated, absolute, and raw in mm/sec
-        [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
-        [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
 
         % hand position interpolation
         [interp_hand_max] = InterpolatePosition(smooth_hand_max);
@@ -100,39 +116,36 @@ for i = 1 : length(RawData) %iterate thru sessions
         DTW_max = DynamicTimeWarping(smooth_hand_max);
         DTW_end = DynamicTimeWarping(smooth_hand_end);
 
-        % DTW normalized to pellet
-        DTW_norm_max = DTW_max - SessionData(i).PelletLocation;
-        DTW_norm_end = DTW_end - SessionData(i).PelletLocation;
-
         % arc length
         arc_length_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
         arc_length_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
 
         % store initial to max data
-        SessionData(i).InitialToMax(j).StartIndex = start_ind;
-        SessionData(i).InitialToMax(j).EndIndex = max_ind;
-        SessionData(i).InitialToMax(j).ReachDuration = duration_max;
-        SessionData(i).InitialToMax(j).HandPositionNormalized = relative_hand_max;
-        SessionData(i).InitialToMax(j).RawVelocity = rawVel_max;
-        SessionData(i).InitialToMax(j).InterpolatedVelocity = interpVel_max;
-        SessionData(i).InitialToMax(j).AbsoluteVelocity = absVel_max;
-        SessionData(i).InitialToMax(j).InterpolatedHand = interp_hand_max;
-        SessionData(i).InitialToMax(j).DTWHand = DTW_max;
-        SessionData(i).InitialToMax(j).DTWHandNormalized = DTW_max;
-        SessionData(i).InitialToMax(j).HandArcLength = arc_length_max;
+        SessionData(i).InitialToEnd(k).RawData = struct2table(init2max);
+        SessionData(i).InitialToMax(k).StartIndex = start_ind;
+        SessionData(i).InitialToMax(k).EndIndex = max_ind;
+        SessionData(i).InitialToMax(k).ReachDuration = duration_max;
+        SessionData(i).InitialToMax(k).HandPositionNormalized = relative_hand_max;
+        SessionData(i).InitialToMax(k).RawVelocity = rawVel_max;
+        SessionData(i).InitialToMax(k).InterpolatedVelocity = interpVel_max;
+        SessionData(i).InitialToMax(k).AbsoluteVelocity = absVel_max;
+        SessionData(i).InitialToMax(k).InterpolatedHand = interp_hand_max;
+        SessionData(i).InitialToMax(k).DTWHand = DTW_max;
+        SessionData(i).InitialToMax(k).DTWHandNormalized = DTW_max;
+        SessionData(i).InitialToMax(k).HandArcLength = arc_length_max;
 
         % store initial to end data
-        SessionData(i).InitialToEnd(j).StartIndex = start_ind;
-        SessionData(i).InitialToEnd(j).EndIndex = end_ind;
-        SessionData(i).InitialToEnd(j).ReachDuration = duration_end;
-        SessionData(i).InitialToEnd(j).HandPositionNormalized = relative_hand_end;
-        SessionData(i).InitialToEnd(j).RawVelocity = rawVel_end;
-        SessionData(i).InitialToEnd(j).InterpolatedVelocity = interpVel_end;
-        SessionData(i).InitialToEnd(j).AbsoluteVelocity = absVel_end;
-        SessionData(i).InitialToEnd(j).InterpolatedHand = interp_hand_end;
-        SessionData(i).InitialToEnd(j).DTWHand = DTW_end;
-        SessionData(i).InitialToEnd(j).DTWHandNormalized = DTW_end;
-        SessionData(i).InitialToEnd(j).HandArcLength = arc_length_end;
-
+        SessionData(i).InitialToEnd(k).RawData = struct2table(init2end);
+        SessionData(i).InitialToEnd(k).StartIndex = start_ind;
+        SessionData(i).InitialToEnd(k).EndIndex = end_ind;
+        SessionData(i).InitialToEnd(k).ReachDuration = duration_end;
+        SessionData(i).InitialToEnd(k).HandPositionNormalized = relative_hand_end;
+        SessionData(i).InitialToEnd(k).RawVelocity = rawVel_end;
+        SessionData(i).InitialToEnd(k).InterpolatedVelocity = interpVel_end;
+        SessionData(i).InitialToEnd(k).AbsoluteVelocity = absVel_end;
+        SessionData(i).InitialToEnd(k).InterpolatedHand = interp_hand_end;
+        SessionData(i).InitialToEnd(k).DTWHand = DTW_end;
+        SessionData(i).InitialToEnd(k).DTWHandNormalized = DTW_end;
+        SessionData(i).InitialToEnd(k).HandArcLength = arc_length_end;
     end
 end
