@@ -1,4 +1,5 @@
 function DataSummary(data,window)
+% updates text on kda window showing loaded data and status
 
 disp_text = cell(1,length(data));
 for i = 1:length(data)

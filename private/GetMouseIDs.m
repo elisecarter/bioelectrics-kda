@@ -1,4 +1,5 @@
 function [mouseIDs,CURdir] = GetMouseIDs(CURpath)
+% creates list of mouse IDs from names of files in the Curator folder
 CURdir = dir(CURpath);
 
 % remove anything that is not a subdirectory in curator folder

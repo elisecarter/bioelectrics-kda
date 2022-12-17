@@ -1,4 +1,5 @@
 function session_max = SessionMaxVelocity(session_data)
+% computes avg max velocity for the session
 
 reach_max = zeros(length(session_data),1);
 for i = 1:length(session_data)

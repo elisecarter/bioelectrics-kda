@@ -1,4 +1,5 @@
 function OutputSessionMeans(cohort,cohortID,path)
+% creates an excel file for each cohort with session level data
 
 folder = 'SessionMeans';
 folder_path = fullfile(path,folder);
