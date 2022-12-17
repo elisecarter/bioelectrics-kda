@@ -26,10 +26,7 @@ for i = 1:length(data) % iterate thru mice
         raw_data(j).EndCategory = table2array(CURdata(:,5));
         
         % convert uint16 data in table3D to double, store in rawData
-        for k = 1:length(fieldnames)-4 % dont need anything past cropPts in table
-%             if strcmpi(fieldnames{k},'cropPts') 
-%                 continue % dont need crop pts
-%             end
+        for k = 1:length(fieldnames)-4 % dont need last 4 columns in table
             raw_data(j).(fieldnames{k}) = double(MATdata.table3D{1,k}{:,:})';
         end
 
