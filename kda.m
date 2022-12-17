@@ -187,9 +187,11 @@ data = [];
         DataSummary(data,window)
     end
 
-    function FileSaveSession(varargin) %%%%
+    function FileSaveSession(varargin)
         if isempty(data)
-            error('No session data to save.')
+            err1 = msgbox('No data to save.');
+            uiwait(err1)
+            return
         end
 
         % save data as .kda file (.mat file)
@@ -210,6 +212,18 @@ data = [];
 
 %% Analysis Menu
     function AnalysisExtractKinematics(varargin)
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to process. Please load raw ' ...
+                'data before extracting kinematics.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'Raw'), data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Please load raw data before extracting kinematics.']);
+            uiwait(err2)
+            return
+        end
         % user navigate to output directory
         msg3 = msgbox('Navigate to Output Directory');
         uiwait(msg3)
@@ -227,6 +241,19 @@ data = [];
 
 %% Export Menu
     function ExportSessionMeans(varargin)
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to process. Please load data with ' ...
+                'kinematics extracted before exporting session means.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Please extract kinematics before exporting session means.']);
+            uiwait(err2)
+            return
+        end
+
         % user navigate to output directory
         msg4 = msgbox('Navigate to Output Directory');
         uiwait(msg4)
