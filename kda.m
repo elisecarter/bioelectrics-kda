@@ -8,57 +8,6 @@ function kda
 %     interparc by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34874-interparc
 %     arclength by John D'Errico: https://www.mathworks.com/matlabcentral/fileexchange/34871-arclength
 
-% Licensing
-%    bioelectrics-kda 
-%         MIT License
-%         
-%         Copyright (c) 2022 Elise Carter
-%         
-%         Permission is hereby granted, free of charge, to any person obtaining a copy
-%         of this software and associated documentation files (the "Software"), to deal
-%         in the Software without restriction, including without limitation the rights
-%         to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-%         copies of the Software, and to permit persons to whom the Software is
-%         furnished to do so, subject to the following conditions:
-%         
-%         The above copyright notice and this permission notice shall be included in all
-%         copies or substantial portions of the Software.
-%         
-%         THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-%         IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-%         FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-%         AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-%         LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-%         OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-%         SOFTWARE.
-% 
-%     arclength & interparc:
-%         Copyright (c) 2012, John D'Errico
-%         All rights reserved.
-%         
-%         Redistribution and use in source and binary forms, with or without
-%         modification, are permitted provided that the following conditions are
-%         met:
-%         
-%             * Redistributions of source code must retain the above copyright
-%               notice, this list of conditions and the following disclaimer.
-%             * Redistributions in binary form must reproduce the above copyright
-%               notice, this list of conditions and the following disclaimer in
-%               the documentation and/or other materials provided with the distribution
-%         
-%         THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-%         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-%         IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-%         ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-%         LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-%         CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-%         SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-%         INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-%         CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-%         ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-%         POSSIBILITY OF SUCH DAMAGE.
-
-
 %% Create GUI
 % turn off TEX interpreter
 set(0, 'DefaulttextInterpreter', 'none');
@@ -110,17 +59,18 @@ data = [];
             btn2 = 'Add to current session';
             defbtn = 'Add to current session';
             answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
-
-            if strcmpi(answer,btn1)
+            
+            % if new session, delete data
+            if strcmpi(answer,btn1) 
                 data = [];
             end
         end
 
         % user naviagate to Matlab_3D folder
         msg1 = msgbox('Select Matlab_3D Folder');
-        %if canceled then return
         uiwait(msg1)
         MATpath = uigetdir();
+        %if canceled then return
         if MATpath == 0
             warning('User cancelled: No Matlab_3D folder selected.')
             return
@@ -130,6 +80,7 @@ data = [];
         msg2 = msgbox('Select Curators Folder');
         uiwait(msg2)
         CURpath = uigetdir();
+        %if canceled then return
         if CURpath == 0
             warning('User cancelled: No Curator folder selected.')
             return
@@ -137,6 +88,7 @@ data = [];
 
         [mouseIDs,CURdir] = GetMouseIDs(CURpath);
         [mouseIDs,indx] = SelectMice(mouseIDs);
+        % index selected mice from curator directory struct
         CURdir = CURdir(indx);
         
         % datacount should be zero if nothing loaded
@@ -148,7 +100,7 @@ data = [];
         end
         
         data = LoadRawData(data,MATpath,CURdir);
-        DataSummary(data,window)
+        DataSummary(data,window) %update 
     end
 
     function FileLoadSavedSession(varargin)
@@ -160,7 +112,8 @@ data = [];
             btn2 = 'Add to current session';
             defbtn = 'Add to current session';
             answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
-
+            
+            % if new session, delete data
             if strcmpi(answer,btn1)
                 data = [];
             end
