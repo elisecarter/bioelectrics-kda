@@ -4,9 +4,15 @@ f = waitbar(0,'Please wait...'); % create wait bar
 for i = 1:length(data)
     waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
     waitbar(i/length(data),f,waitstr);
+
+    % interpolate thru poorly tracked datapoints (low confidence)
+    data{i} = InterpBadTracking(data{i});
+    
+    % filtering and compute major kinematics
     data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
     
-    % raw data indexed at reaches & saved in previous step
+    % raw data indexed at reaches & saved in previous step - delete big
+    % vectors
     data{i} = rmfield(data{i},'RawData');
     
     % calculate expert reach 
