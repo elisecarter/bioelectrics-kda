@@ -39,6 +39,7 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 % analysis menu
 menu_analysis = uimenu(window, 'Label', 'Analysis');
 uimenu(menu_analysis, 'Text', 'Extract Kinematics', 'Callback', @AnalysisExtractKinematics)
+uimenu(menu_analysis, 'Text', 'Compare Learning Phases', 'Callback', @AnalysisComparePhases)
 
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
@@ -153,7 +154,7 @@ data = [];
             warning('User cancelled: No output folder selected.')
             return
         end
-
+        
         for i = 1:length(data)
             SaveKdaFile(data{i},path)
         end
@@ -192,6 +193,94 @@ data = [];
         OutputData(data, OUTpath,user_selections)
     end
 
+     function AnalysisComparePhases(varargin)
+%         % check that mice are loaded and have correct status
+%         if isempty(data)
+%             err1 = msgbox(['No data to compare. Please load data with ' ...
+%                 'kinematics extracted before comparing learning phases.']);
+%             uiwait(err1)
+%             return
+%         elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+%             err2 = msgbox(['Data does not have correct status. ' ...
+%                 'Please extract kinematics before exporting session means.']);
+%             uiwait(err2)
+%             return
+%         end
+
+        % user navigate to kda folder
+        msg4 = msgbox('Select folder containing kda files');
+        uiwait(msg4)
+        kdaPath = uigetdir();
+        %if canceled then return
+        if kdaPath == 0
+            warning('User cancelled: No KDA folder selected.')
+            return
+        end
+
+        % user navigate to output directory
+        msg4 = msgbox('Navigate to Output Directory');
+        uiwait(msg4)
+        OUTpath = uigetdir();
+        if OUTpath == 0
+            warning('User cancelled: No output folder selected.')
+            return
+        end
+
+        % user enter learning phase indentifiers
+        prompt = sprintf(['Enter the identifier for learning phase 1. ' ...
+            'This should be a string within the mouse ID that is ' ...
+            'unique to the learning phase. Ex: pre']);
+        dlgtitle = 'Learning Phase Identifier';
+        dims = [1 60];
+        definput = {''};
+        phaseID{1} = inputdlg(prompt,dlgtitle,dims,definput);
+
+        prompt = sprintf(['Enter the identifier for learning phase 2. ' ...
+            'This should be a string within the mouse ID that is ' ...
+            'unique to the learning phase. Ex: post']);
+        dlgtitle = 'Learning Phase Identifier';
+        dims = [1 60];
+        definput = {''};
+        phaseID{2} = inputdlg(prompt,dlgtitle,dims,definput);
+
+        % opt to group by cohort
+        quest = 'Would you like to group by cohort?';
+        dlgtitle = 'Group Option';
+        yes = 'Yes';
+        no = 'No';
+        defbtn = 'Yes';
+        answer = questdlg(quest,dlgtitle,yes,no,defbtn);
+        
+        % find files belonging to each phase and compare
+        phaseLists = GroupByPhase(phaseID,kdaPath);
+        corrData = CompareLearningPhases(phaseLists,kdaPath);
+
+        % ui select mice to group
+        if strcmpi(answer,yes)
+            % user input number of cohorts
+            prompt = {'Enter the number of cohorts:'};
+            dlgtitle = 'Number of Cohorts';
+            dims = [1 35];
+            definput = {'2'};
+            num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
+            [cohort, cohortID] = SelectCohorts(corrData,num_cohorts);  
+
+        elseif strcmpi(answer,no)
+            % single cohort
+            cohort{1} = corrData;
+            % name cohort
+            prompt = sprintf('Enter the identifier for cohort 1');
+            dlgtitle = 'Input Cohort Name';
+            dims = [1 35];
+            definput = {''};
+            cohortID{1} = inputdlg(prompt,dlgtitle,dims,definput);
+        end
+        
+         OutputPhaseCorrelations(cohort,cohortID,OUTpath)
+
+    end
+
+
 %% Export Menu
     function ExportSessionMeans(varargin)
         % check that mice are loaded and have correct status
@@ -218,13 +307,13 @@ data = [];
 
         quest = 'Would you like to group by cohort?';
         dlgtitle = 'Group Option';
-        btn1 = 'Yes';
-        btn2 = 'No';
+        yes = 'Yes';
+        no = 'No';
         defbtn = 'Yes';
-        answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
+        answer = questdlg(quest,dlgtitle,yes,no,defbtn);
         
         % ui select mice to group
-        if strcmpi(answer,btn1)
+        if strcmpi(answer,yes)
             % user input number of cohorts
             prompt = {'Enter the number of cohorts:'};
             dlgtitle = 'Number of Cohorts';
@@ -233,7 +322,7 @@ data = [];
             num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
             [cohort, cohortID] = SelectCohorts(data,num_cohorts);  
 
-        elseif strcmpi(answer,btn2)
+        elseif strcmpi(answer,no)
             % single cohort
             cohort{1} = data;
             % name cohort
