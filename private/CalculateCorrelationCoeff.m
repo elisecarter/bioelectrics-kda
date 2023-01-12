@@ -12,15 +12,12 @@ for i = 1:length(data.Sessions) % iterate thru sessions
         temp = corrcoef(session.InitialToMax(j).DTWHandNormalized,data.ExpertReach);
         corr(j) = temp(1,2);
     end
-    %data.Sessions(i).Correlations.ReachesToExpert = corr;
     data.Sessions(i).Correlations.AllReachesToExpert = mean(corr);
     
     % index out correlation of successful reaches
-    %data.Sessions(i).Correlations.SuccessToExpert = corr(success_ind);
     data.Sessions(i).Correlations.SuccessToExpert = mean(corr(success_ind));
     
     % index out correlation of failed reaches
-    %data.Sessions(i).Correlations.FailToExpert = corr(~success_ind);
     data.Sessions(i).Correlations.FailToExpert = mean(corr(~success_ind));
 
     % determine percent of expert reaches
