@@ -1,9 +1,12 @@
-function mean_velocity = SessionMeanVelocity(session_data)
+function [meanEucVelocity, meanAbsVelocity] = SessionMeanVelocity(session_data)
 % computes mean euclidean velocity for each session
 
-reach_velocities = zeros(length(session_data),3);
+eucVelocities = zeros(length(session_data),3);
+absVelocities = zeros(length(session_data),1);
 for i = 1:length(session_data)
-    reach_velocities(i,:) = mean(session_data(i).InterpolatedVelocity);
+    eucVelocities(i,:) = mean(session_data(i).InterpolatedVelocity);
+    absVelocities(i) = mean(session_data(i).AbsoluteVelocity);
 end
 
-mean_velocity = mean(reach_velocities);
+meanEucVelocity = mean(eucVelocities);
+meanAbsVelocity = mean(absVelocities);
