@@ -9,10 +9,16 @@ SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
     'InitialToEnd',[],'StimLogical',[]);
 
 vel_threshold = 1000; %mm/sec - for filtering by absolute velocity
+interp_threshold = .5; %percent of datapoints that were poorly tracked (<90 confidence)
 
 for i = 1 : length(RawData) %iterate thru sessions
     session_raw = RawData(i);
     indx = table2array(session_raw.ReachIndexPairs); %pull out reach indices
+
+    % pull out success rate from raw data
+    num_success = sum(strcmp(session_raw.Behaviors,'success'));
+    num_reaches = length(session_raw.Behaviors);
+    SessionData(i).PercentSuccess = num_success/num_reaches;
 
     % save session level info before deleting so we can use structfun
     SessionData(i).SessionID = session_raw.Session;
@@ -68,17 +74,29 @@ for i = 1 : length(RawData) %iterate thru sessions
         duration_max = (max_ind - start_ind) / 150; %sec
         duration_end = (end_ind - start_ind) / 150; %sec
 
-        % index only reach events from raw data (start to end)
+        % index only reach events from raw data (start to max/end)
         init2max = structfun(@(x) x(start_ind:max_ind), session_raw, ...
             'UniformOutput', false);
         init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
 
+        % if percent of poorly tracked data points in this reach is greater
+        % than the threshold, delete this reach
+        conf = init2max.handConfXY_10k./10000;
+        percent_poor = sum(conf<0.9)/length(conf); %percent poorly tracked datapts 
+        if percent_poor > interp_threshold
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];    
+            deleted_log(j) = true; % mark this iteration as deleted
+            continue
+        end
+
         % convert hand position units to mm
         init2max = ConvertPositionUnits(init2max);
         init2end = ConvertPositionUnits(init2end);
 
-        % euclidean matrix of raw hand position data [mm]
+        % euclidean matrix of raw hand position data in mm
         tempeuc = [init2end.handX init2end.handY init2end.handZ];
 
         % index out initial to max euclidean matrix for further processing
@@ -90,7 +108,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
         
         % if absolute velocity is greater than thresh, delete this reach
-        % done here to minimize run time - DTW and arclength are expensive)
+        % done here to minimize run time - DTW and arclength computations are expensive)
         if any(absVel_max > vel_threshold)
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
@@ -117,8 +135,17 @@ for i = 1 : length(RawData) %iterate thru sessions
         DTW_end = DynamicTimeWarping(smooth_hand_end);
 
         % arc length
-        arc_length_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
-        arc_length_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
+        % 3D path length
+        arcLength3D_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
+        arcLength3D_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
+        
+        % XY path length
+        arcLengthXY_max = arclength(DTW_max(:,1), DTW_max(:,2),'spline');
+        arcLengthXY_end = arclength(DTW_end(:,1), DTW_end(:,2),'spline');
+        
+        % XZ path length
+        arcLengthXZ_max = arclength(DTW_max(:,1), DTW_max(:,3),'spline');
+        arcLengthXZ_end = arclength(DTW_end(:,1), DTW_end(:,3),'spline');
 
         % store initial to max data
         SessionData(i).InitialToEnd(k).RawData = struct2table(init2max);
@@ -132,7 +159,9 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(k).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(k).DTWHand = DTW_max;
         SessionData(i).InitialToMax(k).DTWHandNormalized = DTW_max;
-        SessionData(i).InitialToMax(k).HandArcLength = arc_length_max;
+        SessionData(i).InitialToMax(k).PathLength3D = arcLength3D_max;
+        SessionData(i).InitialToMax(k).PathLengthXY = arcLengthXY_max;
+        SessionData(i).InitialToMax(k).PathLengthXZ = arcLengthXZ_max;
 
         % store initial to end data
         SessionData(i).InitialToEnd(k).RawData = struct2table(init2end);
@@ -146,6 +175,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(k).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(k).DTWHand = DTW_end;
         SessionData(i).InitialToEnd(k).DTWHandNormalized = DTW_end;
-        SessionData(i).InitialToEnd(k).HandArcLength = arc_length_end;
+        SessionData(i).InitialToEnd(k).PathLength3D = arcLength3D_end;
+        SessionData(i).InitialToEnd(k).PathLengthXY = arcLengthXY_end;
+        SessionData(i).InitialToEnd(k).PathLengthXZ = arcLengthXZ_end;
     end
 end
