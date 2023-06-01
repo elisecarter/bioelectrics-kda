@@ -27,28 +27,50 @@ for i = 1:length(cohort) %iterate thru cohorts
             temp{k,3} = data.Sessions(k).PercentSuccess;
             temp{k,4} = data.Sessions(k).PercentExpert;
 
-            temp{k,5} = correlations.AllReachesToExpert;
-            temp{k,6} = correlations.SuccessToExpert;
-            temp{k,7} = correlations.FailToExpert;
-            temp{k,8} = correlations.PercentIncreaseofFailuresNorm;
+            temp{k,5} = correlations.AllReachesToExpert3D;
+            temp{k,6} = correlations.AllReachesToExpertX;
+            temp{k,7} = correlations.AllReachesToExpertY;
+            temp{k,8} = correlations.AllReachesToExpertZ;
 
-            temp{k,9} = data.Sessions(k).MeanVelocity(1,1);
-            temp{k,10} = data.Sessions(k).MeanVelocity(1,2);
-            temp{k,11} = data.Sessions(k).MeanVelocity(1,3);
+            temp{k,9} = correlations.SuccessToExpert3D;
+            temp{k,10} = correlations.SuccessToExpertX;
+            temp{k,11} = correlations.SuccessToExpertY;
+            temp{k,12} = correlations.SuccessToExpertZ;
 
-            temp{k,12} = data.Sessions(k).MaxAbsVelocity;
-            temp{k,13} = data.Sessions(k).MeanDuration;
-            temp{k,14} = data.Sessions(k).MeanArcLength;
+            temp{k,13} = correlations.FailToExpert3D;
+            temp{k,14} = correlations.FailToExpertX;
+            temp{k,15} = correlations.FailToExpertY;
+            temp{k,16} = correlations.FailToExpertZ;
+
+            temp{k,17} = correlations.PercentIncreaseofFailures;
+
+            temp{k,18} = correlations.Consistency;
+            
+            temp{k,19} = data.Sessions(k).MeanEucVelocity(1,1);
+            temp{k,19} = data.Sessions(k).MeanEucVelocity(1,1);
+            temp{k,20} = data.Sessions(k).MeanEucVelocity(1,2);
+            temp{k,21} = data.Sessions(k).MeanEucVelocity(1,3);
+            temp{k,22} = data.Sessions(k).MeanAbsVelocity;
+            temp{k,23} = data.Sessions(k).MaxAbsVelocity;
+            temp{k,24} = data.Sessions(k).MeanDuration;
+            temp{k,25} = data.Sessions(k).MeanPathLength3D;
+            temp{k,26} = data.Sessions(k).MeanPathLengthXY;
+            temp{k,27} = data.Sessions(k).MeanPathLengthXZ;
+
         end
         C = vertcat(C,temp);
         clear temp
     end
     T = cell2table(C,...
         "VariableNames",["MouseID" "SessionID" "PercentSuccess" ...
-        "PercentExpert" "AllReachesToExpert" "SuccessToExpert" ...
-        "FailToExpert" "PercentIncreaseOfFailures" "MeanVelocityX" ...
-        "MeanVelocityY" "MeanVelocityZ" "MaxAbsoluteVelocity" ...
-        "MeanDuration" "MeanPathLength"]);
+        "PercentExpert" "AllReachesToExpert3D" "AllReachesToExpertX" ...
+        "AllReachesToExpertY" "AllReachesToExpertZ" "SuccessToExpert3D" ...
+        "SuccessToExpertX" "SuccessToExpertY" "SuccessToExpertZ" ...
+        "FailToExpert3D" "FailToExpertX" "FailToExpertY" "FailToExpertZ" ...
+        "PercentIncreaseOfFailures" "Consistency" ...
+        "MeanVelocityX" "MeanVelocityY" "MeanVelocityZ" ...
+        "MeanAbsoluteVelocity" "MaxAbsoluteVelocity" "MeanDuration" "MeanPathLength3D" ...
+        "MeanPathLengthXY" "MeanPathLengthXZ"]);
     writetable(T,filepath)
     clear C
     clear T
