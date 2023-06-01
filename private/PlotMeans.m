@@ -10,7 +10,7 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 for i = 1 : numMice
 
     % put session averages into vectors
-    velocity = [data{i}.Sessions.MeanVelocity];
+    velocity = [data{i}.Sessions.MeanEucVelocity];
 
     % plot the average reach trajectory of final session
     bar(velocity)
