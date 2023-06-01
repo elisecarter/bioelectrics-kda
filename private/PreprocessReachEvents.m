@@ -80,6 +80,14 @@ for i = 1 : length(RawData) %iterate thru sessions
         init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
 
+        if max_ind > end_ind
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];    
+            deleted_log(j) = true; % mark this iteration as deleted
+            continue
+        end
+
         % if percent of poorly tracked data points in this reach is greater
         % than the threshold, delete this reach
         conf = init2max.handConfXY_10k./10000;
@@ -109,13 +117,13 @@ for i = 1 : length(RawData) %iterate thru sessions
         
         % if absolute velocity is greater than thresh, delete this reach
         % done here to minimize run time - DTW and arclength computations are expensive)
-        if any(absVel_max > vel_threshold)
-            SessionData(i).StimLogical(k) = [];
-            SessionData(i).Behavior(k) = [];
-            SessionData(i).EndCategory(k) = [];    
-            deleted_log(j) = true; % mark this iteration as deleted
-            continue
-        end
+%         if any(absVel_max > vel_threshold)
+%             SessionData(i).StimLogical(k) = [];
+%             SessionData(i).Behavior(k) = [];
+%             SessionData(i).EndCategory(k) = [];    
+%             deleted_log(j) = true; % mark this iteration as deleted
+%             continue
+%         end
 
         % hand relative to pellet - POSITION DATA RELATIVE TO PELLET
         % FROM NOW ON
@@ -131,8 +139,16 @@ for i = 1 : length(RawData) %iterate thru sessions
         [interp_hand_end] = InterpolatePosition(smooth_hand_end);
 
         % dynamic time warping (DTW)
-        DTW_max = DynamicTimeWarping(smooth_hand_max);
-        DTW_end = DynamicTimeWarping(smooth_hand_end);
+        [DTW_max, flagMax] = DynamicTimeWarping(smooth_hand_max);
+        [DTW_end, flagEnd] = DynamicTimeWarping(smooth_hand_end);
+
+        if flagMax || flagEnd
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];    
+            deleted_log(j) = true; % mark this iteration as deleted
+            continue
+        end
 
         % arc length
         % 3D path length
