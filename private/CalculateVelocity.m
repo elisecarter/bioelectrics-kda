@@ -1,4 +1,5 @@
 function [interp_velocity,abs_velocity,raw_velocity] = CalculateVelocity(euc)
+%calculates velocity using raw euclidean matrices
 
 fps = 150; %CLARA 150 fps
 
