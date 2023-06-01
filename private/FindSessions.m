@@ -4,8 +4,9 @@ function [sessions,mouseDir] = FindSessions(CURdir)
 mouseDir = dir(fullfile(CURdir.folder, CURdir.name));
 mouseFiles = {mouseDir.name};
 
-% only excel files
-mouseDir = mouseDir(contains(mouseFiles,'.xlsx'));
+% only excel/csv files, files sometimes duplicated with ._ so also delete
+% those if present
+mouseDir = mouseDir((contains(mouseFiles,'.xlsx') | contains(mouseFiles,'.csv')) & ~contains(mouseFiles,'._'));
 sessions = {mouseDir.name};
 
 openfiles = strfind(sessions,'~'); % "~" indicates file is open elsewhere
