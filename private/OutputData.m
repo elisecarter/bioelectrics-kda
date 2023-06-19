@@ -2,10 +2,12 @@ function OutputData(data, OUTpath, user_selections)
 % creates folder for trajectory plots if it doesnt already exist in output
 % directory
 
-plot_folder = "TrajectoryPlots";
-plot_folder_path = fullfile(OUTpath,plot_folder);
-if ~exist(plot_folder_path,'dir')
-    mkdir(plot_folder_path)
+if user_selections.SavePlots == 1
+    plot_folder = "TrajectoryPlots";
+    plot_folder_path = fullfile(OUTpath,plot_folder);
+    if ~exist(plot_folder_path,'dir')
+        mkdir(plot_folder_path)
+    end
 end
 
 json_folder = "jsonFiles";
