@@ -213,13 +213,17 @@ end
             uiwait(err2)
             return
         end
-        % user navigate to output directory
-        msg3 = msgbox('Navigate to Output Directory');
-        uiwait(msg3)
-        UI.OutPath = uigetdir();
-        if UI.OutPath == 0
-            warning('User cancelled: No output folder selected.')
-            return
+
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            % user navigate to output directory
+            msg = msgbox('Navigate to Output Directory');
+            uiwait(msg)
+            UI.OutPath = uigetdir();
+            if UI.OutPath == 0
+                warning('User cancelled: No output folder selected.')
+                return
+            end
         end
 
         UI.extractSelections = UserSelections('ExtractKinematics');
@@ -250,14 +254,17 @@ end
             warning('User cancelled: No folder selected.')
             return
         end
-
-        % user navigate to output directory
-        msg4 = msgbox('Navigate to Output Directory');
-        uiwait(msg4)
-        OUTpath = uigetdir();
-        if OUTpath == 0
-            warning('User cancelled: No folder selected.')
-            return
+        
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            % user navigate to output directory
+            msg4 = msgbox('Navigate to Output Directory');
+            uiwait(msg4)
+            UI.OutPath = uigetdir();
+            if UI.OutPath == 0
+                warning('User cancelled: No folder selected.')
+                return
+            end
         end
 
         %% FIX THIS TO USE METADATA
@@ -311,7 +318,7 @@ end
             cohortID{1} = inputdlg(prompt,dlgtitle,dims,definput);
         end
 
-        OutputPhaseCorrelations(cohort,cohortID,OUTpath)
+        OutputPhaseCorrelations(cohort,cohortID,UI.OutPath)
 
     end
 
@@ -331,13 +338,16 @@ end
             return
         end
 
-        % user navigate to output directory
-        msg4 = msgbox('Navigate to Output Directory');
-        uiwait(msg4)
-        OUTpath = uigetdir();
-        if OUTpath == 0
-            warning('User cancelled: No output folder selected.')
-            return
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            % user navigate to output directory
+            msg4 = msgbox('Navigate to Output Directory');
+            uiwait(msg4)
+            UI.OutPath = uigetdir();
+            if OUTpath == 0
+                warning('User cancelled: No output folder selected.')
+                return
+            end
         end
 
         quest = 'Would you like to group by cohort?';
@@ -368,7 +378,7 @@ end
             cohortID{1} = inputdlg(prompt,dlgtitle,dims,definput);
         end
 
-        OutputSessionMeans(cohort,cohortID,OUTpath)
+        OutputSessionMeans(cohort,cohortID,UI.OutPath)
 
     end
 
@@ -387,19 +397,22 @@ end
             uiwait(err2)
             return
         end
-
+        
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
         % user navigate to output directory
         msg4 = msgbox('Navigate to Output Directory');
         uiwait(msg4)
-        OUTpath = uigetdir();
-        if OUTpath == 0
+        UI.OutPath = uigetdir();
+        if UI.OutPath == 0
             warning('User cancelled: No output folder selected.')
             return
+        end
         end
 
         % create folders
         folder = 'Individual Reaches';
-        folder_path = fullfile(OUTpath,folder);
+        folder_path = fullfile(UI.OutPath,folder);
         if ~exist(folder_path,'dir')
             mkdir(folder_path)
         end
@@ -411,7 +424,6 @@ end
 
 
         for i = 1:length(data)
-
             % create folder for each mouse
             folder = data{i}.MouseID;
             subfolder_path = fullfile(folder_path,folder);
@@ -428,7 +440,6 @@ end
                     mkdir(subfolder_path)
                 end
             end
-
 
             for k = 1:length(data{i}.Sessions(j).InitialToMax)
                 filename = num2str(k);
