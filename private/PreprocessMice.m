@@ -1,4 +1,4 @@
-function data = PreprocessMice(data)
+function data = PreprocessMice(data,UI)
 
 f = waitbar(0,'Please wait...'); % create wait bar
 for i = 1:length(data)
@@ -9,7 +9,7 @@ for i = 1:length(data)
     data{i} = InterpBadTracking(data{i});
     
     % filtering and compute major kinematics
-    data{i}.Sessions = PreprocessReachEvents(data{i}.RawData);
+    data{i}.Sessions = ProcessReachEvents(data{i}.RawData);
     
     % raw data indexed at reaches & saved in previous step - delete big
     % vectors
@@ -26,7 +26,11 @@ for i = 1:length(data)
     
     % change status from raw to kinematic extracted
     data{i}.Status = 'KinematicsExtracted';
+
+    AddMetaData()
+
+    % save json and kda files
+    OutputData(data{i}, UI.OutPath, UI.extractSelections)
 end
 close(f)
 
-ReviewFinalTrajectories(data)
