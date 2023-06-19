@@ -1,4 +1,4 @@
-function  [SessionData] = PreprocessReachEvents(RawData)
+function  [SessionData] = ProcessReachEvents(RawData)
 % iterates through all reaches in each session and filters data to
 % keep only reach events, calculates interpolated position/velocity,
 % dynamic time warping of hand position, hand arc length,
