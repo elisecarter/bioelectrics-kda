@@ -21,20 +21,27 @@ window = figure( ...
     'HandleVisibility','off');
 movegui(window,'center')
 
-h = uicontrol(window, "Style", 'text', ...
+% create objects to store text
+% data summary handle:
+dHand = uicontrol(window, "Style", 'text', ...
     'BackgroundColor', '#DCFFE6', ...
-    'Position', [130 110 300 200]);
+    'Position', [130 75 300 300]);
+% output directory handle:
+pHand = uicontrol(window, "Style", 'text', ...
+    'BackgroundColor', '#DCFFE6', ...
+    'Position', [14 20 535 22]);
 
 % text to display on window
-opening_str = {'','Perfroms Kinematic Feature Extraction from CLARA-generated Datasets', ...
+opening_str = {'','','','Extracts Kinematic Features from CLARA-Generated Datasets', ...
     '', 'Version 1.1', '', 'Navigate using Toolbar'};
-set(h,'String', opening_str)
+set(dHand,'String', opening_str)
 
 % file menu
 menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
 uimenu(menu_file, 'Text', 'Load Saved Session File(s)', 'Callback', @FileLoadSavedSession)
 uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
+uimenu(menu_file, 'Text', 'Change Output Directory','Callback', @FileChangeOutPath)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
 % analysis menu
@@ -137,7 +144,7 @@ end
         end
 
         data = LoadRawData(data,UI.Mat3Dpath,CURdir);
-        DataSummary(data,h) %update
+        DataSummary(data,dHand) %update
     end
 
     function FileLoadSavedSession(varargin)
@@ -174,7 +181,7 @@ end
             end
         end
 
-        DataSummary(data,h)
+        DataSummary(data,dHand)
     end
 
     function FileSaveSession(varargin)
@@ -194,6 +201,20 @@ end
         for i = 1:length(data)
             SaveKdaFile(data{i},path)
         end
+    end
+
+    function FileChangeOutPath(varargin)
+        % user navigate to output directory
+        msg = msgbox('Navigate to Output Directory');
+        uiwait(msg)
+        UI.OutPath = uigetdir();
+        if UI.OutPath == 0
+            warning('User cancelled: No output folder selected.')
+            return
+        end
+        % update displayed output path
+        str = ['Output directory: ' UI.OutPath];
+        set(pHand, 'String', str)
     end
 
     function FileQuit(varargin)
@@ -217,21 +238,12 @@ end
 
         % check if output folder path has been not yet been defined
         if ~isfield(UI,'OutPath')
-            % user navigate to output directory
-            msg = msgbox('Navigate to Output Directory');
-            uiwait(msg)
-            UI.OutPath = uigetdir();
-            if UI.OutPath == 0
-                warning('User cancelled: No output folder selected.')
-                return
-            end
-            % update displayed output path 
-
+            FileChangeOutPath()
         end
 
         UI.extractSelections = UserSelections('ExtractKinematics');
         data = PreprocessMice(data,UI);
-        DataSummary(data,h)
+        DataSummary(data,dHand)
     end
 
     function AnalysisComparePhases(varargin)
@@ -260,14 +272,7 @@ end
         
         % check if output folder path has been not yet been defined
         if ~isfield(UI,'OutPath')
-            % user navigate to output directory
-            msg4 = msgbox('Navigate to Output Directory');
-            uiwait(msg4)
-            UI.OutPath = uigetdir();
-            if UI.OutPath == 0
-                warning('User cancelled: No folder selected.')
-                return
-            end
+            FileChangeOutPath()
         end
 
         %% FIX THIS TO USE METADATA
@@ -343,14 +348,7 @@ end
 
         % check if output folder path has been not yet been defined
         if ~isfield(UI,'OutPath')
-            % user navigate to output directory
-            msg4 = msgbox('Navigate to Output Directory');
-            uiwait(msg4)
-            UI.OutPath = uigetdir();
-            if OUTpath == 0
-                warning('User cancelled: No output folder selected.')
-                return
-            end
+            FileChangeOutPath()
         end
 
         quest = 'Would you like to group by cohort?';
@@ -400,17 +398,10 @@ end
             uiwait(err2)
             return
         end
-        
+
         % check if output folder path has been not yet been defined
         if ~isfield(UI,'OutPath')
-        % user navigate to output directory
-        msg4 = msgbox('Navigate to Output Directory');
-        uiwait(msg4)
-        UI.OutPath = uigetdir();
-        if UI.OutPath == 0
-            warning('User cancelled: No output folder selected.')
-            return
-        end
+            FileChangeOutPath()
         end
 
         % create folders
