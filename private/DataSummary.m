@@ -1,5 +1,8 @@
-function DataSummary(data,window)
+function DataSummary(data,handle)
 % updates text on kda window showing loaded data and status
+
+set(handle,'Style','edit','max',2,'min',0,'enable','inactive',...
+    'Position',[130,75,300,280])
 
 disp_text = cell(1,length(data));
 for i = 1:length(data)
@@ -18,7 +21,4 @@ for i = 1:length(data)
     end
 end
 
-uicontrol(window, "Style", 'text', ...
-    'String', disp_text, ...
-    'BackgroundColor', '#DCFFE6', ...
-    'Position', [130 110 300 200]);
+set(handle,"String",disp_text)

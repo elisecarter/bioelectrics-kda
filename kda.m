@@ -21,13 +21,14 @@ window = figure( ...
     'HandleVisibility','off');
 movegui(window,'center')
 
+h = uicontrol(window, "Style", 'text', ...
+    'BackgroundColor', '#DCFFE6', ...
+    'Position', [130 110 300 200]);
+
 % text to display on window
 opening_str = {'','Perfroms Kinematic Feature Extraction from CLARA-generated Datasets', ...
     '', 'Version 1.1', '', 'Navigate using Toolbar'};
-uicontrol(window, "Style", 'text', ...
-    'String', opening_str, ...
-    'BackgroundColor', '#DCFFE6', ...
-    'Position', [130 110 300 200]);
+set(h,'String', opening_str)
 
 % file menu
 menu_file = uimenu(window, 'Label', 'File');
@@ -136,7 +137,7 @@ end
         end
 
         data = LoadRawData(data,UI.Mat3Dpath,CURdir);
-        DataSummary(data,window) %update
+        DataSummary(data,h) %update
     end
 
     function FileLoadSavedSession(varargin)
@@ -173,7 +174,7 @@ end
             end
         end
 
-        DataSummary(data,window)
+        DataSummary(data,h)
     end
 
     function FileSaveSession(varargin)
@@ -224,11 +225,13 @@ end
                 warning('User cancelled: No output folder selected.')
                 return
             end
+            % update displayed output path 
+
         end
 
         UI.extractSelections = UserSelections('ExtractKinematics');
         data = PreprocessMice(data,UI);
-        DataSummary(data,window)
+        DataSummary(data,h)
     end
 
     function AnalysisComparePhases(varargin)
