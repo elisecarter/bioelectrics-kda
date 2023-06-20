@@ -16,19 +16,15 @@ if ~exist(json_folder_path,'dir')
     mkdir(json_folder_path)
 end
 
-for i = 1:length(data)
-    mouse_name = data{i}.MouseID;
-    subfolder_path = fullfile(plot_folder_path,mouse_name); %mouse subfolder in trajectory plots folder
-    if ~exist(subfolder_path,'dir')
-        mkdir(subfolder_path)
-    end
-
-    if user_selections.SavePlots == 1 
-        PlotTrajectories(data{i},subfolder_path)
-    end
-    
-    SaveJSON(data{i}, json_folder_path)
-    SaveKdaFile(data{i}, OUTpath)
-
+mouse_name = data.MouseID;
+subfolder_path = fullfile(plot_folder_path,mouse_name); %mouse subfolder in trajectory plots folder
+if ~exist(subfolder_path,'dir')
+    mkdir(subfolder_path)
 end
 
+if user_selections.SavePlots == 1
+    PlotTrajectories(data,subfolder_path)
+end
+
+SaveJSON(data, json_folder_path)
+SaveKdaFile(data, OUTpath)
