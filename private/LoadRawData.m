@@ -13,7 +13,7 @@ for i = 1:length(data) % iterate thru mice
     raw_data = struct;
     for j = 1:length(sessionFiles) % iterate thru sessions
 
-        fileStr = [sessionFiles{j}(1:27), '3D.mat'];
+        fileStr = [sessionFiles{j}(1:26), '_3D.mat'];
         MATdata = load(fullfile(MATpath,fileStr),'table3D'); % uint16 array
         CURdata = readtable(fullfile(mouseDir(j).folder,mouseDir(j).name));
 
@@ -25,6 +25,41 @@ for i = 1:length(data) % iterate thru mice
         raw_data(j).Behaviors = table2array(CURdata(:,6));
         raw_data(j).EndCategory = table2array(CURdata(:,5));
         
+        reach_indices = table2array(raw_data.ReachIndexPairs);
+        deleted_log = zeros(1, height(reach_indices)); % initialize for use for filtering
+        for k = 1:height(reach_indices)
+            l = k - sum(deleted_log); % subtract total # of reaches deleted to adjust index for storage
+
+            % delete reaches with empty cell in curation spreadsheet
+            if anynan(reach_indices(k,:))
+                raw_data(j).ReachIndexPairs(l,:) = [];
+                raw_data(j).StimLogical(l) = [];
+                raw_data(j).Behaviors(l) = [];
+                raw_data(j).EndCategory(l) = [];
+                deleted_log(k) = 1;
+
+                str = [raw_data(j).Session{1} ': Reach no. ' num2str(k) ' deleted due to empty cell in curation spreadsheet.'];
+                warning(str)
+                continue
+            end
+
+            % delete reaches where reach max index > reach end index
+            max_ind = reach_indices(k,2);
+            end_ind = reach_indices(k,3);
+            if max_ind > end_ind
+                raw_data(j).ReachIndexPairs(l,:) = [];
+                raw_data(j).StimLogical(l) = [];
+                raw_data(j).Behaviors(l) = [];
+                raw_data(j).EndCategory(l) = [];
+                deleted_log(k) = 1;
+
+
+                str = [raw_data(j).Session{1} ': Reach no. ' num2str(k) ' deleted due to the index for reach max being greater than reach end.'];
+                warning(str)
+                continue
+            end
+        end
+
         % convert uint16 data in table3D to double, store in rawData
         for k = 1:length(fieldnames) % dont need last 4 columns in table
             if strcmpi(fieldnames{k},'cropPts')
