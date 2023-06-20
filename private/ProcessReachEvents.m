@@ -34,24 +34,28 @@ for i = 1 : length(RawData) %iterate thru sessions
     session_raw = rmfield(session_raw,'EndCategory');
 
     % remove impossibly short reaches
-    end_duration = indx(:,3) - indx(:,1); %frames from start to end
     max_duration = indx(:,2) - indx(:,1); %from start to max
-    too_short = end_duration < 5 | max_duration < 2;
+    too_short = max_duration < 2;
     indx(too_short,:) = [];
     if any(too_short==1)
         SessionData(i).StimLogical(too_short) = [];
         SessionData(i).Behavior(too_short) = [];
         SessionData(i).EndCategory(too_short) = [];
+  
+        str = [SessionData.SessionID{1} ': Reach no. ' num2str(j) ' deleted due to reach duration from intiation to max being <2 frames.'];
+        disp(str)
     end
 
     % preprocessing
+    num_reaches = height(indx);
     k = 1;
-    for j = 1 : height(indx) %iterate thru session reaches
+    for j = 1 : num_reaches 
+        % pull out pellet location if confidence is high
         reach_start = indx(j,1);
         init_frames = reach_start:reach_start+3; %first 3 frames of reach
         conf_xy = session_raw.pelletConfXY_10k(init_frames); % initial confidence
         conf_z = session_raw.pelletConfZ_10k(init_frames);
-        % if pellet confidence high (> 90%) w/ 10k multiplier
+        % high confidence: > 90% (w/ 10k multiplier)
         if mean(conf_xy) > 9000 && mean(conf_z) > 9000
             pellet_loc(k,1) = mean(session_raw.pelletX_100(init_frames)./900); %mm
             pellet_loc(k,2) = mean(session_raw.pelletY_100(init_frames)./900); %mm
@@ -60,17 +64,21 @@ for i = 1 : length(RawData) %iterate thru sessions
         end
     end
     SessionData(i).PelletLocation = median(pellet_loc);
-    
-    num_reaches = height(indx);
-    deleted_log = zeros(1, num_reaches); % initialize for use for filtering
-    for j = 1 : num_reaches % j: reach event
-        k = j - sum(deleted_log); % subtract total # of reaches deleted to adjust index for storage
-        
+
+    % initialize containers to track deleted reached
+    poorlyTracked = zeros(1, num_reaches);
+    tooFast = zeros(1, num_reaches);
+    DTW_error = zeros(1,num_reaches);
+
+    for j = 1 : num_reaches
+        % subtract total # of reaches deleted to adjust index for storage
+        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error);
+
         start_ind = indx(j,1); % start index
         max_ind = indx(j,2); % max index
         end_ind = indx(j,3); % end index
 
-        % reach duration - 150 fps
+        % reach duration (150 fps)
         duration_max = (max_ind - start_ind) / 150; %sec
         duration_end = (end_ind - start_ind) / 150; %sec
 
@@ -80,23 +88,15 @@ for i = 1 : length(RawData) %iterate thru sessions
         init2end = structfun(@(x) x(start_ind:end_ind), session_raw, ...
             'UniformOutput', false);
 
-        if max_ind > end_ind
-            SessionData(i).StimLogical(k) = [];
-            SessionData(i).Behavior(k) = [];
-            SessionData(i).EndCategory(k) = [];    
-            deleted_log(j) = true; % mark this iteration as deleted
-            continue
-        end
-
         % if percent of poorly tracked data points in this reach is greater
         % than the threshold, delete this reach
         conf = init2max.handConfXY_10k./10000;
-        percent_poor = sum(conf<0.9)/length(conf); %percent poorly tracked datapts 
+        percent_poor = sum(conf<0.9)/length(conf); %percent poorly tracked datapts
         if percent_poor > interp_threshold
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
             SessionData(i).EndCategory(k) = [];    
-            deleted_log(j) = true; % mark this iteration as deleted
+            poorlyTracked(j) = true; % mark this iteration as deleted
             continue
         end
 
@@ -115,15 +115,18 @@ for i = 1 : length(RawData) %iterate thru sessions
         [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
         [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
         
+        % determine max velocity location as percentage of reach
+
+
         % if absolute velocity is greater than thresh, delete this reach
         % done here to minimize run time - DTW and arclength computations are expensive)
-%         if any(absVel_max > vel_threshold)
-%             SessionData(i).StimLogical(k) = [];
-%             SessionData(i).Behavior(k) = [];
-%             SessionData(i).EndCategory(k) = [];    
-%             deleted_log(j) = true; % mark this iteration as deleted
-%             continue
-%         end
+        if any(absVel_max > vel_threshold)
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];    
+            tooFast(j) = true; % mark this iteration as deleted
+            continue
+        end
 
         % hand relative to pellet - POSITION DATA RELATIVE TO PELLET
         % FROM NOW ON
@@ -145,8 +148,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         if flagMax || flagEnd
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
-            SessionData(i).EndCategory(k) = [];    
-            deleted_log(j) = true; % mark this iteration as deleted
+            SessionData(i).EndCategory(k) = [];
+            DTW_error(j) = true; % mark this iteration as deleted
             continue
         end
 
@@ -154,11 +157,11 @@ for i = 1 : length(RawData) %iterate thru sessions
         % 3D path length
         arcLength3D_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
         arcLength3D_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
-        
+
         % XY path length
         arcLengthXY_max = arclength(DTW_max(:,1), DTW_max(:,2),'spline');
         arcLengthXY_end = arclength(DTW_end(:,1), DTW_end(:,2),'spline');
-        
+
         % XZ path length
         arcLengthXZ_max = arclength(DTW_max(:,1), DTW_max(:,3),'spline');
         arcLengthXZ_end = arclength(DTW_end(:,1), DTW_end(:,3),'spline');
@@ -195,4 +198,20 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(k).PathLengthXY = arcLengthXY_end;
         SessionData(i).InitialToEnd(k).PathLengthXZ = arcLengthXZ_end;
     end
+
+    if any(poorlyTracked)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(poorlyTracked)) ' reaches deleted due to low tracking confidence.'];
+        disp(str)
+    end
+
+    if any(tooFast)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooFast)) ' reaches deleted due to improbably high velocity (>' num2str(vel_threshold) ' mm/s)'];
+        disp(str)
+    end
+
+    if any(DTW_error)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(DTW_error)) ' reaches deleted due to error in dynamic time warping function.'];
+        disp(str)
+    end
+
 end

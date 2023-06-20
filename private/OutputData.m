@@ -16,13 +16,12 @@ if ~exist(json_folder_path,'dir')
     mkdir(json_folder_path)
 end
 
+if user_selections.SavePlots == 1
 mouse_name = data.MouseID;
 subfolder_path = fullfile(plot_folder_path,mouse_name); %mouse subfolder in trajectory plots folder
 if ~exist(subfolder_path,'dir')
     mkdir(subfolder_path)
 end
-
-if user_selections.SavePlots == 1
     PlotTrajectories(data,subfolder_path)
 end
 
