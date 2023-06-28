@@ -1,5 +1,5 @@
 function data = CalculateCorrelationCoeff(data)
-%calculate different correlation coefficients (based on user seelctions?)
+%calculate different correlation coefficients (based on user selections?)
 
 for i = 1:length(data.Sessions) % iterate thru sessions
     session = data.Sessions(i);
