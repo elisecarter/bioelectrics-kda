@@ -16,18 +16,19 @@ for i = 1 : numMice
     numReaches = length(session_data); %number of reaches in final session
     for j = 1 : numReaches
         % plot each reach trajectory
-        plot(ax,ind_traj.x(:,j), ind_traj.y(:,j),'Color','#918e8e')
+        plot(ax,ind_traj.x(:,j), ind_traj.y(:,j),'Color','#918e8e','LineWidth',1)
         set(ax,'YDir','reverse') 
         hold(ax,"on")
     end
 
     % plot the pellet location
-    plot(ax,0,0,'.','MarkerSize',30,'Color',"#77AC30")
+    plot(ax,0,0,'.','MarkerSize',200,'Color',"#65ad79")
 
     % plot the average reach trajectory of final session
-    plot(ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 1.5 ,'Color','#000000')
+    plot(ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 3 ,'Color','#000000')
     xlabel(ax,'X (mm)')
     ylabel(ax,'Y (mm)')
+    set(ax, 'box', 'off')
     str1 = "Mouse ID: " + data{i}.MouseID;
     str2 = "Number of reaches: " + numReaches;
     str3 = "Session: " + data{i}.Sessions(end).SessionID;
