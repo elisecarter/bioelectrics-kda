@@ -259,7 +259,7 @@ end
             FileChangeOutPath()
         end
 
-        UI.extractSelections = UserSelections('ExtractKinematics');
+        UI = UserSelections(UI,'ExtractKinematics');
         data = PreprocessMice(data,UI);
         DataSummary(data,dHand)
     end
