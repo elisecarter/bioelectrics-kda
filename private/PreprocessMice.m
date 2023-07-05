@@ -10,27 +10,26 @@ for i = 1:length(data)
     
     % filtering and compute major kinematics
     data{i}.Sessions = ProcessReachEvents(data{i}.RawData);
-    
+
     % raw data indexed at reaches & saved in previous step - delete big
     % vectors
     data{i} = rmfield(data{i},'RawData');
-    
-    % calculate expert reach 
+
+    % calculate expert reach
     data{i} = CalculateExpertReach(data{i});
-    
-    % compute session means 
-    data{i} = SessionMeans(data{i});
+
+    % compute session means
+    data{i} = SessionMeans(data{i},UI);
 
     % compute correlation coefficients
     data{i} = CalculateCorrelationCoeff(data{i});
-    
+
     % change status from raw to kinematic extracted
     data{i}.Status = 'KinematicsExtracted';
 
-    AddMetaData()
+    data{i} = AddMetaData(data{i});
 
     % save json and kda files
     OutputData(data{i}, UI.OutPath, UI.extractSelections)
 end
 close(f)
-
