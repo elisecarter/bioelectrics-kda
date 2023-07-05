@@ -27,9 +27,14 @@ dHand = uicontrol(window, "Style", 'text', ...
     'BackgroundColor', '#DCFFE6', ...
     'Position', [130 75 300 300]);
 % output directory handle:
-pHand = uicontrol(window, "Style", 'text', ...
+outHand = uicontrol(window, "Style", 'text', ...
     'BackgroundColor', '#DCFFE6', ...
     'Position', [14 20 535 22]);
+
+% matlab 3d directory handle:
+matHand = uicontrol(window, "Style", 'text', ...
+    'BackgroundColor', '#DCFFE6', ...
+    'Position', [14 45 535 22]);
 
 % text to display on window
 opening_str = {'','','','Extracts Kinematic Features from CLARA-Generated Datasets', ...
@@ -39,8 +44,9 @@ set(dHand,'String', opening_str)
 % file menu
 menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
-uimenu(menu_file, 'Text', 'Load Saved Session File(s)', 'Callback', @FileLoadSavedSession)
+uimenu(menu_file, 'Text', 'Load KDA File(s)', 'Callback', @FileLoadSavedSession)
 uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
+uimenu(menu_file, 'Text', 'Change MATLAB 3D Directory','Callback', @FileChangeMatPath)
 uimenu(menu_file, 'Text', 'Change Output Directory','Callback', @FileChangeOutPath)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 
@@ -52,6 +58,7 @@ uimenu(menu_analysis, 'Text', 'Compare Learning Phases', 'Callback', @AnalysisCo
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
 uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
+uimenu(menu_export, 'Text', 'KDA File(s) to Base Workspace', 'Callback', @ExportKdaToBase)
 
 % plot menu
 menu_plot = uimenu(window, 'Label', 'Plot');
@@ -67,6 +74,9 @@ if isfile('rawDataPath.txt')
     fileID = fopen('rawDataPath.txt','r');
     UI.Mat3Dpath = fscanf(fileID, '%s');
 
+    % update displayed matlab 3d path
+    string = ['MATLAB 3D directory: ' UI.Mat3Dpath];
+    set(matHand, 'String', string)
 end
 
 %% File Menu
@@ -180,7 +190,6 @@ end
                 data{datacount} = load(fullfile(path,file{i}),'-mat');
             end
         end
-
         DataSummary(data,dHand)
     end
 
@@ -191,22 +200,31 @@ end
             return
         end
 
-        % save data as .kda file (.mat file)
-        path = uigetdir();
-        if path == 0
-            warning('User cancelled: No output folder selected.')
-            return
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            FileChangeOutPath()
         end
 
         for i = 1:length(data)
-            SaveKdaFile(data{i},path)
+            SaveKdaFile(data{i},UI.OutPath)
         end
     end
 
+    function FileChangeMatPath(varargin)
+         % user navigate to matlab 3d directory
+        UI.Mat3Dpath = uigetdir();
+        if UI.Mat3Dpath == 0
+            warning('User cancelled: MATLAB 3D folder not selected.')
+            return
+        end
+        % update displayed output path
+        str = ['MATLAB 3D directory: ' UI.Mat3Dpath];
+        set(matHand, 'String', str)
+    end
+
+
     function FileChangeOutPath(varargin)
         % user navigate to output directory
-        msg = msgbox('Navigate to Output Directory');
-        uiwait(msg)
         UI.OutPath = uigetdir();
         if UI.OutPath == 0
             warning('User cancelled: No output folder selected.')
@@ -214,7 +232,7 @@ end
         end
         % update displayed output path
         str = ['Output directory: ' UI.OutPath];
-        set(pHand, 'String', str)
+        set(outHand, 'String', str)
     end
 
     function FileQuit(varargin)
@@ -383,6 +401,25 @@ end
 
     end
 
+    function ExportKdaToBase(varargin)
+        % chose kda files to export and load
+        [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
+        if ~iscell(file)
+            if file == 0
+                warning('User cancelled: No session folder selected.')
+                return
+            end
+            exportdata = load(fullfile(path,file),'-mat');
+        elseif iscell(file)
+            for i = 1:length(file)
+                exportdata{i} = load(fullfile(path,file{i}),'-mat');
+            end
+        end
+        assignin('base',"kdaData",exportdata) %export to base
+        str = 'Data exported to Base workspace in kdaData.';
+        disp(str)
+    end
+
 %% plot menu
 
     function PlotIndivTraj(varargin)
@@ -426,8 +463,7 @@ end
             end
 
             for j = 1:length(data{i}.Sessions)
-
-                % create folder for each
+                % create folder for each session
                 folder = data{i}.Sessions(j).SessionID{1};
                 subfolder_path = fullfile(subfolder_path,folder);
                 if ~exist(subfolder_path,'dir')
@@ -436,14 +472,8 @@ end
             end
 
             for k = 1:length(data{i}.Sessions(j).InitialToMax)
-                filename = num2str(k);
-                path = fullfile(subfolder_path,filename);
-                %plt.XData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,1);
-                %plt.YData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,2);
-
                 XData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,1);
                 YData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,2);
-
                 set(plt,'XData',XData,'YData',YData)
 
                 %plot(ax,XData,YData)
@@ -452,11 +482,11 @@ end
                 ylim([-10 5])
                 drawnow
 
+                filename = num2str(k);
+                path = fullfile(subfolder_path,filename);
                 exportgraphics(ax,[path '.eps'])
                 exportgraphics(ax,[path '.png'])
             end
-
-
 
         end
 
