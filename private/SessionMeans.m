@@ -2,13 +2,13 @@ function data = SessionMeans(data,UI)
 % Adds session level means for initial to max data
 
 for i = 1:length(data.Sessions)
-    if UI.ReachType == 1 % reachMax
+    if strcmp(UI.ReachType,'max') % use reachMax
         session_data = data.Sessions(i).InitialToMax;
-        str = [data.Session(i).SessionID ': Session means calculated using InitialToMax data.'];
+        str = [data.Sessions(i).SessionID{1} ': Session means calculated using InitialToMax data.'];
         disp(str)
-    elseif UI.ReachType == 2 % reachEnd
+    elseif strcmp(UI.ReachType,'end') % use reachEnd
         session_data = data.Sessions(i).InitialToEnd;
-        str = [data.Session(i).SessionID ': Session means calculated using InitialToEnd data.'];
+        str = [data.Sessions(i).SessionID{1} ': Session means calculated using InitialToEnd data.'];
         disp(str)
     else % both
         break % go to next loop
@@ -32,8 +32,8 @@ for i = 1:length(data.Sessions)
     data.Sessions(i).MeanDuration = mean([session_data.ReachDuration]);
 end
 
-if UI.ReachType == 3 % both
-    str = [data.Session(i).SessionID ': Session means calculated using InitialToMax and InitialToEnd data.'];
+if strcmp(UI.ReachType,'both') % compute both
+    str = [data.Sessions(i).SessionID{1} ': Session means calculated using InitialToMax and InitialToEnd data.'];
     disp(str)
     for i = 1:length(data.Sessions)
         session_data = data.Sessions(i);

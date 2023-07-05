@@ -1,4 +1,4 @@
-function user_selections = UserSelections(switch_exp)
+function UI = UserSelections(UI,switch_exp)
 % creates stucture to hold user selections for processing options
 
 switch switch_exp
@@ -11,16 +11,16 @@ switch switch_exp
         defbtn = 'Yes';
         answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
         if strcmpi(answer,btn1) % user selects yes
-            user_selections.SavePlots = 1;
+            UI.SavePlots = 1;
 
-            % file type
+        % file type
 
         else
-            user_selections.SavePlots = 0;
+            UI.SavePlots = 0;
         end
 
         % reach type for sessions means (max, end or both)
-        quest = 'What reach type would you like to calculate session means for?';
+        quest = 'What reach type would you like to use to calculate session means?';
         dlgtitle = 'Session Mean Options';
         btn1 = 'reachMax';
         btn2 = 'reachEnd';
@@ -28,11 +28,11 @@ switch switch_exp
         defbtn = 'reachMax';
         answer = questdlg(quest,dlgtitle,btn1,btn2,btn3,defbtn);
         if strcmpi(answer,btn1) % use reachMax
-            user_selections.ReachType = 1;
+            UI.ReachType = 'max';
         elseif strcmpi(answer,btn2) % use reachEnd
-            user_selections.ReachType = 2;
+            UI.ReachType = 'end';
         elseif strcmpi(answer,btn3) % use both
-            user_selections.ReachType = 3;
+            UI.ReachType = 'both';
         end
 
          % filter by velocity?
