@@ -1,4 +1,4 @@
-function  [SessionData] = ProcessReachEvents(RawData)
+function  [SessionData] = ProcessReachEvents(RawData,UI)
 % iterates through all reaches in each session and filters data to
 % keep only reach events, calculates interpolated position/velocity,
 % dynamic time warping of hand position, hand arc length,
@@ -8,9 +8,7 @@ function  [SessionData] = ProcessReachEvents(RawData)
 SessionData(length(RawData)) = struct('SessionID',[],'InitialToMax',[],...
     'InitialToEnd',[],'StimLogical',[]);
 
-vel_threshold = 1000; %mm/sec - for filtering by absolute velocity
 interp_threshold = .5; %percent of datapoints that were poorly tracked (<90 confidence)
-
 for i = 1 : length(RawData) %iterate thru sessions
     session_raw = RawData(i);
     indx = table2array(session_raw.ReachIndexPairs); %pull out reach indices
@@ -20,11 +18,16 @@ for i = 1 : length(RawData) %iterate thru sessions
     num_reaches = length(session_raw.Behaviors);
     SessionData(i).PercentSuccess = num_success/num_reaches;
 
+    session_raw.frmDropsSide = session_raw.frmDropsSide';
+    session_raw.frmDropsFront = session_raw.frmDropsFront';
+    session_raw.frmDropsTop = session_raw.frmDropsTop';
+
     % save session level info before deleting so we can use structfun
     SessionData(i).SessionID = session_raw.Session;
     SessionData(i).StimLogical = session_raw.StimLogical;
     SessionData(i).Behavior = session_raw.Behaviors;
     SessionData(i).EndCategory = session_raw.EndCategory;
+    SessionData(i).CropPoints = session_raw.CropPoints;
 
     % remove unneeded fields
     session_raw = rmfield(session_raw,'Session');
@@ -32,6 +35,7 @@ for i = 1 : length(RawData) %iterate thru sessions
     session_raw = rmfield(session_raw,'StimLogical');
     session_raw = rmfield(session_raw,'Behaviors');
     session_raw = rmfield(session_raw,'EndCategory');
+    session_raw = rmfield(session_raw,'CropPoints');
 
     % remove impossibly short reaches
     max_duration = indx(:,2) - indx(:,1); %from start to max
@@ -41,14 +45,14 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).StimLogical(too_short) = [];
         SessionData(i).Behavior(too_short) = [];
         SessionData(i).EndCategory(too_short) = [];
-  
-        str = [SessionData.SessionID{1} ': Reach no. ' num2str(j) ' deleted due to reach duration from intiation to max being <2 frames.'];
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(too_short)) ' reaches deleted due to reach duration from intiation to max being <2 frames.'];
         disp(str)
     end
 
     % preprocessing
     num_reaches = height(indx);
     k = 1;
+    pellet_loc = zeros(1,3);
     for j = 1 : num_reaches 
         % pull out pellet location if confidence is high
         reach_start = indx(j,1);
@@ -116,16 +120,22 @@ for i = 1 : length(RawData) %iterate thru sessions
         [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
         
         % determine max velocity location as percentage of reach
+        [maxVel_max,ind] = max(absVel_max);
+        maxVelLoc_max = ind/numel(absVel_max);
 
+        [maxVel_end,ind] = max(absVel_end);
+        maxVelLoc_end = ind/numel(absVel_end);
 
-        % if absolute velocity is greater than thresh, delete this reach
-        % done here to minimize run time - DTW and arclength computations are expensive)
-        if any(absVel_max > vel_threshold)
-            SessionData(i).StimLogical(k) = [];
-            SessionData(i).Behavior(k) = [];
-            SessionData(i).EndCategory(k) = [];    
-            tooFast(j) = true; % mark this iteration as deleted
-            continue
+        if isfield(UI,'VelocityTresh')
+            % if absolute velocity is greater than thresh, delete this reach
+            % done here to minimize run time - DTW and arclength computations are expensive)
+            if any(absVel_max > vel_threshold)
+                SessionData(i).StimLogical(k) = [];
+                SessionData(i).Behavior(k) = [];
+                SessionData(i).EndCategory(k) = [];
+                tooFast(j) = true; % mark this iteration as deleted
+                continue
+            end
         end
 
         % hand relative to pellet - POSITION DATA RELATIVE TO PELLET
@@ -144,7 +154,6 @@ for i = 1 : length(RawData) %iterate thru sessions
         % dynamic time warping (DTW)
         [DTW_max, flagMax] = DynamicTimeWarping(smooth_hand_max);
         [DTW_end, flagEnd] = DynamicTimeWarping(smooth_hand_end);
-
         if flagMax || flagEnd
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
@@ -175,6 +184,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(k).RawVelocity = rawVel_max;
         SessionData(i).InitialToMax(k).InterpolatedVelocity = interpVel_max;
         SessionData(i).InitialToMax(k).AbsoluteVelocity = absVel_max;
+        SessionData(i).InitialToMax(k).MaxAbsVelocity = maxVel_max;
+        SessionData(i).InitialToMax(k).MaxVelocityLocation = maxVelLoc_max;
         SessionData(i).InitialToMax(k).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(k).DTWHand = DTW_max;
         SessionData(i).InitialToMax(k).DTWHandNormalized = DTW_max;
@@ -191,6 +202,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(k).RawVelocity = rawVel_end;
         SessionData(i).InitialToEnd(k).InterpolatedVelocity = interpVel_end;
         SessionData(i).InitialToEnd(k).AbsoluteVelocity = absVel_end;
+        SessionData(i).InitialToEnd(k).MaxAbsVelocity = maxVel_end;
+        SessionData(i).InitialToEnd(k).MaxVelocityLocation = maxVelLoc_end;
         SessionData(i).InitialToEnd(k).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(k).DTWHand = DTW_end;
         SessionData(i).InitialToEnd(k).DTWHandNormalized = DTW_end;
