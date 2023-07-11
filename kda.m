@@ -58,11 +58,8 @@ uimenu(menu_analysis, 'Text', 'Compare Learning Phases', 'Callback', @AnalysisCo
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
 uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
+uimenu(menu_export, 'Text', 'Individual Trajectories', 'Callback', @ExportIndivTraj)
 uimenu(menu_export, 'Text', 'KDA File(s) to Base Workspace', 'Callback', @ExportKdaToBase)
-
-% plot menu
-menu_plot = uimenu(window, 'Label', 'Plot');
-uimenu(menu_plot, 'Text', 'Individual Trajectories', 'Callback', @PlotIndivTraj)
 
 % initialize data for nested functions
 data = [];
@@ -140,20 +137,12 @@ end
             return
         end
 
-        [mouseIDs,CURdir] = GetMouseIDs(UI.CurPath);
-        [mouseIDs,indx] = SelectMice(mouseIDs);
-        % index selected mice from curator directory struct
-        CURdir = CURdir(indx);
-
-        % datacount should be zero if nothing loaded
-        datacount = length(data);
-
-        % create data structures for mice to process
-        for i = 1:length(mouseIDs)
-            data{datacount+i} = struct('MouseID',mouseIDs(i));
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            FileChangeOutPath()
         end
 
-        data = LoadRawData(data,UI.Mat3Dpath,CURdir);
+        data = LoadRawData(data,UI);
         DataSummary(data,dHand) %update
     end
 
@@ -179,7 +168,7 @@ end
         [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
         if ~iscell(file)
             if file == 0
-                warning('User cancelled: No session folder selected.')
+                warning('User cancelled: No kda file selected.')
                 return
             end
             datacount = datacount+1;
@@ -193,30 +182,33 @@ end
         DataSummary(data,dHand)
     end
 
-    function FileSaveSession(varargin)
-        if isempty(data)
-            err1 = msgbox('No data to save.');
-            uiwait(err1)
-            return
-        end
-
-        % check if output folder path has been not yet been defined
-        if ~isfield(UI,'OutPath')
-            FileChangeOutPath()
-        end
-
-        for i = 1:length(data)
-            SaveKdaFile(data{i},UI.OutPath)
-        end
-    end
+%     function FileSaveSession(varargin)
+%         if isempty(data)
+%             err1 = msgbox('No data to save.');
+%             uiwait(err1)
+%             return
+%         end
+%
+%         % check if output folder path has been not yet been defined
+%         if ~isfield(UI,'OutPath')
+%             FileChangeOutPath()
+%         end
+%
+%         for i = 1:length(data)
+%             SaveKdaFile(data{i},UI.OutPath)
+%         end
+%     end
 
     function FileChangeMatPath(varargin)
-         % user navigate to matlab 3d directory
+        % user navigate to matlab 3d directory
         UI.Mat3Dpath = uigetdir();
         if UI.Mat3Dpath == 0
             warning('User cancelled: MATLAB 3D folder not selected.')
             return
         end
+        % save path in text file
+        fID = fopen('rawDataPath.txt','w');
+        fprintf(fID,'%s',UI.Mat3Dpath);
         % update displayed output path
         str = ['MATLAB 3D directory: ' UI.Mat3Dpath];
         set(matHand, 'String', str)
@@ -225,6 +217,8 @@ end
 
     function FileChangeOutPath(varargin)
         % user navigate to output directory
+        msg = msgbox('Select Output Directory');
+        uiwait(msg)
         UI.OutPath = uigetdir();
         if UI.OutPath == 0
             warning('User cancelled: No output folder selected.')
@@ -312,11 +306,11 @@ end
         phaseID{2} = inputdlg(prompt,dlgtitle,dims,definput);
 
         % opt to group by cohort
-        quest = 'Would you like to group by cohort?';
+        quest = 'Would you like to group by experimental condition?';
         dlgtitle = 'Group Option';
-        yes = 'Yes';
-        no = 'No';
-        defbtn = 'Yes';
+        yes = 'yes';
+        no = 'no';
+        defbtn = 'yes';
         answer = questdlg(quest,dlgtitle,yes,no,defbtn);
 
         % find files belonging to each phase and compare
@@ -353,8 +347,8 @@ end
     function ExportSessionMeans(varargin)
         % check that mice are loaded and have correct status
         if isempty(data)
-            err1 = msgbox(['No data to process. Please load data with ' ...
-                'kinematics extracted before exporting session means.']);
+            err1 = msgbox(['No data to process. Please load kinematic ' ...
+                'data before exporting session means.']);
             uiwait(err1)
             return
         elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
@@ -369,7 +363,7 @@ end
             FileChangeOutPath()
         end
 
-        quest = 'Would you like to group by cohort?';
+        quest = 'Would you like to group by experimental condition?';
         dlgtitle = 'Group Option';
         yes = 'Yes';
         no = 'No';
@@ -378,27 +372,45 @@ end
 
         % ui select mice to group
         if strcmpi(answer,yes)
-            % user input number of cohorts
-            prompt = {'Enter the number of cohorts:'};
-            dlgtitle = 'Number of Cohorts';
+            % user input number of groups
+            prompt = {'Enter the number of groups:'};
+            dlgtitle = 'Number of Groups';
             dims = [1 35];
             definput = {'2'};
             num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
-            [cohort, cohortID] = SelectCohorts(data,num_cohorts);
+            [group, groupID] = SelectCohorts(data,num_cohorts);
 
         elseif strcmpi(answer,no)
-            % single cohort
-            cohort{1} = data;
+            % single group
+            group{1} = data;
             % name cohort
-            prompt = sprintf('Enter the identifier for cohort 1');
-            dlgtitle = 'Input Cohort Name';
-            dims = [1 35];
-            definput = {''};
-            cohortID{1} = inputdlg(prompt,dlgtitle,dims,definput);
+            groupID{1} = ' ';
         end
 
-        OutputSessionMeans(cohort,cohortID,UI.OutPath)
+        OutputSessionMeans(group,groupID,UI.OutPath)
 
+    end
+
+    function ExportIndivTraj(varargin)
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to process. Load kinematic data ' ...
+                'before plotting trajectories.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Extract kinematics before plotting trajectories.']);
+            uiwait(err2)
+            return
+        end
+
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            FileChangeOutPath()
+        end
+        UI = UserSelections(UI,'PlotIndivTrajectories');
+        PlotIndivTrajectories(data,UI)
     end
 
     function ExportKdaToBase(varargin)
@@ -418,78 +430,6 @@ end
         assignin('base',"kdaData",exportdata) %export to base
         str = 'Data exported to Base workspace in kdaData.';
         disp(str)
-    end
-
-%% plot menu
-
-    function PlotIndivTraj(varargin)
-        % check that mice are loaded and have correct status
-        if isempty(data)
-            err1 = msgbox(['No data to process. Load data with ' ...
-                'kinematics extracted before plotting trajectories.']);
-            uiwait(err1)
-            return
-        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
-            err2 = msgbox(['Data does not have correct status. ' ...
-                'Extract kinematics before plotting trajectories.']);
-            uiwait(err2)
-            return
-        end
-
-        % check if output folder path has been not yet been defined
-        if ~isfield(UI,'OutPath')
-            FileChangeOutPath()
-        end
-
-        % create folders
-        folder = 'Individual Reaches';
-        folder_path = fullfile(UI.OutPath,folder);
-        if ~exist(folder_path,'dir')
-            mkdir(folder_path)
-        end
-
-        f = figure;
-        ax = axes('Parent',f);
-
-        plt = plot(ax,0,0);
-
-
-        for i = 1:length(data)
-            % create folder for each mouse
-            folder = data{i}.MouseID;
-            subfolder_path = fullfile(folder_path,folder);
-            if ~exist(subfolder_path,'dir')
-                mkdir(subfolder_path)
-            end
-
-            for j = 1:length(data{i}.Sessions)
-                % create folder for each session
-                folder = data{i}.Sessions(j).SessionID{1};
-                subfolder_path = fullfile(subfolder_path,folder);
-                if ~exist(subfolder_path,'dir')
-                    mkdir(subfolder_path)
-                end
-            end
-
-            for k = 1:length(data{i}.Sessions(j).InitialToMax)
-                XData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,1);
-                YData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,2);
-                set(plt,'XData',XData,'YData',YData)
-
-                %plot(ax,XData,YData)
-                set(ax,'YDir','reverse')
-                xlim([-20 10])
-                ylim([-10 5])
-                drawnow
-
-                filename = num2str(k);
-                path = fullfile(subfolder_path,filename);
-                exportgraphics(ax,[path '.eps'])
-                exportgraphics(ax,[path '.png'])
-            end
-
-        end
-
     end
 
 end
