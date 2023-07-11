@@ -1,77 +1,62 @@
-function OutputSessionMeans(cohort,cohortID,path)
+function OutputSessionMeans(group,groupID,path)
 % creates an excel file for each cohort with session level data
 
-folder = 'SessionMeans';
-folder_path = fullfile(path,folder);
-if ~exist(folder_path,'dir')
-    mkdir(folder_path)
-end
-
-for i = 1:length(cohort) %iterate thru cohorts
-    filename = sprintf('%s.xlsx',cohortID{i}{1});
-    filepath = fullfile(folder_path,filename);
-
-    C = {};
-    %pull out session means and put into table
-    for j = 1:length(cohort{i}) % iterate thru mice in cohort
-        data = cohort{i}{j};
-        ID = data.MouseID;
-
-        temp = cell(length(data.Sessions),12);
+T = table;
+for i = 1:length(group) % iterate thru experiemental groups
+    for j = 1:length(group{i}) % iterate thru mice in each group
+        data = group{i}{j};
         for k = 1:length(data.Sessions) % iterate thru sessions
             correlations = data.Sessions(k).Correlations;
 
-            temp{k,1} = ID;
-            temp{k,2} = data.Sessions(k).SessionID;
+            MouseID{k,1} = data.MouseID;
+            Group{k,1} = groupID{i};
+            SessionID{k,1} = data.Sessions(k).SessionID;
+            NumReaches{k,1} = data.Sessions(k).ReachAttempts;
 
-            temp{k,3} = data.Sessions(k).PercentSuccess;
-            temp{k,4} = data.Sessions(k).PercentExpert;
+            SuccessPercent{k,1} = data.Sessions(k).PercentSuccess;
+            ExpertPercent{k,1} = data.Sessions(k).PercentExpert;
+            CorrAllReachesToExpert{k,1} = correlations.AllReachesToExpert3D;
+            CorrSuccessToExpert{k,1} = correlations.SuccessToExpert3D;
+            CorrFailToExpert{k,1} = correlations.FailToExpert3D;
+            PercentImprovement{k,1} = correlations.PercentIncreaseofFailures;
+            SessionConsistency{k,1} = correlations.Consistency;
 
-            temp{k,5} = correlations.AllReachesToExpert3D;
-            temp{k,6} = correlations.AllReachesToExpertX;
-            temp{k,7} = correlations.AllReachesToExpertY;
-            temp{k,8} = correlations.AllReachesToExpertZ;
+            MeanVelocityX{k,1} = data.Sessions(k).MeanEucVelocity(1,1);
+            MeanVelocityY{k,1} = data.Sessions(k).MeanEucVelocity(1,2);
+            MeanVelocityZ{k,1} = data.Sessions(k).MeanEucVelocity(1,3);
+            MeanAbsVelocity{k,1} = data.Sessions(k).MeanAbsVelocity;
+            MeanMaxVelocity{k,1} = data.Sessions(k).MeanMaxVelocity;
+            MeanMaxVelocityLocation{k,1} = data.Sessions(k).MeanMaxVelLocation;
+            MeanDuration{k,1} = data.Sessions(k).MeanDuration;
+            MeanPathLength3D{k,1} = data.Sessions(k).MeanPathLength3D;
+            MeanPathLengthXY{k,1} = data.Sessions(k).MeanPathLengthXY;
+            MeanPathLengthXZ{k,1} = data.Sessions(k).MeanPathLengthXZ;
 
-            temp{k,9} = correlations.SuccessToExpert3D;
-            temp{k,10} = correlations.SuccessToExpertX;
-            temp{k,11} = correlations.SuccessToExpertY;
-            temp{k,12} = correlations.SuccessToExpertZ;
+            StimAccuracy{k,1} = data.Sessions(k).StimAccuracy;
+            StimSpecificity{k,1} = data.Sessions(k).StimSpecificity;
+            StimSensitivity{k,1} = data.Sessions(k).StimSensitivty;
 
-            temp{k,13} = correlations.FailToExpert3D;
-            temp{k,14} = correlations.FailToExpertX;
-            temp{k,15} = correlations.FailToExpertY;
-            temp{k,16} = correlations.FailToExpertZ;
-
-            temp{k,17} = correlations.PercentIncreaseofFailures;
-
-            temp{k,18} = correlations.Consistency;
-            
-            temp{k,19} = data.Sessions(k).MeanEucVelocity(1,1);
-            temp{k,19} = data.Sessions(k).MeanEucVelocity(1,1);
-            temp{k,20} = data.Sessions(k).MeanEucVelocity(1,2);
-            temp{k,21} = data.Sessions(k).MeanEucVelocity(1,3);
-            temp{k,22} = data.Sessions(k).MeanAbsVelocity;
-            temp{k,23} = data.Sessions(k).MaxAbsVelocity;
-            temp{k,24} = data.Sessions(k).MeanDuration;
-            temp{k,25} = data.Sessions(k).MeanPathLength3D;
-            temp{k,26} = data.Sessions(k).MeanPathLengthXY;
-            temp{k,27} = data.Sessions(k).MeanPathLengthXZ;
-
+            PercentFailureType_Grasp{k,1} = data.Sessions(i).PercentFailuresGrasp;
+            PercentFailureType_Reach{k,1} = data.Sessions(i).PercentFailuresReach;
+            PercentFailureType_Retrieval{k,1} = data.Sessions(i).PercentFailuresRetrieval;
         end
-        C = vertcat(C,temp);
-        clear temp
+
+        temp = table(MouseID,SessionID,Group,NumReaches,SuccessPercent,ExpertPercent, ...
+            CorrAllReachesToExpert,CorrSuccessToExpert,CorrFailToExpert, ...
+            PercentImprovement,SessionConsistency,MeanVelocityX, ...
+            MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
+            MeanMaxVelocityLocation,MeanDuration, ...
+            MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
+            StimAccuracy,StimSpecificity,StimSensitivity,PercentFailureType_Grasp, ...
+            PercentFailureType_Reach,PercentFailureType_Retrieval);
+        T = vertcat(T,temp);
+        clearvars -except i j k T path group groupID data
     end
-    T = cell2table(C,...
-        "VariableNames",["MouseID" "SessionID" "PercentSuccess" ...
-        "PercentExpert" "AllReachesToExpert3D" "AllReachesToExpertX" ...
-        "AllReachesToExpertY" "AllReachesToExpertZ" "SuccessToExpert3D" ...
-        "SuccessToExpertX" "SuccessToExpertY" "SuccessToExpertZ" ...
-        "FailToExpert3D" "FailToExpertX" "FailToExpertY" "FailToExpertZ" ...
-        "PercentIncreaseOfFailures" "Consistency" ...
-        "MeanVelocityX" "MeanVelocityY" "MeanVelocityZ" ...
-        "MeanAbsoluteVelocity" "MaxAbsoluteVelocity" "MeanDuration" "MeanPathLength3D" ...
-        "MeanPathLengthXY" "MeanPathLengthXZ"]);
-    writetable(T,filepath)
-    clear C
-    clear T
 end
+
+filename = 'SessionMeans.xlsx';
+filepath = fullfile(path,filename);
+if ~exist(path,'dir')
+    mkdir(path)
+end
+writetable(T,filepath)
