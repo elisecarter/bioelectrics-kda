@@ -1,4 +1,4 @@
-function OutputSessionMeans(group,groupID,path)
+function OutputSessionMeans(group,groupID,UI)
 % creates an excel file for each cohort with session level data
 
 T = table;
@@ -50,13 +50,13 @@ for i = 1:length(group) % iterate thru experiemental groups
             StimAccuracy,PercentFailureType_Grasp, ...
             PercentFailureType_Reach,PercentFailureType_Retrieval);
         T = vertcat(T,temp);
-        clearvars -except i j k T path group groupID data
+        clearvars -except i j k T group groupID data UI
     end
 end
 
-filename = 'SessionMeans.xlsx';
-filepath = fullfile(path,filename);
-if ~exist(path,'dir')
-    mkdir(path)
+filename = ['SessionMeans' '_' UI.ReachType '.xlsx'];
+filepath = fullfile(UI.OutPath,filename);
+if ~exist(UI.OutPath,'dir')
+    mkdir(UI.OutPath)
 end
 writetable(T,filepath)

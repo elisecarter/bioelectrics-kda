@@ -10,8 +10,6 @@ for i = 1:length(data.Sessions)
         session_data = data.Sessions(i).InitialToEnd;
         str = [data.Sessions(i).SessionID{1} ': Session means calculated using InitialToEnd data.'];
         disp(str)
-    else % both
-        break % go to next loop
     end
 
     % session level velocity

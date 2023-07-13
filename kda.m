@@ -394,7 +394,7 @@ end
             data{i} = SessionMeans(data{i},UI);
         end
 
-        OutputSessionMeans(group,groupID,UI.OutPath)
+        OutputSessionMeans(group,groupID,UI)
     end
 
     function ExportIndivTraj(varargin)
