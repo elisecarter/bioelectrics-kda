@@ -33,12 +33,12 @@ for i = 1:length(group) % iterate thru experiemental groups
             MeanPathLengthXZ{k,1} = data.Sessions(k).MeanPathLengthXZ;
 
             StimAccuracy{k,1} = data.Sessions(k).StimAccuracy;
-            StimSpecificity{k,1} = data.Sessions(k).StimSpecificity;
-            StimSensitivity{k,1} = data.Sessions(k).StimSensitivty;
+            %StimSpecificity{k,1} = data.Sessions(k).StimSpecificity;
+            %StimSensitivity{k,1} = data.Sessions(k).StimSensitivty;
 
-            PercentFailureType_Grasp{k,1} = data.Sessions(i).PercentFailuresGrasp;
-            PercentFailureType_Reach{k,1} = data.Sessions(i).PercentFailuresReach;
-            PercentFailureType_Retrieval{k,1} = data.Sessions(i).PercentFailuresRetrieval;
+            PercentFailureType_Grasp{k,1} = data.Sessions(k).PercentFailuresGrasp;
+            PercentFailureType_Reach{k,1} = data.Sessions(k).PercentFailuresReach;
+            PercentFailureType_Retrieval{k,1} = data.Sessions(k).PercentFailuresRetrieval;
         end
 
         temp = table(MouseID,SessionID,Group,NumReaches,SuccessPercent,ExpertPercent, ...
@@ -47,7 +47,7 @@ for i = 1:length(group) % iterate thru experiemental groups
             MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
             MeanMaxVelocityLocation,MeanDuration, ...
             MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
-            StimAccuracy,StimSpecificity,StimSensitivity,PercentFailureType_Grasp, ...
+            StimAccuracy,PercentFailureType_Grasp, ...
             PercentFailureType_Reach,PercentFailureType_Retrieval);
         T = vertcat(T,temp);
         clearvars -except i j k T path group groupID data

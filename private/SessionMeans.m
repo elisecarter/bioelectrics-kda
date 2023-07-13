@@ -21,7 +21,7 @@ for i = 1:length(data.Sessions)
     data.Sessions(i).MeanMaxVelLocation = mean([session_data.MaxVelocityLocation]);
 
     % mean euclidean target location
-    data.Sessions(i).MeanTargetLocation = SessionMeanTarget(data.Sessions(i));
+    %data.Sessions(i).MeanTargetLocation = SessionMeanTarget(data.Sessions(i));
 
     % path length [mm]
     data.Sessions(i).MeanPathLength3D = mean([session_data.PathLength3D]);
@@ -30,35 +30,4 @@ for i = 1:length(data.Sessions)
 
     % duration [s]
     data.Sessions(i).MeanDuration = mean([session_data.ReachDuration]);
-end
-
-if strcmp(UI.ReachType,'both') % compute both
-    str = [data.Sessions(i).SessionID{1} ': Session means calculated using InitialToMax and InitialToEnd data.'];
-    disp(str)
-    for i = 1:length(data.Sessions)
-        session_data = data.Sessions(i);
-
-        % session level velocity
-        [data.Sessions(i).SessionMeansMax.MeanEucVelocity, data.InitialToMax.Sessions(i).MeanAbsVelocity, data.InitialToMax.Sessions(i).MeanMaxVelocity] = SessionMeanVelocity(session_data.InitialToMax);
-        [data.Sessions(i).SessionMeansEnd.MeanEucVelocity, data.InitialToEnd.Sessions(i).MeanAbsVelocity, data.InitialToEnd.Sessions(i).MeanMaxVelocity] = SessionMeanVelocity(session_data.InitialToEnd);
-
-        % mean max velocity location as a percentage of the reach
-        data.Sessions(i).SessionMeansMax.MeanMaxVelLocation = mean([session_data.InitialToMax.MaxVelocityLocation]);
-        data.Sessions(i).SessionMeansEnd.MeanMaxVelLocation = mean([session_data.InitialToEnd.MaxVelocityLocation]);
-
-        % mean euclidean target location
-        data.Sessions(i).MeanTargetLocation = SessionMeanTarget(data.Sessions(i));
-
-        % path length [mm]
-        data.Sessions(i).SessionMeansMax.MeanPathLength3D = mean([session_data.InitialToMax.PathLength3D]);
-        data.Sessions(i).SessionMeansMax.MeanPathLengthXY = mean([session_data.InitialToMax.PathLengthXY]);
-        data.Sessions(i).SessionMeansMax.MeanPathLengthXZ = mean([session_data.InitialToMax.PathLengthXZ]);
-        data.Sessions(i).SessionMeansEnd.MeanPathLength3D = mean([session_data.InitialToEnd.PathLength3D]);
-        data.Sessions(i).SessionMeansEnd.MeanPathLengthXY = mean([session_data.InitialToEnd.PathLengthXY]);
-        data.Sessions(i).SessionMeansEnd.MeanPathLengthXZ = mean([session_data.InitialToEnd.PathLengthXZ]);
-
-        % duration [s]
-        data.Sessions(i).SessionMeansMax.MeanDuration = mean([session_data.InitialToMax.ReachDuration]);
-        data.Sessions(i).SessionMeansEnd.MeanDuration = mean([session_data.InitialToEnd.ReachDuration]);
-    end
 end
