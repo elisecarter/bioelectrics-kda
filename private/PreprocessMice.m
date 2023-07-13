@@ -1,10 +1,6 @@
 function data = PreprocessMice(data,UI)
 
-f = waitbar(0,'Please wait...'); % create wait bar
 for i = 1:length(data)
-    waitstr = "Preprocessing raw data... (" + data{i}.MouseID + ")";
-    waitbar(i/length(data),f,waitstr);
-
     % interpolate thru poorly tracked datapoints (low confidence)
     data{i} = InterpBadTracking(data{i});
 
@@ -37,4 +33,3 @@ for i = 1:length(data)
     OutputData(data{i}, UI.OutPath, UI)
     %end
 end
-close(f)

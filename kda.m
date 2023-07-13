@@ -141,9 +141,11 @@ end
         if ~isfield(UI,'OutPath')
             FileChangeOutPath()
         end
-
+        
+        disp('Loading raw data...')
         data = LoadRawData(data,UI);
         DataSummary(data,dHand) %update
+        disp('Raw data successfully loaded and saved to output directory. Proceed with analysis.')
     end
 
     function FileLoadSavedSession(varargin)
@@ -166,6 +168,8 @@ end
 
         %user navigate to .kda file(s)
         [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
+
+        disp('Loading kda files...')
         if ~iscell(file)
             if file == 0
                 warning('User cancelled: No kda file selected.')
@@ -180,6 +184,7 @@ end
             end
         end
         DataSummary(data,dHand)
+        disp('Kda files successfully loaded. Proceed with analysis/export.')
     end
 
 %     function FileSaveSession(varargin)
@@ -254,11 +259,15 @@ end
         end
 
         UI = UserSelections(UI,'ExtractKinematics');
+        disp('Extracting kinematics...')
         data = PreprocessMice(data,UI);
         DataSummary(data,dHand)
+        disp('Kinematics successfully extracted and saved to output directory. Proceed with session means export.')
     end
 
     function AnalysisComparePhases(varargin)
+        % NEEDS UPDATING
+
         %         % check that mice are loaded and have correct status
         %         if isempty(data)
         %             err1 = msgbox(['No data to compare. Please load data with ' ...
@@ -287,11 +296,11 @@ end
             FileChangeOutPath()
         end
 
-        %% FIX THIS TO USE METADATA
+        % FIX THIS TO USE METADATA
         % user enter learning phase indentifiers
         prompt = sprintf(['Enter the identifier for learning phase 1. ' ...
             'This should be a string within the mouse ID that is ' ...
-            'unique to the learning phase. Ex: pre']);
+            'unique to the learning phase. Ex: precup']);
         dlgtitle = 'Learning Phase Identifier';
         dims = [1 60];
         definput = {''};
@@ -299,7 +308,7 @@ end
 
         prompt = sprintf(['Enter the identifier for learning phase 2. ' ...
             'This should be a string within the mouse ID that is ' ...
-            'unique to the learning phase. Ex: post']);
+            'unique to the learning phase. Ex: postcup']);
         dlgtitle = 'Learning Phase Identifier';
         dims = [1 60];
         definput = {''};
@@ -388,13 +397,15 @@ end
         end
 
         UI = UserSelections(UI,'OutputSessionMeans');
-
+        
+        disp('Exporting session means...')
         for i = 1:length(data)
             % compute session means
             data{i} = SessionMeans(data{i},UI);
         end
 
         OutputSessionMeans(group,groupID,UI)
+        disp('Session means successfully exported to output directory.')
     end
 
     function ExportIndivTraj(varargin)
@@ -416,7 +427,9 @@ end
             FileChangeOutPath()
         end
         UI = UserSelections(UI,'PlotIndivTrajectories');
+        disp('Exporting individual trajectories...')
         PlotIndivTrajectories(data,UI)
+        disp('Trajectories successfully exported to output directory.')
     end
 
     function ExportKdaToBase(varargin)
@@ -433,8 +446,9 @@ end
                 exportdata{i} = load(fullfile(path,file{i}),'-mat');
             end
         end
+        disp('Exporting kda files...')
         assignin('base',"kdaData",exportdata) %export to base
-        str = 'Data exported to Base workspace in kdaData.';
+        str = 'Kda filed successfully exported to Base workspace in kdaData.';
         disp(str)
     end
 

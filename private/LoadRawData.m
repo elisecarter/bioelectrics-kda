@@ -15,11 +15,7 @@ for i = 1:length(mouseIDs)
     data{datacount+i} = struct('MouseID',mouseIDs(i));
 end
 
-f = waitbar(0,'Please wait...'); % create wait bar
 for i = 1:length(data) % iterate thru mice
-    waitstr = "Loading raw data... (" + data{i}.MouseID + ")";
-    waitbar(i/length(data),f,waitstr);
-
     [sessionFiles,mouseDir] = FindSessions(CURdir(i));
 
     % find Matlab_3D files with names matching mouse curator files and load
@@ -154,4 +150,3 @@ for i = 1:length(data) % iterate thru mice
     data{i}.Status = 'Raw';
     SaveKdaFile(data{i},UI.OutPath)
 end
-close(f)
