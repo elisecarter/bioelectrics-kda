@@ -387,8 +387,14 @@ end
             groupID{1} = ' ';
         end
 
-        OutputSessionMeans(group,groupID,UI.OutPath)
+        UI = UserSelections(UI,'OutputSessionMeans');
 
+        for i = 1:length(data)
+            % compute session means
+            data{i} = SessionMeans(data{i},UI);
+        end
+
+        OutputSessionMeans(group,groupID,UI.OutPath)
     end
 
     function ExportIndivTraj(varargin)

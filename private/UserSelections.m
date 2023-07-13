@@ -45,21 +45,7 @@ switch switch_exp
             UI.SavePlots = 0;
         end
 
-        % reach type for sessions means (max, end or both)
-        quest = 'What reach type would you like to use to calculate session means?';
-        dlgtitle = 'Session Mean Options';
-        btn1 = 'reachMax';
-        btn2 = 'reachEnd';
-        btn3 = 'both';
-        defbtn = 'reachMax';
-        answer = questdlg(quest,dlgtitle,btn1,btn2,btn3,defbtn);
-        if strcmpi(answer,btn2) % use reachEnd
-            UI.ReachType = 'end';
-        elseif strcmpi(answer,btn3) % use both
-            UI.ReachType = 'both';
-        else % reachMax
-            UI.ReachType = 'max';
-        end
+        
 
         % filter by velocity?
         quest = 'Would you like to filter reaches by absolute velocity?';
@@ -108,5 +94,19 @@ switch switch_exp
             else % png
                 UI.PlotFileType = '.png';
             end
+
+    case 'OutputSessionMeans'
+        % reach type for sessions means (max, end or both)
+        quest = 'What reach type would you like to use to calculate session means?';
+        dlgtitle = 'Session Mean Options';
+        btn1 = 'reachMax';
+        btn2 = 'reachEnd';
+        defbtn = 'reachMax';
+        answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
+        if strcmpi(answer,btn2) % use reachEnd
+            UI.ReachType = 'end';
+        else % reachMax
+            UI.ReachType = 'max';
+        end
 
 end
