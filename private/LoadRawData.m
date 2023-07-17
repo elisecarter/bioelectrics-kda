@@ -47,7 +47,7 @@ for i = 1:length(data) % iterate thru mice
                 raw_data(j).EndCategory(l) = [];
                 deleted_log(k) = 1;
 
-                str = [raw_data(j).Session{1} ': Reach no. ' num2str(k) ' deleted due to empty cell in curation spreadsheet.'];
+                str = [raw_data(j).Session{1} ': Reach no. ' num2str(k) ' (starting index: ' num2str(reach_indices(k,1)) ') deleted due to empty cell in curation spreadsheet.'];
                 warning(str)
                 continue
             end
@@ -62,7 +62,7 @@ for i = 1:length(data) % iterate thru mice
                 raw_data(j).EndCategory(l) = [];
                 deleted_log(k) = 1;
 
-                str = [raw_data(j).Session{1} ': Reach no. ' num2str(k) ' deleted due to the index for reach max being greater than reach end.'];
+                str = [raw_data(j).Session{1} ': Reach no. ' num2str(k) ' (starting index: ' num2str(reach_indices(k,1)) ') deleted due to the index for reach max being greater than reach end.'];
                 warning(str)
                 continue
             end
