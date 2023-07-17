@@ -1,57 +1,56 @@
-function OutputSessionMeans(group,groupID,UI)
+function OutputSessionMeans(data,UI)
 % creates an excel file for each cohort with session level data
 
 T = table;
-for i = 1:length(group) % iterate thru experiemental groups
-    for j = 1:length(group{i}) % iterate thru mice in each group
-        data = group{i}{j};
-        for k = 1:length(data.Sessions) % iterate thru sessions
-            correlations = data.Sessions(k).Correlations;
 
-            MouseID{k,1} = data.MouseID;
-            Group{k,1} = groupID{i};
-            SessionID{k,1} = data.Sessions(k).SessionID;
-            NumReaches{k,1} = data.Sessions(k).ReachAttempts;
+for i = 1:length(data) % iterate thru mice
+    thisMouse = data{i};
+    for j = 1:length(thisMouse.Sessions) % iterate thru sessions
+        correlations = thisMouse.Sessions(j).Correlations;
 
-            SuccessPercent{k,1} = data.Sessions(k).PercentSuccess;
-            ExpertPercent{k,1} = data.Sessions(k).PercentExpert;
-            CorrAllReachesToExpert{k,1} = correlations.AllReachesToExpert3D;
-            CorrSuccessToExpert{k,1} = correlations.SuccessToExpert3D;
-            CorrFailToExpert{k,1} = correlations.FailToExpert3D;
-            PercentImprovement{k,1} = correlations.PercentIncreaseofFailures;
-            SessionConsistency{k,1} = correlations.Consistency;
+        MouseID{j,1} = thisMouse.MouseID;
+        Group{j,1} = thisMouse.GroupID;
+        SessionID{j,1} = thisMouse.Sessions(j).SessionID;
+        NumReaches{j,1} = thisMouse.Sessions(j).ReachAttempts;
 
-            MeanVelocityX{k,1} = data.Sessions(k).MeanEucVelocity(1,1);
-            MeanVelocityY{k,1} = data.Sessions(k).MeanEucVelocity(1,2);
-            MeanVelocityZ{k,1} = data.Sessions(k).MeanEucVelocity(1,3);
-            MeanAbsVelocity{k,1} = data.Sessions(k).MeanAbsVelocity;
-            MeanMaxVelocity{k,1} = data.Sessions(k).MeanMaxVelocity;
-            MeanMaxVelocityLocation{k,1} = data.Sessions(k).MeanMaxVelLocation;
-            MeanDuration{k,1} = data.Sessions(k).MeanDuration;
-            MeanPathLength3D{k,1} = data.Sessions(k).MeanPathLength3D;
-            MeanPathLengthXY{k,1} = data.Sessions(k).MeanPathLengthXY;
-            MeanPathLengthXZ{k,1} = data.Sessions(k).MeanPathLengthXZ;
+        SuccessPercent{j,1} = thisMouse.Sessions(j).PercentSuccess;
+        ExpertPercent{j,1} = thisMouse.Sessions(j).PercentExpert;
+        CorrAllReachesToExpert{j,1} = correlations.AllReachesToExpert3D;
+        CorrSuccessToExpert{j,1} = correlations.SuccessToExpert3D;
+        CorrFailToExpert{j,1} = correlations.FailToExpert3D;
+        PercentImprovement{j,1} = correlations.PercentIncreaseofFailures;
+        SessionConsistency{j,1} = correlations.Consistency;
 
-            StimAccuracy{k,1} = data.Sessions(k).StimAccuracy;
-            %StimSpecificity{k,1} = data.Sessions(k).StimSpecificity;
-            %StimSensitivity{k,1} = data.Sessions(k).StimSensitivty;
+        MeanVelocityX{j,1} = thisMouse.Sessions(j).MeanEucVelocity(1,1);
+        MeanVelocityY{j,1} = thisMouse.Sessions(j).MeanEucVelocity(1,2);
+        MeanVelocityZ{j,1} = thisMouse.Sessions(j).MeanEucVelocity(1,3);
+        MeanAbsVelocity{j,1} = thisMouse.Sessions(j).MeanAbsVelocity;
+        MeanMaxVelocity{j,1} = thisMouse.Sessions(j).MeanMaxVelocity;
+        MeanMaxVelocityLocation{j,1} = thisMouse.Sessions(j).MeanMaxVelLocation;
+        MeanDuration{j,1} = thisMouse.Sessions(j).MeanDuration;
+        MeanPathLength3D{j,1} = thisMouse.Sessions(j).MeanPathLength3D;
+        MeanPathLengthXY{j,1} = thisMouse.Sessions(j).MeanPathLengthXY;
+        MeanPathLengthXZ{j,1} = thisMouse.Sessions(j).MeanPathLengthXZ;
 
-            PercentFailureType_Grasp{k,1} = data.Sessions(k).PercentFailuresGrasp;
-            PercentFailureType_Reach{k,1} = data.Sessions(k).PercentFailuresReach;
-            PercentFailureType_Retrieval{k,1} = data.Sessions(k).PercentFailuresRetrieval;
-        end
+        StimAccuracy{j,1} = thisMouse.Sessions(j).StimAccuracy;
+        %StimSpecificity{k,1} = data.Sessions(k).StimSpecificity;
+        %StimSensitivity{k,1} = data.Sessions(k).StimSensitivty;
 
-        temp = table(MouseID,SessionID,Group,NumReaches,SuccessPercent,ExpertPercent, ...
-            CorrAllReachesToExpert,CorrSuccessToExpert,CorrFailToExpert, ...
-            PercentImprovement,SessionConsistency,MeanVelocityX, ...
-            MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
-            MeanMaxVelocityLocation,MeanDuration, ...
-            MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
-            StimAccuracy,PercentFailureType_Grasp, ...
-            PercentFailureType_Reach,PercentFailureType_Retrieval);
-        T = vertcat(T,temp);
-        clearvars -except i j k T group groupID data UI
+        PercentFailureType_Grasp{j,1} = thisMouse.Sessions(j).PercentFailuresGrasp;
+        PercentFailureType_Reach{j,1} = thisMouse.Sessions(j).PercentFailuresReach;
+        PercentFailureType_Retrieval{j,1} = thisMouse.Sessions(j).PercentFailuresRetrieval;
     end
+
+    temp = table(MouseID,SessionID,Group,NumReaches,SuccessPercent,ExpertPercent, ...
+        CorrAllReachesToExpert,CorrSuccessToExpert,CorrFailToExpert, ...
+        PercentImprovement,SessionConsistency,MeanVelocityX, ...
+        MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
+        MeanMaxVelocityLocation,MeanDuration, ...
+        MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
+        StimAccuracy,PercentFailureType_Grasp, ...
+        PercentFailureType_Reach,PercentFailureType_Retrieval);
+    T = vertcat(T,temp);
+    clearvars -except i j k T group groupID data UI
 end
 
 filename = ['SessionMeans' '_' UI.ReachType '.xlsx'];

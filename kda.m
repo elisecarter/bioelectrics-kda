@@ -387,13 +387,12 @@ end
             dims = [1 35];
             definput = {'2'};
             num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
-            [group, groupID] = SelectCohorts(data,num_cohorts);
+            data = SelectCohorts(data,num_cohorts);
 
         elseif strcmpi(answer,no)
-            % single group
-            group{1} = data;
-            % name cohort
-            groupID{1} = ' ';
+            for i = 1:length(data)
+                data{i}.GroupID = ' ';
+            end
         end
 
         UI = UserSelections(UI,'OutputSessionMeans');
@@ -404,7 +403,7 @@ end
             data{i} = SessionMeans(data{i},UI);
         end
 
-        OutputSessionMeans(group,groupID,UI)
+        OutputSessionMeans(data,UI)
         disp('Session means successfully exported to output directory.')
     end
 
