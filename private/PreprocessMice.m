@@ -1,6 +1,8 @@
 function data = PreprocessMice(data,UI)
 
 for i = 1:length(data)
+    
+    disp(data{i}.MouseID)
     % interpolate thru poorly tracked datapoints (low confidence)
     data{i} = InterpBadTracking(data{i});
 
@@ -9,27 +11,20 @@ for i = 1:length(data)
 
     % raw data indexed at reaches & saved in previous step - delete big
     % vectors
-    data{i} = rmfield(data{i},'RawData');
+    fields = fieldnames(data{i}.RawData);
+    data{i}.RawData = rmfield(data{i}.RawData,fields(6:15));
 
-    %if ~isempty(data{i}.Sessions.InitialToMax)
     % calculate expert reach
     data{i} = CalculateExpertReach(data{i});
-    %end
 
-    %if isfield(data{i},'')
-    %if ~isempty(data{i}.ExpertReach)
     % compute correlation coefficients
     data{i} = CalculateCorrelationCoeff(data{i});
-    %end
-    % end
 
-    % change status from raw to kinematic extracted
-    data{i}.Status = 'KinematicsExtracted';
-
+    % add meta data
     data{i} = AddMetaData(data{i});
 
-    %if ~isempty(data{i}.Sessions.InitialToMax)
+    data{i}.Status = 'KinematicsExtracted';
+
     % save json and kda files
     OutputData(data{i}, UI.OutPath, UI)
-    %end
 end
