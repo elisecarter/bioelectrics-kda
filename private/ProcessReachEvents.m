@@ -73,10 +73,11 @@ for i = 1 : length(RawData) %iterate thru sessions
     poorlyTracked = zeros(1, num_reaches);
     tooFast = zeros(1, num_reaches);
     DTW_error = zeros(1,num_reaches);
+    tooStill = zeros(1,num_reaches);
 
     for j = 1 : num_reaches
         % subtract total # of reaches deleted to adjust index for storage
-        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error);
+        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill);
 
         start_ind = indx(j,1); % start index
         max_ind = indx(j,2); % max index
@@ -146,6 +147,20 @@ for i = 1 : length(RawData) %iterate thru sessions
         % hand position smoothing
         smooth_hand_end = HandSmoothing(relative_hand_end);
         smooth_hand_max = HandSmoothing(relative_hand_max);
+
+        % delete reaches that do not move in space
+        % essentially doing the distance formula here
+        delta = diff(smooth_hand_max,1,1);
+        for n = 1:height(delta)
+            dist(n) = norm(delta(n,:));
+        end
+        if sum(dist) < 0.02 %mm
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];
+            tooStill(j) = true;
+            continue
+        end
 
         % hand position interpolation
         [interp_hand_max] = InterpolatePosition(smooth_hand_max);
@@ -224,6 +239,11 @@ for i = 1 : length(RawData) %iterate thru sessions
 
     if any(DTW_error)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(DTW_error)) ' reaches deleted due to error in dynamic time warping function.'];
+        disp(str)
+    end
+
+    if any(tooStill)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooStill)) ' reaches deleted due to little movement in space.'];
         disp(str)
     end
 
