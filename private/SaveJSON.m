@@ -7,7 +7,7 @@ if ~exist(json_folder_path,'dir')
     mkdir(json_folder_path)
 end
 
-file_name = sprintf('%s.json',mouse_data.MouseID);
+file_name = sprintf('%s_%s_%s.json',mouse_data.Experimentor,mouse_data.MouseID,mouse_data.Phase);
 file = fullfile(json_folder_path,file_name);
 fid = fopen(file,'w');
 encodedJSON = jsonencode(mouse_data, PrettyPrint=true);

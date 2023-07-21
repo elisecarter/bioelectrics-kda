@@ -19,7 +19,7 @@ for i = 1:length(data.Sessions)
     data.Sessions(i).MeanMaxVelLocation = mean([session_data.MaxVelocityLocation]);
 
     % mean euclidean target location
-    %data.Sessions(i).MeanTargetLocation = SessionMeanTarget(data.Sessions(i));
+    data.Sessions(i).MeanTargetDistance = SessionMeanTarget(data.Sessions(i));
 
     % path length [mm]
     data.Sessions(i).MeanPathLength3D = mean([session_data.PathLength3D]);

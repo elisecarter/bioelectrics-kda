@@ -9,7 +9,7 @@ for i = 1:length(data.Sessions) % iterate thru sessions
     % correlate each reach to expert reach
     cc = zeros(length(session.InitialToMax),1);
     for j = 1:length(session.InitialToMax) %iterate thru reaches
-        temp = corrcoef(session.InitialToMax(j).DTWHandNormalized,data.ExpertReach);
+        temp = corrcoef(session.InitialToMax(j).DTWHand,data.ExpertReach);
         cc(j) = temp(1,2);
     end
     data.Sessions(i).Correlations.AllReachesToExpert3D = mean(cc);
@@ -28,7 +28,7 @@ for i = 1:length(data.Sessions) % iterate thru sessions
     %correlations to expert reach in each dimension
     ccEuc = zeros(length(session.InitialToMax),1);
     for j = 1:length(session.InitialToMax) %iterate thru reaches
-        temp = corr(session.InitialToMax(j).DTWHandNormalized,data.ExpertReach);
+        temp = corr(session.InitialToMax(j).DTWHand,data.ExpertReach);
         ccEuc(j,1) = temp(1,1); %x
         ccEuc(j,2) = temp(2,2); %y
         ccEuc(j,3) = temp(3,3); %z
@@ -51,9 +51,9 @@ for i = 1:length(data.Sessions) % iterate thru sessions
     %reaches in session)
     all_reaches = zeros(300,length(session.InitialToMax));
     for j = 1:length(session.InitialToMax)
-        all_reaches(:,j) = vertcat(session.InitialToMax(j).DTWHandNormalized(:,1), ...
-            session.InitialToMax(j).DTWHandNormalized(:,2), ...
-            session.InitialToMax(j).DTWHandNormalized(:,3));
+        all_reaches(:,j) = vertcat(session.InitialToMax(j).DTWHand(:,1), ...
+            session.InitialToMax(j).DTWHand(:,2), ...
+            session.InitialToMax(j).DTWHand(:,3));
     end
     rho = corr(all_reaches);
     lower_tri = tril(rho,-1); % makes all upper tri values (including the diag) zero
@@ -64,7 +64,7 @@ for i = 1:length(data.Sessions) % iterate thru sessions
     % failures?)
     this_session = data.Sessions(i).Correlations.FailToExpert3D;
     day_one = data.Sessions(1).Correlations.FailToExpert3D;
-    percent_increase = abs(this_session - day_one) / day_one;
+    percent_increase = (this_session - day_one) / day_one;
     data.Sessions(i).Correlations.PercentIncreaseofFailures = percent_increase;
     
 end

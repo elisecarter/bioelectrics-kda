@@ -12,7 +12,7 @@ for i = 1:length(p1data.Sessions)
     % correlate each reach to expert reach
     corr = zeros(length(p1session.InitialToMax),1);
     for j = 1:length(p1session.InitialToMax) %iterate thru reaches
-        temp = corrcoef(p1session.InitialToMax(j).DTWHandNormalized,p2data.ExpertReach);
+        temp = corrcoef(p1session.InitialToMax(j).DTWHand,p2data.ExpertReach);
         corr(j) = temp(1,2);
     end
     data.Phase1ToPhase2Expert(i).AllReaches = mean(corr);
@@ -39,7 +39,7 @@ for i = 1:length(p2data.Sessions)
     % correlate each reach to expert reach
     corr = zeros(length(p2session.InitialToMax),1);
     for j = 1:length(p2session.InitialToMax) %iterate thru reaches
-        temp = corrcoef(p2session.InitialToMax(j).DTWHandNormalized,p1data.ExpertReach);
+        temp = corrcoef(p2session.InitialToMax(j).DTWHand,p1data.ExpertReach);
         corr(j) = temp(1,2);
     end
     data.Phase2ToPhase1Expert(i).AllReaches = mean(corr);

@@ -30,7 +30,8 @@ for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
     ylabel('Y (mm)')
     set(p_ax, 'box', 'off')
     str1 = sprintf('Mouse ID: %s',mouse_data.MouseID);
-    str2 = sprintf('Number of reaches: %d',length(session_data.InitialToMax));
+    str4 = sprintf('Phase: %s',mouse_data.Phase);
+    str2 = sprintf('Number of reaches plotted: %d',length(session_data.InitialToMax));
     str3 = sprintf('Session: %s',session_str);
     title({str1;str2;str3},'Interpreter','none')
 

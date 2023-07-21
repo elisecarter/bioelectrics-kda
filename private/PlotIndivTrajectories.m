@@ -9,7 +9,7 @@ plt = plot(ax,0,0);
 for i = 1:length(data)
     % create folder for individual reaches in mouse dir
     folder = 'Individual Reaches';
-    folder_path = fullfile(UI.OutPath,'TrajectoryPlots',data{i}.MouseID,folder);
+    folder_path = fullfile(UI.OutPath,'TrajectoryPlots',[data{i}.Experimentor '_' data{i}.MouseID '_' data{i}.Phase],folder);
     if ~exist(folder_path,'dir')
         mkdir(folder_path)
     end

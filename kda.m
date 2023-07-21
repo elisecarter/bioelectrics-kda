@@ -45,7 +45,6 @@ set(dHand,'String', opening_str)
 menu_file = uimenu(window, 'Label', 'File');
 uimenu(menu_file, 'Text', 'Load Raw Data', 'Callback', @FileLoadData)
 uimenu(menu_file, 'Text', 'Load KDA File(s)', 'Callback', @FileLoadSavedSession)
-uimenu(menu_file, 'Text', 'Save Session', 'Callback', @FileSaveSession)
 uimenu(menu_file, 'Text', 'Change MATLAB 3D Directory','Callback', @FileChangeMatPath)
 uimenu(menu_file, 'Text', 'Change Output Directory','Callback', @FileChangeOutPath)
 uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
@@ -186,23 +185,6 @@ end
         DataSummary(data,dHand)
         disp('Kda files successfully loaded. Proceed with analysis/export.')
     end
-
-%     function FileSaveSession(varargin)
-%         if isempty(data)
-%             err1 = msgbox('No data to save.');
-%             uiwait(err1)
-%             return
-%         end
-%
-%         % check if output folder path has been not yet been defined
-%         if ~isfield(UI,'OutPath')
-%             FileChangeOutPath()
-%         end
-%
-%         for i = 1:length(data)
-%             SaveKdaFile(data{i},UI.OutPath)
-%         end
-%     end
 
     function FileChangeMatPath(varargin)
         % user navigate to matlab 3d directory
@@ -432,21 +414,27 @@ end
     end
 
     function ExportKdaToBase(varargin)
-        % chose kda files to export and load
-        [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
-        if ~iscell(file)
-            if file == 0
-                warning('User cancelled: No session folder selected.')
-                return
-            end
-            exportdata = load(fullfile(path,file),'-mat');
-        elseif iscell(file)
-            for i = 1:length(file)
-                exportdata{i} = load(fullfile(path,file{i}),'-mat');
-            end
+        %         chose kda files to export and load
+        %         [file, path] = uigetfile('*.kda', 'Select Session File','MultiSelect','on');
+        %         if ~iscell(file)
+        %             if file == 0
+        %                 warning('User cancelled: No session folder selected.')
+        %                 return
+        %             end
+        %             exportdata = load(fullfile(path,file),'-mat');
+        %         elseif iscell(file)
+        %             for i = 1:length(file)
+        %                 exportdata{i} = load(fullfile(path,file{i}),'-mat');
+        %             end
+        %         end
+        if isempty(data)
+            err1 = msgbox(['No data in workspace to export. ']);
+            uiwait(err1)
+            return
         end
         disp('Exporting kda files...')
-        assignin('base',"kdaData",exportdata) %export to base
+        kdaData = data;
+        assignin('base',"kdaData",kdaData) %export to base
         str = 'Kda filed successfully exported to Base workspace in kdaData.';
         disp(str)
     end
