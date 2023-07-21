@@ -1,5 +1,5 @@
 function ReviewFinalTrajectories(data)
-% this function plots the average and individual reach events from the 
+% plots the average and individual reach events from the 
 % final session for each mouse 
 
 numMice = length(data);
@@ -10,23 +10,28 @@ ax = uiaxes(fig, Position=[75 75 550 450]);
 
 % iterate through reaches from final session
 for i = 1 : numMice
-    session_data = data(i).Sessions(end).InitialToMax;
-    [avg_traj,x_all,y_all,~] = CalculateAvgTrajectory(session_data);
+    session_data = data{i}.Sessions(end).InitialToMax;
+    [avg_traj,ind_traj] = AverageTrajectory(session_data);
 
     numReaches = length(session_data); %number of reaches in final session
     for j = 1 : numReaches
         % plot each reach trajectory
-        plot(ax,x_all(:,j), y_all(:,j),'Color','#918e8e')
+        plot(ax,ind_traj.x(:,j), ind_traj.y(:,j),'Color','#918e8e','LineWidth',1)
+        set(ax,'YDir','reverse') 
         hold(ax,"on")
     end
 
+    % plot the pellet location
+    plot(ax,0,0,'.','MarkerSize',200,'Color',"#65ad79")
+
     % plot the average reach trajectory of final session
-    plot(ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 1.5 ,'Color','#000000')
-    xlabel(ax,'x (mm)')
-    ylabel(ax,'y (mm)')
-    str1 = "Mouse ID: " + data(i).MouseID;
+    plot(ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 3 ,'Color','#000000')
+    xlabel(ax,'X (mm)')
+    ylabel(ax,'Y (mm)')
+    set(ax, 'box', 'off')
+    str1 = "Mouse ID: " + data{i}.MouseID;
     str2 = "Number of reaches: " + numReaches;
-    str3 = "Session: " + data(i).Sessions(end).SessionID;
+    str3 = "Session: " + data{i}.Sessions(end).SessionID;
     title(ax,[str1, str2, str3],'Interpreter', 'none')
 
     if i == numMice % see next mouse

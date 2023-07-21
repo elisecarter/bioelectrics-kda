@@ -1,21 +1,22 @@
-function OutputData(data, OUTpath)
+function OutputData(data, OUTpath, UI)
+% creates folder for trajectory plots if it doesnt already exist in output
+% directory
 
-plot_folder = "Trajectory Plots";
-for i = 1:length(data)
-    folder_name = data(i).MouseID;
-    folder_path = fullfile(OUTpath,folder_name);
-%     if ~exists(folder_path)
-%         mkdir(folder_path)
-%     end
-    
-    plot_path = fullfile(folder_path,plot_folder);
-%     if ~exists(plot_path)
-%         mkdir(plot_path)
-%     end
+if UI.SavePlots == 1
+    plot_folder = "TrajectoryPlots";
+    plot_folder_path = fullfile(OUTpath,plot_folder);
+    if ~exist(plot_folder_path,'dir')
+        mkdir(plot_folder_path)
+    end
 
-    PlotTrajectories(data(i),plot_path)
-    SaveJSON(data(i), folder_path)
-    SaveMATFile(data(i), folder_path)
-    
+    mouse_name = [data.Experimentor '_' data.MouseID '_' data.Phase];
+    subfolder_path = fullfile(plot_folder_path,mouse_name); %mouse subfolder in trajectory plots folder
+    if ~exist(subfolder_path,'dir')
+        mkdir(subfolder_path)
+    end
+    PlotTrajectories(data,subfolder_path,UI)
 end
 
+
+SaveJSON(data, OUTpath)
+SaveKdaFile(data, OUTpath)
