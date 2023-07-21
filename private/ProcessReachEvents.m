@@ -95,7 +95,7 @@ for i = 1 : length(RawData) %iterate thru sessions
 
         % if percent of poorly tracked data points in this reach is greater
         % than the threshold, delete this reach
-        conf = init2max.handConfXY_10k./10000;
+        conf = init2end.handConfXY_10k./10000;
         percent_poor = sum(conf<0.9)/length(conf); %percent poorly tracked datapts
         if percent_poor > interp_threshold
             SessionData(i).StimLogical(k) = [];
@@ -117,9 +117,43 @@ for i = 1 : length(RawData) %iterate thru sessions
         tempeuc_max = tempeuc(1:frames_max,:);
 
         % velocity - interpolated, absolute, and raw in mm/sec
-        [interpVel_max,absVel_max,rawVel_max] = CalculateVelocity(tempeuc_max);
-        [interpVel_end,absVel_end,rawVel_end] = CalculateVelocity(tempeuc);
-        
+        [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max);
+        [interpVel_end,absVel_end,rawVel_end, flagEnd] = CalculateVelocity(tempeuc);
+
+        % interpolate thru jumps to other objects (i.e. left hand)
+        if sum(flagEnd) > 1 % more than 1 frame with high velocity
+            locs = find(flagEnd);
+            if (locs(end)-locs(1))/height(tempeuc) < 0.5 % less than half the reach will be interpolated
+                xs = tempeuc(:,1); %sample x vals
+                ys = tempeuc(:,2); %sample y vals
+                zs = tempeuc(:,3); %sample z vals
+                clear tempeuc
+                frames = 1:length(xs); %sample frames
+
+                xq = frames; %query pts
+                x_XY = frames; %sample pts for side camera
+                x_Z = frames; % sample pts for front camera
+
+                % remove poorly tracked datapoints
+                x_XY(locs(1):locs(end)) = [];
+                x_Z(locs(1):locs(end)) = [];
+
+                xs(locs(1):locs(end)) = [];
+                ys(locs(1):locs(end)) = [];
+                zs(locs(1):locs(end)) = [];
+
+                % interpolate
+                tempeuc(:,1) = interp1(x_XY,xs,xq,"pchip");
+                tempeuc(:,2) = interp1(x_XY,ys,xq,"pchip");
+                tempeuc(:,3) = interp1(x_Z,zs,xq,"pchip");
+                tempeuc_max = tempeuc(1:frames_max,:);
+
+                % recalculate velocities w interpolated position
+                [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max);
+                [interpVel_end,absVel_end,rawVel_end, ~] = CalculateVelocity(tempeuc);
+            end
+        end
+
         % determine max velocity location as percentage of reach
         [maxVel_max,ind] = max(absVel_max);
         maxVelLoc_max = ind/numel(absVel_max);
@@ -130,7 +164,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         if isfield(UI,'VelocityTresh')
             % if absolute velocity is greater than thresh, delete this reach
             % done here to minimize run time - DTW and arclength computations are expensive)
-            if any(absVel_max > vel_threshold)
+            if any(absVel_max > UI.VelocityTresh)
                 SessionData(i).StimLogical(k) = [];
                 SessionData(i).Behavior(k) = [];
                 SessionData(i).EndCategory(k) = [];
@@ -203,7 +237,6 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(k).MaxVelocityLocation = maxVelLoc_max;
         SessionData(i).InitialToMax(k).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(k).DTWHand = DTW_max;
-        SessionData(i).InitialToMax(k).DTWHandNormalized = DTW_max;
         SessionData(i).InitialToMax(k).PathLength3D = arcLength3D_max;
         SessionData(i).InitialToMax(k).PathLengthXY = arcLengthXY_max;
         SessionData(i).InitialToMax(k).PathLengthXZ = arcLengthXZ_max;
@@ -221,11 +254,12 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(k).MaxVelocityLocation = maxVelLoc_end;
         SessionData(i).InitialToEnd(k).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(k).DTWHand = DTW_end;
-        SessionData(i).InitialToEnd(k).DTWHandNormalized = DTW_end;
         SessionData(i).InitialToEnd(k).PathLength3D = arcLength3D_end;
         SessionData(i).InitialToEnd(k).PathLengthXY = arcLengthXY_end;
         SessionData(i).InitialToEnd(k).PathLengthXZ = arcLengthXZ_end;
     end
+
+    SessionData(i).DeletedReaches = sum(poorlyTracked) + sum(tooFast) + sum(DTW_error) + sum(tooStill);
 
     if any(poorlyTracked)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(poorlyTracked)) ' reaches deleted due to low tracking confidence.'];
@@ -233,7 +267,7 @@ for i = 1 : length(RawData) %iterate thru sessions
     end
 
     if any(tooFast)
-        str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooFast)) ' reaches deleted due to improbably high velocity (>' num2str(vel_threshold) ' mm/s)'];
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooFast)) ' reaches deleted due to improbably high velocity (>' num2str(UI.VelocityTresh) ' mm/s)'];
         disp(str)
     end
 
