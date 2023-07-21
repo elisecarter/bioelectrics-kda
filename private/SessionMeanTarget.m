@@ -1,8 +1,9 @@
-function target_location = SessionMeanTarget(session_data)
+function distance_from_pellet = SessionMeanTarget(session_data)
 % computes mean location of hand at reach max for the session
 
 for i = 1:length(session_data.InitialToMax)
-    reach_max(i,1:3) = session_data.InitialToMax(i).HandPositionNormalized(end,:);
+    reachMax_location = session_data.InitialToMax(i).HandPositionNormalized(end,:);
+    distance(i) = norm(reachMax_location);
 end
 
-target_location = mean(reach_max);
+distance_from_pellet = mean(distance);
