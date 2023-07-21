@@ -10,16 +10,22 @@ for i = 1:length(data) % iterate thru mice
 
         MouseID{j,1} = thisMouse.MouseID;
         Group{j,1} = thisMouse.GroupID;
+        Phase{j,1} = thisMouse.Phase;
+        Experimentor{j,1} = thisMouse.Experimentor;
         SessionID{j,1} = thisMouse.Sessions(j).SessionID;
-        NumReaches{j,1} = thisMouse.Sessions(j).ReachAttempts;
 
+        NumReaches{j,1} = thisMouse.Sessions(j).ReachAttempts;
+        DeletedReaches{j,1} = thisMouse.Sessions(j).DeletedReaches;
         SuccessPercent{j,1} = thisMouse.Sessions(j).PercentSuccess;
         ExpertPercent{j,1} = thisMouse.Sessions(j).PercentExpert;
+
         CorrAllReachesToExpert{j,1} = correlations.AllReachesToExpert3D;
         CorrSuccessToExpert{j,1} = correlations.SuccessToExpert3D;
         CorrFailToExpert{j,1} = correlations.FailToExpert3D;
+
         PercentImprovement{j,1} = correlations.PercentIncreaseofFailures;
         SessionConsistency{j,1} = correlations.Consistency;
+        MeanTargetDistanceFromPellet{j,1} = thisMouse.Sessions(j).MeanTargetDistance;
 
         MeanVelocityX{j,1} = thisMouse.Sessions(j).MeanEucVelocity(1,1);
         MeanVelocityY{j,1} = thisMouse.Sessions(j).MeanEucVelocity(1,2);
@@ -41,10 +47,11 @@ for i = 1:length(data) % iterate thru mice
         PercentFailureType_Retrieval{j,1} = thisMouse.Sessions(j).PercentFailuresRetrieval;
     end
 
-    temp = table(MouseID,SessionID,Group,NumReaches,SuccessPercent,ExpertPercent, ...
+    temp = table(SessionID,MouseID,Group,Phase,Experimentor,NumReaches, ...
+        DeletedReaches,SuccessPercent,ExpertPercent, ...
         CorrAllReachesToExpert,CorrSuccessToExpert,CorrFailToExpert, ...
-        PercentImprovement,SessionConsistency,MeanVelocityX, ...
-        MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
+        PercentImprovement,SessionConsistency,MeanTargetDistanceFromPellet, ...
+        MeanVelocityX,MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
         MeanMaxVelocityLocation,MeanDuration, ...
         MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
         StimAccuracy,PercentFailureType_Grasp, ...

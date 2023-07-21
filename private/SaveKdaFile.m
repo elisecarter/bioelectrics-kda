@@ -10,6 +10,6 @@ if ~exist(kda_path,'dir')
 end
 
 % save data as .kda file (.mat file)
-filename = sprintf('%s_%s.kda',data.MouseID,data.Status);
+filename = sprintf('%s_%s_%s_%s.kda',data.Experimentor,data.MouseID,data.Phase,data.Status);
 file = fullfile(kda_path,filename);
 save(file,'-struct','data','-mat')

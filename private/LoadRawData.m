@@ -1,19 +1,25 @@
 function data = LoadRawData(data,UI)
 % load raw data for selected mouse from Curator and Matlab 3D folders
 
-[mouseIDs,CURdir] = GetMouseIDs(UI.CurPath);
-[mouseIDs,indx] = SelectMice(mouseIDs);
+[curationIDs,CURdir] = GetMouseIDs(UI.CurPath);
+[curationIDs,indx] = SelectMice(curationIDs);
+
+
+% parse Experimentor, mouseID, and phase from curation ID
+%  and create data structures for mice to process
+datacount = length(data);
+for i = 1:length(curationIDs)
+    parts = strsplit(curationIDs{i},'_');
+    data{datacount+i} = struct('MouseID',parts{2},'Experimentor', parts{1});
+    if length(parts) > 2
+        data{datacount+i}.Phase = parts{3};
+    else
+        data{datacount+i}.Phase = '';
+    end
+end
 
 % index selected mice from curator directory struct
 CURdir = CURdir(indx);
-
-% datacount should be zero if nothing loaded
-datacount = length(data);
-
-% create data structures for mice to process
-for i = 1:length(mouseIDs)
-    data{datacount+i} = struct('MouseID',mouseIDs(i));
-end
 
 for i = 1:length(data) % iterate thru mice
     [sessionFiles,mouseDir] = FindSessions(CURdir(i));

@@ -9,7 +9,7 @@ if UI.SavePlots == 1
         mkdir(plot_folder_path)
     end
 
-    mouse_name = data.MouseID;
+    mouse_name = [data.Experimentor '_' data.MouseID '_' data.Phase];
     subfolder_path = fullfile(plot_folder_path,mouse_name); %mouse subfolder in trajectory plots folder
     if ~exist(subfolder_path,'dir')
         mkdir(subfolder_path)
