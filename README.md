@@ -10,7 +10,7 @@ This software serves as a data pipeline with the purpose of extracting kinematic
 
 ## General workflow: create a spreadsheet with session means
 
-For more detailed information
+For more detailed information, see the kinematics protocol in the install kit.
 
 1)	Create a curators folder with a subfolder for each curation to process. Each curation folder should contain the excel files generated during curation for each session to analyze (same file structure as created by the Curator).
 
