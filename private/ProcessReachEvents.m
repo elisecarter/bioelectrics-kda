@@ -179,8 +179,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         relative_hand_max = tempeuc_max - SessionData(i).PelletLocation;
 
         % hand position smoothing
-        smooth_hand_end = HandSmoothing(relative_hand_end);
-        smooth_hand_max = HandSmoothing(relative_hand_max);
+%         smooth_hand_end = HandSmoothing(relative_hand_end);
+%         smooth_hand_max = HandSmoothing(relative_hand_max);
 
         % delete reaches that do not move in space
         % essentially doing the distance formula here
