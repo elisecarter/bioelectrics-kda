@@ -12,19 +12,24 @@ for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
     elseif strcmp(UI.PlotReach,'max')
         [avg_traj,ind_traj] = AverageTrajectory(session_data.InitialToMax);
     end
-
-    plot(p_ax,ind_traj.x,ind_traj.y,'Color','#918e8e','LineWidth',1)
-    set(p_ax,'YDir','reverse')
+    ind_traj.y(end,:) = NaN;
+    
+    % plot the pellet location
+    plot(p_ax,0,0,'.','MarkerSize',150,'Color',"#65ad79")
     hold on
+
+    % plot individual trajectories
+    indLines = patch(p_ax,ind_traj.x,ind_traj.y,'b','LineWidth',1);
+    indLines.EdgeAlpha = 0.15;
+    set(p_ax,'YDir','reverse')
+    
+    % plot avg trajectory
     plot(p_ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 3 ,'Color','#000000')
 
     %set(p_ax,'XLim',) % use crop points to set XLim and YLim?
     set(p_ax,'XLim',[-20 10], 'YLim', [-10 10])
     set(p,'Position', [400 345 560 375])
     set(p_ax,'YTick', -10:5:10, 'XTick',-20:5:10)
-
-    % plot the pellet location
-    plot(p_ax,0,0,'.','MarkerSize',150,'Color',"#65ad79")
 
     xlabel('X (mm)')
     ylabel('Y (mm)')
@@ -33,13 +38,14 @@ for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
     str4 = sprintf('Phase: %s',mouse_data.Phase);
     str2 = sprintf('Number of reaches plotted: %d',length(session_data.InitialToMax));
     str3 = sprintf('Session: %s',session_str);
-    title({str1;str2;str3},'Interpreter','none')
+    title({str1;str4;str2;str3},'Interpreter','none')
 
     if strcmp(UI.PlotFileType,'.png') || strcmp(UI.PlotFileType,'both')
         exportgraphics(p_ax,fullfile(path,[session_str '.png']))
     end
-    if strcmp(UI.PlotFileType,'.eps') || strcmp(UI.PlotFileType,'both')
-        exportgraphics(p_ax,fullfile(path,[session_str '.eps']))
+    if strcmp(UI.PlotFileType,'.svg') || strcmp(UI.PlotFileType,'both')
+        print(p,fullfile(path,[session_str '.svg']),'-dsvg','-vector')
     end
     cla(p_ax)
 end
+

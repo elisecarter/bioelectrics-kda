@@ -30,12 +30,12 @@ switch switch_exp
             quest = 'What file type would you like to save plots as?';
             dlgtitle = 'Trajectory Plot File Type';
             btn1 = '.png';
-            btn2 = '.eps';
+            btn2 = '.svg';
             btn3 = 'both';
             defbtn = '.png';
             answer = questdlg(quest,dlgtitle,btn1,btn2,btn3,defbtn);
             if strcmpi(answer,btn2) 
-                UI.PlotFileType = '.eps';
+                UI.PlotFileType = '.svg';
             elseif strcmp(answer,btn3)
                 UI.PlotFileType = 'both';
             else % png
@@ -83,12 +83,12 @@ switch switch_exp
             quest = 'What file type would you like to save plots as?';
             dlgtitle = 'Inidividual Trajectory Plots File Type';
             btn1 = '.png';
-            btn2 = '.eps';
+            btn2 = '.svg';
             btn3 = 'both';
             defbtn = '.png';
             answer = questdlg(quest,dlgtitle,btn1,btn2,btn3,defbtn);
             if strcmpi(answer,btn2) 
-                UI.PlotFileType = '.eps';
+                UI.PlotFileType = '.svg';
             elseif strcmp(answer,btn3)
                 UI.PlotFileType = 'both';
             else % png
