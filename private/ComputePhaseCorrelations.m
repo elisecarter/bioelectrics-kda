@@ -1,5 +1,14 @@
 function data = ComputePhaseCorrelations(p1data, p2data)
 
+if ~strcmpi(p1data.MouseID,p2data.MouseID)
+    error('Aborting phase correlations, mouse IDs do not match.')
+end
+data.MouseID = p1data.MouseID;
+data.GroupID = p1data.GroupID;
+data.Experimentor = p1data.Experimentor;
+data.Phase1 = p1data.Phase;
+data.Phase2 = p2data.Phase;
+
 % correlation bewtween phase 1 and phase 2 expert reaches
 cc = corrcoef(p1data.ExpertReach,p2data.ExpertReach);
 data.ExpertToExpert = cc(1,2);

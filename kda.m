@@ -248,53 +248,67 @@ end
     end
 
     function AnalysisComparePhases(varargin)
-        % NEEDS UPDATING
 
-        %         % check that mice are loaded and have correct status
-        %         if isempty(data)
-        %             err1 = msgbox(['No data to compare. Please load data with ' ...
-        %                 'kinematics extracted before comparing learning phases.']);
-        %             uiwait(err1)
-        %             return
-        %         elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
-        %             err2 = msgbox(['Data does not have correct status. ' ...
-        %                 'Please extract kinematics before exporting session means.']);
-        %             uiwait(err2)
-        %             return
-        %         end
-
-        % user navigate to kda folder
-        msg4 = msgbox('Select folder containing kda files to compare');
-        uiwait(msg4)
-        kdaPath = uigetdir();
-        %if canceled then return
-        if kdaPath == 0
-            warning('User cancelled: No folder selected.')
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to compare. Please load data with ' ...
+                'kinematics extracted before comparing learning phases.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Please extract kinematics before exporting session means.']);
+            uiwait(err2)
             return
         end
-        
+
         % check if output folder path has been not yet been defined
         if ~isfield(UI,'OutPath')
             FileChangeOutPath()
         end
 
-        % FIX THIS TO USE METADATA
-        % user enter learning phase indentifiers
-        prompt = sprintf(['Enter the identifier for learning phase 1. ' ...
-            'This should be a string within the mouse ID that is ' ...
-            'unique to the learning phase. Ex: precup']);
-        dlgtitle = 'Learning Phase Identifier';
-        dims = [1 60];
-        definput = {''};
-        phaseID{1} = inputdlg(prompt,dlgtitle,dims,definput);
+        % create cell array of all phases
+        for i = 1:length(data)
+            allPhases{i} = data{i}.Phase;
+        end
 
-        prompt = sprintf(['Enter the identifier for learning phase 2. ' ...
-            'This should be a string within the mouse ID that is ' ...
-            'unique to the learning phase. Ex: postcup']);
-        dlgtitle = 'Learning Phase Identifier';
-        dims = [1 60];
-        definput = {''};
-        phaseID{2} = inputdlg(prompt,dlgtitle,dims,definput);
+        % find unique phases
+        [grps, id] = findgroups(allPhases);
+        if length(id) ~= 2
+            error(['Only two learning phases are allowed at a time and ' num2str(length(id)) 'were found.']);
+        end
+        msg = [[num2str(length(id)) ' phases found: '] id];
+        box = msgbox(msg);
+        uiwait(box);
+
+        % group by phase
+        for i = 1:length(id)
+            ind = (grps == i);
+            group{i} = [data(ind)];
+        end
+
+        % make sure same number of mice in each phase
+        if length(group{1}) ~= length(group{2})
+            error('Number of animals in each phase is not equivalent. Ensure all mice are loaded into the workspace.')
+        end
+
+        %check that mouseIDs in secondary list are in same order as primary list
+        prmpt = sprintf('Select Phase ID for Phase 1');
+        [ind1, ~] = listdlg('ListString',id,'PromptString',prmpt,'SelectionMode','single');
+        prmpt = sprintf('Select Phase ID for Phase 2');
+        [ind2, ~] = listdlg('ListString',id,'PromptString',prmpt,'SelectionMode','single');
+
+        for i = 1:length(group{1})
+            primary{i} = group{ind1}{i}.MouseID;
+            secondary{i} = group{ind2}{i}.MouseID;
+        end
+
+        if ~any(strcmpi(primary,secondary))
+            [~,pind] = sort(primary);
+            [~,sind] = sort(secondary);
+            group{ind1} = group{ind1}(pind);
+            group{ind2} = group{ind2}(sind);
+        end
 
         % opt to group by cohort
         quest = 'Would you like to group by experimental condition?';
@@ -304,10 +318,6 @@ end
         defbtn = 'yes';
         answer = questdlg(quest,dlgtitle,yes,no,defbtn);
 
-        % find files belonging to each phase and compare
-        phaseLists = GroupByPhase(phaseID,kdaPath);
-        corrData = CompareLearningPhases(phaseLists,kdaPath);
-
         % ui select mice to group
         if strcmpi(answer,yes)
             % user input number of cohorts
@@ -316,21 +326,23 @@ end
             dims = [1 35];
             definput = {'2'};
             num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
-            [cohort, cohortID] = SelectCohorts(corrData,num_cohorts);
+            dat = SelectCohorts(group{1},num_cohorts,group{2});
 
         elseif strcmpi(answer,no)
             % single cohort
-            cohort{1} = corrData;
-            % name cohort
-            prompt = sprintf('Enter the identifier for cohort 1');
-            dlgtitle = 'Input Cohort Name';
-            dims = [1 35];
-            definput = {''};
-            cohortID{1} = inputdlg(prompt,dlgtitle,dims,definput);
+            dat = {group{1} group{2}};
+            for i = 1:length(dat{1})
+                dat{1}{i}.GroupID = ' ';
+                dat{2}{i}.GroupID = ' ';
+            end
         end
 
-        OutputPhaseCorrelations(cohort,cohortID,UI.OutPath)
+        % compute phase correlations for each animal
+        for i = 1:length(group{1})
+            corrData{i} = ComputePhaseCorrelations(dat{1,ind1}{1,i},dat{1,ind2}{1,i});
+        end
 
+        OutputPhaseCorrelations(corrData,UI.OutPath)
     end
 
 
