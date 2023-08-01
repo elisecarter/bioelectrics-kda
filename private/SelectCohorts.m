@@ -1,4 +1,4 @@
-function data = SelectCohorts(data,num_cohorts)
+function data = SelectCohorts(data,num_cohorts,secondaryData)
 % user input for number of cohorts and assign mice
 
 catStruct = [data{:}];
@@ -19,6 +19,21 @@ for i = 1:num_cohorts
     end
     mouseIDs(indx) = [];
     data(indx) = [];
+
+    if exist('secondaryData','var')
+        cohort2{i} = secondaryData(indx);
+        for j = 1:length(cohort2{i})
+            cohort2{i}{j}.GroupID = cohortID{1};
+        end
+        secondaryData(indx) = [];
+    end
 end
+
 clear data
-data = [cohort{:}];
+if exist('secondaryData','var')
+    clear secondaryData
+    data{1} = [cohort{:}];
+    data{2} = [cohort2{:}];
+else
+    data = [cohort{:}];
+end
