@@ -65,7 +65,7 @@ switch switch_exp
         end
 
 
-    case 'PlotIndivTrajectories'
+    case 'PlotTrajectories'
         % plot reach max or end
         quest = 'What reach type would you like to plot?';
         dlgtitle = 'Trajectory Plot Reach Type';

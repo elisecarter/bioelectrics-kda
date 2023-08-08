@@ -58,6 +58,7 @@ uimenu(menu_analysis, 'Text', 'Compare Learning Phases', 'Callback', @AnalysisCo
 menu_export = uimenu(window, 'Label', 'Export');
 uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
 uimenu(menu_export, 'Text', 'Individual Trajectories', 'Callback', @ExportIndivTraj)
+uimenu(menu_export, 'Text', 'Average Trajectories', 'Callback', @ExportAvgTraj)
 uimenu(menu_export, 'Text', 'KDA File(s) to Base Workspace', 'Callback', @ExportKdaToBase)
 
 % initialize data for nested functions
@@ -248,7 +249,6 @@ end
     end
 
     function AnalysisComparePhases(varargin)
-
         % check that mice are loaded and have correct status
         if isempty(data)
             err1 = msgbox(['No data to compare. Please load data with ' ...
@@ -419,9 +419,37 @@ end
         if ~isfield(UI,'OutPath')
             FileChangeOutPath()
         end
-        UI = UserSelections(UI,'PlotIndivTrajectories');
+
+        UI = UserSelections(UI,'PlotTrajectories');
         disp('Exporting individual trajectories...')
         PlotIndivTrajectories(data,UI)
+        disp('Trajectories successfully exported to output directory.')
+    end
+
+    function ExportAvgTraj(varargin)
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to process. Load kinematic data ' ...
+                'before plotting trajectories.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Extract kinematics before plotting trajectories.']);
+            uiwait(err2)
+            return
+        end
+
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            FileChangeOutPath()
+        end
+
+        UI = UserSelections(UI,'PlotTrajectories');
+        disp('Exporting average session trajectories...')
+        for i = 1:length(data)
+            PlotTrajectories(data{i},UI.OutPath,UI)
+        end
         disp('Trajectories successfully exported to output directory.')
     end
 
