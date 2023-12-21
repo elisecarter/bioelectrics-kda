@@ -179,12 +179,12 @@ for i = 1 : length(RawData) %iterate thru sessions
         relative_hand_max = tempeuc_max - SessionData(i).PelletLocation;
 
         % hand position smoothing
-        smooth_hand_end = HandSmoothing(relative_hand_end);
-        smooth_hand_max = HandSmoothing(relative_hand_max);
+%         smooth_hand_end = HandSmoothing(relative_hand_end);
+%         smooth_hand_max = HandSmoothing(relative_hand_max);
 
         % delete reaches that do not move in space
         % essentially doing the distance formula here
-        delta = diff(smooth_hand_max,1,1);
+        delta = diff(relative_hand_max,1,1);
         for n = 1:height(delta)
             dist(n) = norm(delta(n,:));
         end
@@ -197,12 +197,12 @@ for i = 1 : length(RawData) %iterate thru sessions
         end
 
         % hand position interpolation
-        [interp_hand_max] = InterpolatePosition(smooth_hand_max);
-        [interp_hand_end] = InterpolatePosition(smooth_hand_end);
+        [interp_hand_max] = InterpolatePosition(relative_hand_max);
+        [interp_hand_end] = InterpolatePosition(relative_hand_end);
 
         % dynamic time warping (DTW)
-        [DTW_max, flagMax] = DynamicTimeWarping(smooth_hand_max);
-        [DTW_end, flagEnd] = DynamicTimeWarping(smooth_hand_end);
+        [DTW_max, flagMax] = DynamicTimeWarping(relative_hand_max);
+        [DTW_end, flagEnd] = DynamicTimeWarping(relative_hand_end);
         if flagMax || flagEnd
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
@@ -213,16 +213,16 @@ for i = 1 : length(RawData) %iterate thru sessions
 
         % arc length
         % 3D path length
-        arcLength3D_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'spline');
-        arcLength3D_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'spline');
+        arcLength3D_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'pchip');
+        arcLength3D_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'pchip');
 
         % XY path length
-        arcLengthXY_max = arclength(DTW_max(:,1), DTW_max(:,2),'spline');
-        arcLengthXY_end = arclength(DTW_end(:,1), DTW_end(:,2),'spline');
+        arcLengthXY_max = arclength(DTW_max(:,1), DTW_max(:,2),'pchip');
+        arcLengthXY_end = arclength(DTW_end(:,1), DTW_end(:,2),'pchip');
 
         % XZ path length
-        arcLengthXZ_max = arclength(DTW_max(:,1), DTW_max(:,3),'spline');
-        arcLengthXZ_end = arclength(DTW_end(:,1), DTW_end(:,3),'spline');
+        arcLengthXZ_max = arclength(DTW_max(:,1), DTW_max(:,3),'pchip');
+        arcLengthXZ_end = arclength(DTW_end(:,1), DTW_end(:,3),'pchip');
 
         % store initial to max data
         SessionData(i).InitialToEnd(k).RawData = struct2table(init2max);

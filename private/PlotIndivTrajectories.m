@@ -50,8 +50,8 @@ for i = 1:length(data)
             exportgraphics(ax,[path '.png'])
         end
 
-        if strcmp(UI.PlotFileType,'.eps') || strcmp(UI.PlotFileType,'both')
-            exportgraphics(ax,[path '.eps'])
+        if strcmp(UI.PlotFileType,'.svg') || strcmp(UI.PlotFileType,'both')
+            print(f,[path '.svg'],'-dsvg','-vector')
         end
     end
 
