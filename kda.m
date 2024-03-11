@@ -58,7 +58,7 @@ uimenu(menu_analysis, 'Text', 'Compare Learning Phases', 'Callback', @AnalysisCo
 menu_export = uimenu(window, 'Label', 'Export');
 uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
 uimenu(menu_export, 'Text', 'Individual Trajectories', 'Callback', @ExportIndivTraj)
-uimenu(menu_export, 'Text', 'Average Trajectories', 'Callback', @ExportAvgTraj)
+uimenu(menu_export, 'Text', 'Session Trajectories', 'Callback', @ExportSessionTraj)
 uimenu(menu_export, 'Text', 'KDA File(s) to Base Workspace', 'Callback', @ExportKdaToBase)
 
 % initialize data for nested functions
@@ -395,6 +395,8 @@ end
         for i = 1:length(data)
             % compute session means
             data{i} = SessionMeans(data{i},UI);
+            SaveKdaFile(data{i}, UI.OutPath)
+            SaveJSON(data{i}, UI.OutPath)
         end
 
         OutputSessionMeans(data,UI)
@@ -426,7 +428,7 @@ end
         disp('Trajectories successfully exported to output directory.')
     end
 
-    function ExportAvgTraj(varargin)
+    function ExportSessionTraj(varargin)
         % check that mice are loaded and have correct status
         if isempty(data)
             err1 = msgbox(['No data to process. Load kinematic data ' ...
@@ -446,9 +448,20 @@ end
         end
 
         UI = UserSelections(UI,'PlotTrajectories');
-        disp('Exporting average session trajectories...')
+        disp('Exporting session trajectories...')
+        plot_folder = "TrajectoryPlots";
+        plot_folder_path = fullfile(UI.OutPath,plot_folder);
+        if ~exist(plot_folder_path,'dir')
+            mkdir(plot_folder_path)
+        end
+
         for i = 1:length(data)
-            PlotTrajectories(data{i},UI.OutPath,UI)
+            mouse_name = [data{i}.Experimentor '_' data{i}.MouseID '_' data{i}.Phase];
+            subfolder_path = fullfile(plot_folder_path,mouse_name); %mouse subfolder in trajectory plots folder
+            if ~exist(subfolder_path,'dir')
+                mkdir(subfolder_path)
+            end
+            PlotTrajectories(data{i},subfolder_path,UI)
         end
         disp('Trajectories successfully exported to output directory.')
     end
