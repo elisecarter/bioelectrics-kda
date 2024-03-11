@@ -14,8 +14,8 @@ for i = 1:length(data) % iterate thru mice
         Experimentor{j,1} = thisMouse.Experimentor;
         SessionID{j,1} = thisMouse.Sessions(j).SessionID;
 
-        NumReaches{j,1} = thisMouse.Sessions(j).ReachAttempts;
-        DeletedReaches{j,1} = thisMouse.Sessions(j).DeletedReaches;
+        AnalyzedReaches{j,1} = thisMouse.Sessions(j).ReachAttempts;
+        MultiAttemptReaches{j,1} = thisMouse.Sessions(j).MultiAttemptReaches;
         SuccessPercent{j,1} = thisMouse.Sessions(j).PercentSuccess;
         ExpertPercent{j,1} = thisMouse.Sessions(j).PercentExpert;
 
@@ -45,17 +45,26 @@ for i = 1:length(data) % iterate thru mice
         PercentFailureType_Grasp{j,1} = thisMouse.Sessions(j).PercentFailuresGrasp;
         PercentFailureType_Reach{j,1} = thisMouse.Sessions(j).PercentFailuresReach;
         PercentFailureType_Retrieval{j,1} = thisMouse.Sessions(j).PercentFailuresRetrieval;
+
+        deleted_poorTracking{j,1} = thisMouse.Sessions(j).deleted_poorlyTracked;
+        deleted_highVelocity{j,1} = thisMouse.Sessions(j).deleted_highVelocity;
+        deleted_DTWerror{j,1} = thisMouse.Sessions(j).deleted_DTWerror;
+        deleted_staticReach{j,1} = thisMouse.Sessions(j).deleted_staticInSpace;
+        deleted_tooFewPoints{j,1} = thisMouse.Sessions(j).deleted_tooFewPoints;
+        deleted_multiAttempt{j,1} = thisMouse.Sessions(j).deleted_multipleReaches;
     end
 
-    temp = table(SessionID,MouseID,Group,Phase,Experimentor,NumReaches, ...
-        DeletedReaches,SuccessPercent,ExpertPercent, ...
+    temp = table(SessionID,MouseID,Group,Phase,Experimentor,AnalyzedReaches, ...
+        MultiAttemptReaches, SuccessPercent,ExpertPercent, ...
         CorrAllReachesToExpert,CorrSuccessToExpert,CorrFailToExpert, ...
         PercentImprovement,SessionConsistency,MeanTargetDistanceFromPellet, ...
         MeanVelocityX,MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
         MeanMaxVelocityLocation,MeanDuration, ...
         MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
         StimAccuracy,PercentFailureType_Grasp, ...
-        PercentFailureType_Reach,PercentFailureType_Retrieval);
+        PercentFailureType_Reach,PercentFailureType_Retrieval, ...
+        deleted_poorTracking,deleted_highVelocity,deleted_DTWerror,...
+        deleted_staticReach, deleted_tooFewPoints, deleted_multiAttempt);
     T = vertcat(T,temp);
     clearvars -except i j k T group groupID data UI
 end
