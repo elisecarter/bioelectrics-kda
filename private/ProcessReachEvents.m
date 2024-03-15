@@ -15,7 +15,6 @@ for i = 1 : length(RawData) %iterate thru sessions
     [indx,locs] = sort(indx);
     locs = locs(:,1);
 
-
     % pull out success rate from raw data
     num_success = sum(strcmp(session_raw.Behaviors,'success'));
     num_reaches = length(session_raw.Behaviors);
@@ -70,7 +69,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         disp(str)
     end
 
-    % preprocessing
+    % pellet location
     num_reaches = height(indx);
     k = 1;
     pellet_loc = zeros(1,3);
@@ -95,10 +94,11 @@ for i = 1 : length(RawData) %iterate thru sessions
     tooFast = zeros(1, num_reaches);
     DTW_error = zeros(1,num_reaches);
     tooStill = zeros(1,num_reaches);
+    manualFeeding = zeros(1,num_reaches);
 
     for j = 1 : num_reaches
         % subtract total # of reaches deleted to adjust index for storage
-        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill);
+        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill)-sum(manualFeeding);
 
         start_ind = indx(j,1); % start index
         max_ind = indx(j,2); % max index
@@ -199,17 +199,29 @@ for i = 1 : length(RawData) %iterate thru sessions
         relative_hand_end = tempeuc - SessionData(i).PelletLocation;
         relative_hand_max = tempeuc_max - SessionData(i).PelletLocation;
 
+        %delete reaches that start outside of our ROI (manual
+        %feeding)
+        if relative_hand_max(1,1)>0 
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];
+            manualFeeding(j) = true; % mark this iteration as deleted
+            continue
+        end
+
         % hand position smoothing
-%         smooth_hand_end = HandSmoothing(relative_hand_end);
-%         smooth_hand_max = HandSmoothing(relative_hand_max);
+        %         smooth_hand_end = HandSmoothing(relative_hand_end);
+        %         smooth_hand_max = HandSmoothing(relative_hand_max);
+
 
         % delete reaches that do not move in space
         % essentially doing the distance formula here
         delta = diff(relative_hand_max,1,1);
+        dist = [];
         for n = 1:height(delta)
             dist(n) = norm(delta(n,:));
         end
-        if sum(dist) < 0.02 %mm
+        if sum(dist) < 0.5 %mm
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
             SessionData(i).EndCategory(k) = [];
@@ -306,6 +318,11 @@ for i = 1 : length(RawData) %iterate thru sessions
 
     if any(tooStill)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooStill)) ' reaches deleted due to little movement in space.'];
+        disp(str)
+    end
+
+    if any(manualFeeding)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(manualFeeding)) ' reaches deleted due to manual feeding tracking error.'];
         disp(str)
     end
 
