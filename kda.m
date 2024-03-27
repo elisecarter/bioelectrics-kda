@@ -396,7 +396,6 @@ end
             % compute session means
             data{i} = SessionMeans(data{i},UI);
             SaveKdaFile(data{i}, UI.OutPath)
-            SaveJSON(data{i}, UI.OutPath)
         end
 
         OutputSessionMeans(data,UI)
