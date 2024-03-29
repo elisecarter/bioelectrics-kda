@@ -29,7 +29,11 @@ for i = 1 : length(RawData) %iterate thru sessions
     SessionData(i).StimLogical = session_raw.StimLogical(locs);
     SessionData(i).Behavior = session_raw.Behaviors(locs);
     SessionData(i).EndCategory = session_raw.EndCategory(locs);
-     SessionData(i).CropPoints = session_raw.CropPoints;
+    SessionData(i).CropPoints = session_raw.CropPoints;
+    SessionData(i).frmDropsFront = session_raw.frmDropsFront;
+    SessionData(i).frmDropsSide = session_raw.frmDropsSide;
+    SessionData(i).frmDropsTop = session_raw.frmDropsTop;
+
 
     % remove unneeded fields
     session_raw = rmfield(session_raw,'Session');
@@ -38,6 +42,10 @@ for i = 1 : length(RawData) %iterate thru sessions
     session_raw = rmfield(session_raw,'Behaviors');
     session_raw = rmfield(session_raw,'EndCategory');
     session_raw = rmfield(session_raw,'CropPoints');
+    session_raw = rmfield(session_raw,'frmDropsSide');
+    session_raw = rmfield(session_raw,'frmDropsFront');
+    session_raw = rmfield(session_raw,'frmDropsTop');
+
 
     % find multiple attempt reaches
     %deletedInd = [];
