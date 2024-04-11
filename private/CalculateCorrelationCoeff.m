@@ -42,32 +42,9 @@ for i = 1:length(data.Sessions) % iterate thru sessions
         data.Sessions(i).Correlations.PercentIncreaseofFailures = [];
     end
 
-
-
-    % %correlations to expert reach in each dimension
-    % ccEuc = zeros(length(session.InitialToMax),1);
-    % for j = 1:length(session.InitialToMax) %iterate thru reaches
-    %     temp = corr(session.InitialToMax(j).DTWHand,data.ExpertReach);
-    %     ccEuc(j,1) = temp(1,1); %x
-    %     ccEuc(j,2) = temp(2,2); %y
-    %     ccEuc(j,3) = temp(3,3); %z
-    % end
-    % data.Sessions(i).Correlations.AllReachesToExpertX = mean(ccEuc(:,1));
-    % data.Sessions(i).Correlations.AllReachesToExpertY = mean(ccEuc(:,2));
-    % data.Sessions(i).Correlations.AllReachesToExpertZ = mean(ccEuc(:,3));
-    %
-    % % index out correlation of successful reaches
-    % data.Sessions(i).Correlations.SuccessToExpertX = mean(ccEuc(success_ind,1));
-    % data.Sessions(i).Correlations.SuccessToExpertY = mean(ccEuc(success_ind,2));
-    % data.Sessions(i).Correlations.SuccessToExpertZ = mean(ccEuc(success_ind,3));
-    %
-    % % index out correlation of failed reaches
-    % data.Sessions(i).Correlations.FailToExpertX = mean(ccEuc(~success_ind,1));
-    % data.Sessions(i).Correlations.FailToExpertY = mean(ccEuc(~success_ind,2));
-    % data.Sessions(i).Correlations.FailToExpertZ = mean(ccEuc(~success_ind,3));
-
-    %calculate reach consistency (mean of pairwise correlation of all
-    %reaches in session)
+    %calculate reach consistency 
+    % shape: mean of pairwise linear correlation of all reaches in session
+    % spatial: mean of pairwise euc distance of all reaches in session
     all_reaches = zeros(300,length(session.InitialToMax));
     for j = 1:length(session.InitialToMax)
         all_reaches(:,j) = vertcat(session.InitialToMax(j).DTWHand(:,1), ...
@@ -77,6 +54,6 @@ for i = 1:length(data.Sessions) % iterate thru sessions
     rho = corr(all_reaches);
     lower_tri = tril(rho,-1); % makes all upper tri values (including the diag) zero
     lower_tri(lower_tri == 0) = [];
-    data.Sessions(i).Correlations.Consistency = mean(lower_tri);
+    data.Sessions(i).Correlations.shapeConsistency = mean(lower_tri);
 
 end
