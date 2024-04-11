@@ -56,4 +56,7 @@ for i = 1:length(data.Sessions) % iterate thru sessions
     lower_tri(lower_tri == 0) = [];
     data.Sessions(i).Correlations.shapeConsistency = mean(lower_tri);
 
+    dist = pdist(all_reaches','euclidean');
+    data.Sessions(i).Correlations.spatialConsistency = mean(dist);
+
 end
