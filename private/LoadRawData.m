@@ -40,7 +40,7 @@ for i = 1:length(data) % iterate thru mice
         raw_data(j).Behaviors = table2array(CURdata(:,6));
         raw_data(j).EndCategory = table2array(CURdata(:,5));
 
-        reach_indices = table2array(raw_data.ReachIndexPairs);
+        reach_indices = table2array(raw_data(j).ReachIndexPairs);
         deleted_log = zeros(1, height(reach_indices)); % initialize for use for filtering
         for k = 1:height(reach_indices)
             l = k - sum(deleted_log); % subtract total # of reaches deleted to adjust index for storage
@@ -72,6 +72,16 @@ for i = 1:length(data) % iterate thru mice
                 warning(str)
                 continue
             end
+
+            % delete reaches with "none" classification
+            if strcmpi(raw_data(j).Behaviors(l),'none')
+                raw_data(j).ReachIndexPairs(l,:) = [];
+                raw_data(j).StimLogical(l) = [];
+                raw_data(j).Behaviors(l) = [];
+                raw_data(j).EndCategory(l) = [];
+                deleted_log(k) = 1;
+                continue
+            end
         end
 
         % convert uint16 data in table3D to double, store in rawData
@@ -82,6 +92,12 @@ for i = 1:length(data) % iterate thru mice
             raw_data(j).(fieldnames{k}) = double(MATdata.table3D{1,k}{:,:})';
         end
         raw_data(j).CropPoints = MATdata.table3D{1,11}{:,:};
+
+        %make sure frame drops data is a column, sometimes it is a row
+        raw_data(j).frmDropsFront = reshape(raw_data(j).frmDropsFront,[],1);
+        raw_data(j).frmDropsSide = reshape(raw_data(j).frmDropsSide,[],1);
+        raw_data(j).frmDropsTop = reshape(raw_data(j).frmDropsTop,[],1);
+
 
         %         % check if cameras are out of sync
         %         if length(raw_data(j).frmDropsSide) < length(raw_data(j).frmDropsFront) % front cam delayed

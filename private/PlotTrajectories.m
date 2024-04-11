@@ -22,10 +22,12 @@ for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
     indLines = patch(p_ax,ind_traj.x,ind_traj.y,'b','LineWidth',1);
     indLines.EdgeAlpha = 0.15;
     set(p_ax,'YDir','reverse')
-    
-    % plot avg trajectory
-    plot(p_ax,avg_traj(:,1),avg_traj(:,2),'LineWidth', 3 ,'Color','#000000')
 
+    if ~isempty(mouse_data.ExpertReach)
+        % plot expert reach
+        plot(p_ax,mouse_data.ExpertReach(:,1),mouse_data.ExpertReach(:,2),'LineWidth', 1 ,'Color','#000000')
+    end
+    
     %set(p_ax,'XLim',) % use crop points to set XLim and YLim?
     set(p_ax,'XLim',[-20 10], 'YLim', [-10 10])
     set(p,'Position', [400 345 560 375])

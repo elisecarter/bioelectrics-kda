@@ -25,6 +25,6 @@ for i = 1:length(data)
 
     data{i}.Status = 'KinematicsExtracted';
 
-    % save json and kda files
+    % save kda files
     OutputData(data{i}, UI.OutPath, UI)
 end

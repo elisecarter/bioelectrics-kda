@@ -45,8 +45,6 @@ switch switch_exp
             UI.SavePlots = 0;
         end
 
-        
-
         % filter by velocity?
         quest = 'Would you like to filter reaches by absolute velocity?';
         dlgtitle = 'Velocity Filtering Option';
@@ -62,6 +60,19 @@ switch switch_exp
             definput = {'1000'};
             thresh = inputdlg(prompt,dlgtitle,dims,definput);
             UI.VelocityTresh = str2double(thresh{1});
+        end
+
+        % analyse only single reaches?
+        quest = 'Would you like to analyze only single attempt reaches?';
+        dlgtitle = 'Single Reaches Option';
+        btn1 = 'yes';
+        btn2 = 'no';
+        defbtn = 'no';
+        answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
+        if strcmpi(answer,btn1) %yes
+            UI.SingleReachesOnly = true;
+        else
+            UI.SingleReachesOnly = false;
         end
 
 

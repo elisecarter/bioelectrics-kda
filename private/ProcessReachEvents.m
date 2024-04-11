@@ -12,6 +12,8 @@ interp_threshold = .5; %percent of datapoints that were poorly tracked (<90 conf
 for i = 1 : length(RawData) %iterate thru sessions
     session_raw = RawData(i);
     indx = table2array(session_raw.ReachIndexPairs); %pull out reach indices
+    [indx,locs] = sort(indx);
+    locs = locs(:,1);
 
     % pull out success rate from raw data
     num_success = sum(strcmp(session_raw.Behaviors,'success'));
@@ -24,10 +26,14 @@ for i = 1 : length(RawData) %iterate thru sessions
 
     % save session level info before deleting so we can use structfun
     SessionData(i).SessionID = session_raw.Session;
-    SessionData(i).StimLogical = session_raw.StimLogical;
-    SessionData(i).Behavior = session_raw.Behaviors;
-    SessionData(i).EndCategory = session_raw.EndCategory;
+    SessionData(i).StimLogical = session_raw.StimLogical(locs);
+    SessionData(i).Behavior = session_raw.Behaviors(locs);
+    SessionData(i).EndCategory = session_raw.EndCategory(locs);
     SessionData(i).CropPoints = session_raw.CropPoints;
+    SessionData(i).frmDropsFront = session_raw.frmDropsFront;
+    SessionData(i).frmDropsSide = session_raw.frmDropsSide;
+    SessionData(i).frmDropsTop = session_raw.frmDropsTop;
+
 
     % remove unneeded fields
     session_raw = rmfield(session_raw,'Session');
@@ -36,7 +42,29 @@ for i = 1 : length(RawData) %iterate thru sessions
     session_raw = rmfield(session_raw,'Behaviors');
     session_raw = rmfield(session_raw,'EndCategory');
     session_raw = rmfield(session_raw,'CropPoints');
+    session_raw = rmfield(session_raw,'frmDropsSide');
+    session_raw = rmfield(session_raw,'frmDropsFront');
+    session_raw = rmfield(session_raw,'frmDropsTop');
 
+
+    % find multiple attempt reaches
+    %deletedInd = [];
+    shift = indx(2:end,1);
+    interReachInt = shift - indx(1:end-1,3); %from end to start of next reach
+    multReach = (interReachInt < 150);
+    multReach = [false; multReach];
+    del_multiAttempt = 0;
+    if (any(multReach==1) && UI.SingleReachesOnly)
+        indx(multReach,:) = [];
+        SessionData(i).StimLogical(multReach) = [];
+        SessionData(i).Behavior(multReach) = [];
+        SessionData(i).EndCategory(multReach) = [];
+        del_multiAttempt = multReach;
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(del_multiAttempt)) ' reaches deleted due to multiple reach attemps in < 1 second.'];
+        disp(str)
+        %deletedInd = [deletedInd find(multReach)]
+    end
+    
     % remove impossibly short reaches
     max_duration = indx(:,2) - indx(:,1); %from start to max
     too_short = max_duration < 2;
@@ -49,7 +77,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         disp(str)
     end
 
-    % preprocessing
+    % pellet location
     num_reaches = height(indx);
     k = 1;
     pellet_loc = zeros(1,3);
@@ -74,10 +102,11 @@ for i = 1 : length(RawData) %iterate thru sessions
     tooFast = zeros(1, num_reaches);
     DTW_error = zeros(1,num_reaches);
     tooStill = zeros(1,num_reaches);
+    manualFeeding = zeros(1,num_reaches);
 
     for j = 1 : num_reaches
         % subtract total # of reaches deleted to adjust index for storage
-        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill);
+        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill)-sum(manualFeeding);
 
         start_ind = indx(j,1); % start index
         max_ind = indx(j,2); % max index
@@ -121,9 +150,9 @@ for i = 1 : length(RawData) %iterate thru sessions
         [interpVel_end,absVel_end,rawVel_end, flagEnd] = CalculateVelocity(tempeuc);
 
         % interpolate thru jumps to other objects (i.e. left hand)
-        if sum(flagEnd) > 1 % more than 1 frame with high velocity
+        if sum(flagEnd) > 0 % frames velocity > 1000 mm/sec
             locs = find(flagEnd);
-            if (locs(end)-locs(1))/height(tempeuc) < 0.5 % less than half the reach will be interpolated
+            if (length(locs))/height(tempeuc) < 0.5 % less than half the reach will be interpolated
                 xs = tempeuc(:,1); %sample x vals
                 ys = tempeuc(:,2); %sample y vals
                 zs = tempeuc(:,3); %sample z vals
@@ -135,12 +164,12 @@ for i = 1 : length(RawData) %iterate thru sessions
                 x_Z = frames; % sample pts for front camera
 
                 % remove poorly tracked datapoints
-                x_XY(locs(1):locs(end)) = [];
-                x_Z(locs(1):locs(end)) = [];
+                x_XY(locs) = [];
+                x_Z(locs) = [];
 
-                xs(locs(1):locs(end)) = [];
-                ys(locs(1):locs(end)) = [];
-                zs(locs(1):locs(end)) = [];
+                xs(locs) = [];
+                ys(locs) = [];
+                zs(locs) = [];
 
                 % interpolate
                 tempeuc(:,1) = interp1(x_XY,xs,xq,"pchip");
@@ -178,17 +207,29 @@ for i = 1 : length(RawData) %iterate thru sessions
         relative_hand_end = tempeuc - SessionData(i).PelletLocation;
         relative_hand_max = tempeuc_max - SessionData(i).PelletLocation;
 
+        %delete reaches that start outside of our ROI (manual
+        %feeding)
+        if relative_hand_max(1,1)>0 
+            SessionData(i).StimLogical(k) = [];
+            SessionData(i).Behavior(k) = [];
+            SessionData(i).EndCategory(k) = [];
+            manualFeeding(j) = true; % mark this iteration as deleted
+            continue
+        end
+
         % hand position smoothing
-%         smooth_hand_end = HandSmoothing(relative_hand_end);
-%         smooth_hand_max = HandSmoothing(relative_hand_max);
+        %         smooth_hand_end = HandSmoothing(relative_hand_end);
+        %         smooth_hand_max = HandSmoothing(relative_hand_max);
+
 
         % delete reaches that do not move in space
         % essentially doing the distance formula here
         delta = diff(relative_hand_max,1,1);
+        dist = [];
         for n = 1:height(delta)
             dist(n) = norm(delta(n,:));
         end
-        if sum(dist) < 0.02 %mm
+        if sum(dist) < 0.5 %mm
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
             SessionData(i).EndCategory(k) = [];
@@ -259,7 +300,14 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(k).PathLengthXZ = arcLengthXZ_end;
     end
 
-    SessionData(i).DeletedReaches = sum(poorlyTracked) + sum(tooFast) + sum(DTW_error) + sum(tooStill);
+    SessionData(i).AnalyzedReaches = length(SessionData(i).InitialToMax);
+    SessionData(i).MultiAttemptReaches = sum(multReach);
+    SessionData(i).deleted_poorlyTracked = sum(poorlyTracked);
+    SessionData(i).deleted_highVelocity = sum(tooFast);
+    SessionData(i).deleted_DTWerror = sum(DTW_error);
+    SessionData(i).deleted_staticInSpace = sum(tooStill);
+    SessionData(i).deleted_tooFewPoints = sum(too_short);
+    SessionData(i).deleted_multipleReaches = sum(del_multiAttempt);
 
     if any(poorlyTracked)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(poorlyTracked)) ' reaches deleted due to low tracking confidence.'];
@@ -278,6 +326,11 @@ for i = 1 : length(RawData) %iterate thru sessions
 
     if any(tooStill)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooStill)) ' reaches deleted due to little movement in space.'];
+        disp(str)
+    end
+
+    if any(manualFeeding)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(manualFeeding)) ' reaches deleted due to manual feeding tracking error.'];
         disp(str)
     end
 

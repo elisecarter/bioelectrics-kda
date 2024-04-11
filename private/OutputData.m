@@ -18,5 +18,4 @@ if UI.SavePlots == 1
 end
 
 
-SaveJSON(data, OUTpath)
 SaveKdaFile(data, OUTpath)
