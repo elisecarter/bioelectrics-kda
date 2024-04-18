@@ -52,7 +52,7 @@ uimenu(menu_file, 'Text', 'Quit', 'Callback', @FileQuit)
 % analysis menu
 menu_analysis = uimenu(window, 'Label', 'Analysis');
 uimenu(menu_analysis, 'Text', 'Extract Kinematics', 'Callback', @AnalysisExtractKinematics)
-uimenu(menu_analysis, 'Text', 'Compare Learning Phases', 'Callback', @AnalysisComparePhases)
+uimenu(menu_analysis, 'Text', 'Learning Phase Correlations', 'Callback', @AnalysisPhaseCorrelations)
 
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
@@ -248,7 +248,7 @@ end
         disp('Kinematics successfully extracted and saved to output directory. Proceed with session means export.')
     end
 
-    function AnalysisComparePhases(varargin)
+    function AnalysisPhaseCorrelations(varargin)
         % check that mice are loaded and have correct status
         if isempty(data)
             err1 = msgbox(['No data to compare. Please load data with ' ...
