@@ -12,6 +12,7 @@ for i = 1:length(data.Sessions)
         disp(str)
     end
 
+    if ~isempty(session_data)
     % session level velocity
     [data.Sessions(i).MeanEucVelocity, data.Sessions(i).MeanAbsVelocity, data.Sessions(i).MeanMaxVelocity] = SessionMeanVelocity(session_data);
 
@@ -28,4 +29,16 @@ for i = 1:length(data.Sessions)
 
     % duration [s]
     data.Sessions(i).MeanDuration = mean([session_data.ReachDuration]);
+    else % no reaches
+        data.Sessions(i).MeanEucVelocity = [];]
+        data.Sessions(i).MeanAbsVelocity = [];
+        data.Sessions(i).MeanMaxVelocity = [];
+        data.Sessions(i).MeanMaxVelLocation = [];
+        data.Sessions(i).MeanTargetDistance = [];
+        data.Sessions(i).MeanPathLength3D = [];
+        data.Sessions(i).MeanPathLengthXY = [];
+        data.Sessions(i).MeanPathLengthXZ = [];
+        data.Sessions(i).MeanDuration = [];
+    
+    end
 end
