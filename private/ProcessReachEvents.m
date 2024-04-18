@@ -254,16 +254,16 @@ for i = 1 : length(RawData) %iterate thru sessions
 
         % arc length
         % 3D path length
-        arcLength3D_max = arclength(DTW_max(:,1), DTW_max(:,2), DTW_max(:,3),'pchip');
-        arcLength3D_end = arclength(DTW_end(:,1), DTW_end(:,2), DTW_end(:,3),'pchip');
+        arcLength3D_max = arclength(interp_hand_max(:,1), interp_hand_max(:,2), interp_hand_max(:,3),'pchip');
+        arcLength3D_end = arclength(interp_hand_end(:,1), interp_hand_end(:,2), interp_hand_end(:,3),'pchip');
 
         % XY path length
-        arcLengthXY_max = arclength(DTW_max(:,1), DTW_max(:,2),'pchip');
-        arcLengthXY_end = arclength(DTW_end(:,1), DTW_end(:,2),'pchip');
+        arcLengthXY_max = arclength(interp_hand_max(:,1), interp_hand_max(:,2),'pchip');
+        arcLengthXY_end = arclength(interp_hand_end(:,1), interp_hand_end(:,2),'pchip');
 
         % XZ path length
-        arcLengthXZ_max = arclength(DTW_max(:,1), DTW_max(:,3),'pchip');
-        arcLengthXZ_end = arclength(DTW_end(:,1), DTW_end(:,3),'pchip');
+        arcLengthXZ_max = arclength(interp_hand_max(:,1), interp_hand_max(:,3),'pchip');
+        arcLengthXZ_end = arclength(interp_hand_end(:,1), interp_hand_end(:,3),'pchip');
 
         % store initial to max data
         SessionData(i).InitialToEnd(k).RawData = struct2table(init2max);
