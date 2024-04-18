@@ -33,8 +33,7 @@ for i = 1:length(data.Sessions) % iterate thru sessions
         percent_increase = (this_session - day_one) / day_one;
         data.Sessions(i).Correlations.PercentIncreaseofFailures = percent_increase;
 
-    else
-        % no expert reach
+    else % no expert reach
         data.Sessions(i).Correlations.AllReachesToExpert3D = [];
         data.Sessions(i).Correlations.SuccessToExpert3D = [];
         data.Sessions(i).Correlations.FailToExpert3D = [];
@@ -42,21 +41,25 @@ for i = 1:length(data.Sessions) % iterate thru sessions
         data.Sessions(i).Correlations.PercentIncreaseofFailures = [];
     end
 
-    %calculate reach consistency 
-    % shape: mean of pairwise linear correlation of all reaches in session
-    % spatial: mean of pairwise euc distance of all reaches in session
-    all_reaches = zeros(300,length(session.InitialToMax));
-    for j = 1:length(session.InitialToMax)
-        all_reaches(:,j) = vertcat(session.InitialToMax(j).DTWHand(:,1), ...
-            session.InitialToMax(j).DTWHand(:,2), ...
-            session.InitialToMax(j).DTWHand(:,3));
+    if ~isempty(session.InitialToMax)
+        %calculate reach consistency
+        % shape: mean of pairwise linear correlation of all reaches in session
+        % spatial: mean of pairwise euc distance of all reaches in session
+        all_reaches = zeros(300,length(session.InitialToMax));
+        for j = 1:length(session.InitialToMax)
+            all_reaches(:,j) = vertcat(session.InitialToMax(j).DTWHand(:,1), ...
+                session.InitialToMax(j).DTWHand(:,2), ...
+                session.InitialToMax(j).DTWHand(:,3));
+        end
+        rho = corr(all_reaches);
+        lower_tri = tril(rho,-1); % makes all upper tri values (including the diag) zero
+        lower_tri(lower_tri == 0) = [];
+        data.Sessions(i).Correlations.shapeConsistency = mean(lower_tri);
+
+        dist = pdist(all_reaches','euclidean');
+        data.Sessions(i).Correlations.spatialConsistency = mean(dist);
+    else %no reaches in session
+        data.Sessions(i).Correlations.shapeConsistency = [];
+        data.Sessions(i).Correlations.spatialConsistency = [];
+
     end
-    rho = corr(all_reaches);
-    lower_tri = tril(rho,-1); % makes all upper tri values (including the diag) zero
-    lower_tri(lower_tri == 0) = [];
-    data.Sessions(i).Correlations.shapeConsistency = mean(lower_tri);
-
-    dist = pdist(all_reaches','euclidean');
-    data.Sessions(i).Correlations.spatialConsistency = mean(dist);
-
-end

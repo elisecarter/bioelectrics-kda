@@ -9,6 +9,7 @@ data.Experimentor = p1data.Experimentor;
 data.Phase1 = p1data.Phase;
 data.Phase2 = p2data.Phase;
 
+%if isfield(p1data,'ExpertReach') && isfield(p2data,'ExpertReach')
 % correlation bewtween phase 1 and phase 2 expert reaches
 cc = corrcoef(p1data.ExpertReach,p2data.ExpertReach);
 data.ExpertToExpert = cc(1,2);
