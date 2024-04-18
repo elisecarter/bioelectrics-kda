@@ -5,6 +5,9 @@ p_ax = axes(p);
 
 for i = 1:length(mouse_data.Sessions) % num sessions for this mouse
     session_data = mouse_data.Sessions(i);
+    if isempty(sessiondata.InitialToMax)
+        continue
+    end
     session_str = session_data.SessionID{1}; %this will break when session ID taken out of cell
 
     if strcmp(UI.PlotReach,'end')
