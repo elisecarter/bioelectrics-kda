@@ -63,3 +63,4 @@ for i = 1:length(data.Sessions) % iterate thru sessions
         data.Sessions(i).Correlations.spatialConsistency = [];
 
     end
+end
