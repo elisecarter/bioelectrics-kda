@@ -30,7 +30,7 @@ for i = 1:length(data.Sessions)
     % duration [s]
     data.Sessions(i).MeanDuration = mean([session_data.ReachDuration]);
     else % no reaches
-        data.Sessions(i).MeanEucVelocity = [];]
+        data.Sessions(i).MeanEucVelocity = [];
         data.Sessions(i).MeanAbsVelocity = [];
         data.Sessions(i).MeanMaxVelocity = [];
         data.Sessions(i).MeanMaxVelLocation = [];
