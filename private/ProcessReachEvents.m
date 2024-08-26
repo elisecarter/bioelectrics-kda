@@ -103,10 +103,11 @@ for i = 1 : length(RawData) %iterate thru sessions
     DTW_error = zeros(1,num_reaches);
     tooStill = zeros(1,num_reaches);
     manualFeeding = zeros(1,num_reaches);
+    tooClose = zeros(1,num_reaches);
 
     for j = 1 : num_reaches
         % subtract total # of reaches deleted to adjust index for storage
-        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill)-sum(manualFeeding);
+        k = j - sum(poorlyTracked) - sum(tooFast) - sum(DTW_error)- sum(tooStill)-sum(manualFeeding)-sum(tooClose);
 
         start_ind = indx(j,1); % start index
         max_ind = indx(j,2); % max index
@@ -209,12 +210,25 @@ for i = 1 : length(RawData) %iterate thru sessions
 
         %delete reaches that start outside of our ROI (manual
         %feeding)
-        if relative_hand_max(1,1)>0 
+        if relative_hand_max(1,1)>0
             SessionData(i).StimLogical(k) = [];
             SessionData(i).Behavior(k) = [];
             SessionData(i).EndCategory(k) = [];
             manualFeeding(j) = true; % mark this iteration as deleted
             continue
+        end
+
+        if isfield(UI,'MinStartDist')
+            % if start distance from pellet (x dim) is less than thresh,
+            % delete this reach
+            x_init = -1*relative_hand_max(1,1); %switch sign since input is distance (positive number)
+            if x_init < UI.MinStartDist
+                SessionData(i).StimLogical(k) = [];
+                SessionData(i).Behavior(k) = [];
+                SessionData(i).EndCategory(k) = [];
+                tooClose(j) = true; % mark this iteration as deleted
+                continue
+            end
         end
 
         % hand position smoothing
@@ -308,6 +322,7 @@ for i = 1 : length(RawData) %iterate thru sessions
     SessionData(i).deleted_staticInSpace = sum(tooStill);
     SessionData(i).deleted_tooFewPoints = sum(too_short);
     SessionData(i).deleted_multipleReaches = sum(del_multiAttempt);
+    SessionData(i).deleted_minStartDist = sum(tooClose);
 
     if any(poorlyTracked)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(poorlyTracked)) ' reaches deleted due to low tracking confidence.'];
@@ -331,6 +346,11 @@ for i = 1 : length(RawData) %iterate thru sessions
 
     if any(manualFeeding)
         str = [SessionData(i).SessionID{1} ': ' num2str(sum(manualFeeding)) ' reaches deleted due to manual feeding tracking error.'];
+        disp(str)
+    end
+
+    if any(tooClose)
+        str = [SessionData(i).SessionID{1} ': ' num2str(sum(tooClose)) ' reaches deleted due to start position (<' num2str(UI.MinStartDist) ' mm from pellet)'];
         disp(str)
     end
 

@@ -56,6 +56,7 @@ for i = 1:length(data) % iterate thru mice
         deleted_staticReach{j,1} = thisMouse.Sessions(j).deleted_staticInSpace;
         deleted_tooFewPoints{j,1} = thisMouse.Sessions(j).deleted_tooFewPoints;
         deleted_multiAttempt{j,1} = thisMouse.Sessions(j).deleted_multipleReaches;
+        deleted_minStartDist{j,1} = thisMouse.Sessions(j).deleted_minStartDist;
     end
 
     if exist("SessionID","var")
@@ -69,7 +70,7 @@ for i = 1:length(data) % iterate thru mice
             StimAccuracy,PercentFailureType_Grasp, ...
             PercentFailureType_Reach,PercentFailureType_Retrieval, ...
             deleted_poorTracking,deleted_highVelocity,deleted_DTWerror,...
-            deleted_staticReach, deleted_tooFewPoints, deleted_multiAttempt);
+            deleted_staticReach, deleted_tooFewPoints, deleted_multiAttempt,deleted_minStartDist);
         T = vertcat(T,temp);
     end
     clearvars -except i j k T group groupID data UI

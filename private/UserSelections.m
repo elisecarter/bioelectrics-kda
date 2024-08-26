@@ -62,6 +62,23 @@ switch switch_exp
             UI.VelocityTresh = str2double(thresh{1});
         end
 
+        % filter by starting position?
+        quest = 'Would you like to filter reaches by start position on x-axis?';
+        dlgtitle = 'Start Position Filtering Option';
+        btn1 = 'yes';
+        btn2 = 'no';
+        defbtn = 'no';
+        answer = questdlg(quest,dlgtitle,btn1,btn2,defbtn);
+        if strcmpi(answer,btn1) %yes
+            % ask for threshold
+            prompt = 'Enter minimum starting distance from pellet (mm):';
+            dlgtitle = 'Start Position Threshold Input';
+            dims = [1 60];
+            definput = {'8'};
+            thresh = inputdlg(prompt,dlgtitle,dims,definput);
+            UI.MinStartDist = str2double(thresh{1});
+        end
+
         % analyse only single reaches?
         quest = 'Would you like to analyze only single attempt reaches?';
         dlgtitle = 'Single Reaches Option';
