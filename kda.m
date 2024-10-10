@@ -57,6 +57,7 @@ uimenu(menu_analysis, 'Text', 'Learning Phase Correlations', 'Callback', @Analys
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
 uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
+uimenu(menu_export,'Text','Reach Inclusion Tables','Callback',@ExportInclusionTables)
 uimenu(menu_export, 'Text', 'Individual Trajectories', 'Callback', @ExportIndivTraj)
 uimenu(menu_export, 'Text', 'Session Trajectories', 'Callback', @ExportSessionTraj)
 uimenu(menu_export, 'Text', 'KDA File(s) to Base Workspace', 'Callback', @ExportKdaToBase)
@@ -400,6 +401,41 @@ end
 
         OutputSessionMeans(data,UI)
         disp('Session means successfully exported to output directory.')
+    end
+
+    function ExportInclusionTables(varargin)
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to process. Please load kinematic ' ...
+                'data before exporting inclusion tables.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Please extract kinematics before exporting inclusion tables.']);
+            uiwait(err2)
+            return
+        end
+
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            FileChangeOutPath()
+        end
+
+        disp('Exporting reach inclusion tables...')
+        for i = 1:length(data)
+            pat = fullfile(UI.OutPath,'InclusionTables');
+            folder = [data{i}.Experimentor,'_',data{i}.MouseID];
+            if ~strcmp(data{i}.Phase,'') %is a phase for file
+                folder = [folder,'_',data{i}.Phase];
+            end
+            pat = fullfile(pat,folder);
+            if ~exist(pat,'dir')
+                mkdir(pat)
+            end
+            OutputInclusionTable(data{i},pat)
+        end
+        disp('Inclusion tables successfully exported to output directory.')
     end
 
     function ExportIndivTraj(varargin)

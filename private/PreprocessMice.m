@@ -9,11 +9,6 @@ for i = 1:length(data)
     % filtering and compute major kinematics
     data{i}.Sessions = ProcessReachEvents(data{i}.RawData,UI);
 
-    % raw data indexed at reaches & saved in previous step - delete big
-    % vectors
-    fields = fieldnames(data{i}.RawData);
-    data{i}.RawData = rmfield(data{i}.RawData,fields(6:15));
-
     % calculate expert reach
     data{i} = CalculateExpertReach(data{i});
 
@@ -22,6 +17,9 @@ for i = 1:length(data)
 
     % add meta data
     data{i} = AddMetaData(data{i});
+
+    % raw data indexed at reaches & saved in session structs 
+    data{i} = rmfield(data{i},'RawData');
 
     data{i}.Status = 'KinematicsExtracted';
 

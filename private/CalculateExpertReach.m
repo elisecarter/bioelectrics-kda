@@ -3,8 +3,9 @@ function [data] = CalculateExpertReach(data)
 % days of training
 
 % pull out successful reach indices on last two days of training
-success_1 = strcmp(data.Sessions(end).Behavior,'success');
-success_data = data.Sessions(end).InitialToMax(success_1);
+finalDayBehav = [data.Sessions(end).InitialToMax(:).Behavior];
+successLocs = strcmp(finalDayBehav,'success');
+success_data = data.Sessions(end).InitialToMax(successLocs);
 
 stacked_traj = [];
 for i = 1:length(success_data) % number of reaches
@@ -15,8 +16,9 @@ expert_1 = mean(stacked_traj,3);
 
 % check that there are at least two days of training to calculate expert traj. from
 if length(data.Sessions) > 1
-    success_2 = strcmp(data.Sessions(end-1).Behavior,'success');
-    success_data = data.Sessions(end-1).InitialToMax(success_2);
+    behav = [data.Sessions(end-1).InitialToMax(:).Behavior];
+    successLocs = strcmp(behav,'success');
+    success_data = data.Sessions(end-1).InitialToMax(successLocs);
 
     stacked_traj = [];
     for i = 1:length(success_data) % number of reaches

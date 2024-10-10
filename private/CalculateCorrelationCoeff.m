@@ -3,8 +3,10 @@ function data = CalculateCorrelationCoeff(data)
 
 for i = 1:length(data.Sessions) % iterate thru sessions
     session = data.Sessions(i);
+    
     % pull out successful reach indices
-    success_ind = strcmp(session.Behavior,'success');
+    behavior = [data.Sessions(i).InitialToMax(:).Behavior];
+    success_ind = strcmp(behavior,'success');
 
     if ~isempty(data.ExpertReach)
         % correlate each reach to expert reach
