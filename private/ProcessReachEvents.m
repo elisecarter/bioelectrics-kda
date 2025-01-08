@@ -130,8 +130,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         tempeuc_max = tempeuc(1:frames_max,:);
 
         % velocity - interpolated, absolute, and raw in mm/sec
-        [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max);
-        [interpVel_end,absVel_end,rawVel_end, flagEnd] = CalculateVelocity(tempeuc);
+        [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max, UI);
+        [interpVel_end,absVel_end,rawVel_end, flagEnd] = CalculateVelocity(tempeuc, UI);
 
         % interpolate thru jumps to other objects (i.e. left hand)
         if sum(flagEnd) > 0 % frames velocity > 1000 mm/sec
@@ -162,8 +162,8 @@ for i = 1 : length(RawData) %iterate thru sessions
                 tempeuc_max = tempeuc(1:frames_max,:);
 
                 % recalculate velocities w interpolated position
-                [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max);
-                [interpVel_end,absVel_end,rawVel_end, ~] = CalculateVelocity(tempeuc);
+                [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max,UI);
+                [interpVel_end,absVel_end,rawVel_end, ~] = CalculateVelocity(tempeuc,UI);
             end
         end
 
@@ -243,12 +243,12 @@ for i = 1 : length(RawData) %iterate thru sessions
         arcLength3D_end = arclength(interp_hand_end(:,1), interp_hand_end(:,2), interp_hand_end(:,3),'pchip');
 
         % XY path length
-        arcLengthXY_max = arclength(interp_hand_max(:,1), interp_hand_max(:,2),'pchip');
-        arcLengthXY_end = arclength(interp_hand_end(:,1), interp_hand_end(:,2),'pchip');
+        %arcLengthXY_max = arclength(interp_hand_max(:,1), interp_hand_max(:,2),'pchip');
+        %arcLengthXY_end = arclength(interp_hand_end(:,1), interp_hand_end(:,2),'pchip');
 
         % XZ path length
-        arcLengthXZ_max = arclength(interp_hand_max(:,1), interp_hand_max(:,3),'pchip');
-        arcLengthXZ_end = arclength(interp_hand_end(:,1), interp_hand_end(:,3),'pchip');
+        %arcLengthXZ_max = arclength(interp_hand_max(:,1), interp_hand_max(:,3),'pchip');
+        %arcLengthXZ_end = arclength(interp_hand_end(:,1), interp_hand_end(:,3),'pchip');
 
         
         % store initial to max data
@@ -265,8 +265,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToMax(k).InterpolatedHand = interp_hand_max;
         SessionData(i).InitialToMax(k).DTWHand = DTW_max;
         SessionData(i).InitialToMax(k).PathLength3D = arcLength3D_max;
-        SessionData(i).InitialToMax(k).PathLengthXY = arcLengthXY_max;
-        SessionData(i).InitialToMax(k).PathLengthXZ = arcLengthXZ_max;
+        %SessionData(i).InitialToMax(k).PathLengthXY = arcLengthXY_max;
+        %SessionData(i).InitialToMax(k).PathLengthXZ = arcLengthXZ_max;
         SessionData(i).InitialToMax(k).Behavior = SessionData(i).Behavior(j);
 
         % store initial to end data
@@ -283,8 +283,8 @@ for i = 1 : length(RawData) %iterate thru sessions
         SessionData(i).InitialToEnd(k).InterpolatedHand = interp_hand_end;
         SessionData(i).InitialToEnd(k).DTWHand = DTW_end;
         SessionData(i).InitialToEnd(k).PathLength3D = arcLength3D_end;
-        SessionData(i).InitialToEnd(k).PathLengthXY = arcLengthXY_end;
-        SessionData(i).InitialToEnd(k).PathLengthXZ = arcLengthXZ_end;
+        % SessionData(i).InitialToEnd(k).PathLengthXY = arcLengthXY_end;
+        % SessionData(i).InitialToEnd(k).PathLengthXZ = arcLengthXZ_end;
         SessionData(i).InitialToEnd(k).Behavior = SessionData(i).Behavior(j);
 
         k = k + 1;

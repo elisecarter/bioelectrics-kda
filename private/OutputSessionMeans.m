@@ -38,8 +38,8 @@ for i = 1:length(data) % iterate thru mice
         MeanMaxVelocityLocation{j,1} = thisMouse.Sessions(j).MeanMaxVelLocation;
         MeanDuration{j,1} = thisMouse.Sessions(j).MeanDuration;
         MeanPathLength3D{j,1} = thisMouse.Sessions(j).MeanPathLength3D;
-        MeanPathLengthXY{j,1} = thisMouse.Sessions(j).MeanPathLengthXY;
-        MeanPathLengthXZ{j,1} = thisMouse.Sessions(j).MeanPathLengthXZ;
+        % MeanPathLengthXY{j,1} = thisMouse.Sessions(j).MeanPathLengthXY;
+        % MeanPathLengthXZ{j,1} = thisMouse.Sessions(j).MeanPathLengthXZ;
 
         StimAccuracy{j,1} = thisMouse.Sessions(j).StimAccuracy;
         StimSpecificity{j,1} = thisMouse.Sessions(j).StimSpecificity;
@@ -59,7 +59,7 @@ for i = 1:length(data) % iterate thru mice
             PercentImprovement,ShapeConsistency,SpatialConsistency,MeanTargetDistanceFromPellet, ...
             MeanVelocityX,MeanVelocityY,MeanVelocityZ,MeanAbsVelocity,MeanMaxVelocity, ...
             MeanMaxVelocityLocation,MeanDuration, ...
-            MeanPathLength3D,MeanPathLengthXY,MeanPathLengthXZ, ...
+            MeanPathLength3D, ...
             StimAccuracy,StimSensitivity,StimSpecificity, ...
             PercentFailureType_Grasp,PercentFailureType_Reach,PercentFailureType_Retrieval);
         T = vertcat(T,temp);

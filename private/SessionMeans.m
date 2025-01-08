@@ -24,8 +24,8 @@ for i = 1:length(data.Sessions)
 
     % path length [mm]
     data.Sessions(i).MeanPathLength3D = mean([session_data.PathLength3D]);
-    data.Sessions(i).MeanPathLengthXY = mean([session_data.PathLengthXY]);
-    data.Sessions(i).MeanPathLengthXZ = mean([session_data.PathLengthXZ]);
+    % data.Sessions(i).MeanPathLengthXY = mean([session_data.PathLengthXY]);
+    % data.Sessions(i).MeanPathLengthXZ = mean([session_data.PathLengthXZ]);
 
     % duration [s]
     data.Sessions(i).MeanDuration = mean([session_data.ReachDuration]);
@@ -36,8 +36,8 @@ for i = 1:length(data.Sessions)
         data.Sessions(i).MeanMaxVelLocation = [];
         data.Sessions(i).MeanTargetDistance = [];
         data.Sessions(i).MeanPathLength3D = [];
-        data.Sessions(i).MeanPathLengthXY = [];
-        data.Sessions(i).MeanPathLengthXZ = [];
+        %data.Sessions(i).MeanPathLengthXY = [];
+        %data.Sessions(i).MeanPathLengthXZ = [];
         data.Sessions(i).MeanDuration = [];
     
     end
