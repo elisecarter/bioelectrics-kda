@@ -7,7 +7,7 @@ vel_mag = vecnorm(vel')';
 vel(:,2) = vel(:,2)*-1; %y direction flipped on tracking
 
 if isfield(UI,'VelocityTresh')
-    flag = vel_mag > velThresh; % for interpolating thru high velocity
+    flag = vel_mag > UI.VelocityTresh; % for interpolating thru high velocity
 else
     flag = zeros(height(vel_mag),1);
 end
