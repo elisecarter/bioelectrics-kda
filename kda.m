@@ -367,26 +367,28 @@ end
             FileChangeOutPath()
         end
 
-        quest = 'Would you like to group by experimental condition?';
-        dlgtitle = 'Group Option';
-        yes = 'Yes';
-        no = 'No';
-        defbtn = 'Yes';
-        answer = questdlg(quest,dlgtitle,yes,no,defbtn);
+        if ~isfield([data{:}],'GroupID')
+            quest = 'Would you like to group by experimental condition?';
+            dlgtitle = 'Group Option';
+            yes = 'Yes';
+            no = 'No';
+            defbtn = 'Yes';
+            answer = questdlg(quest,dlgtitle,yes,no,defbtn);
 
-        % ui select mice to group
-        if strcmpi(answer,yes)
-            % user input number of groups
-            prompt = {'Enter the number of groups:'};
-            dlgtitle = 'Number of Groups';
-            dims = [1 35];
-            definput = {'2'};
-            num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
-            data = SelectCohorts(data,num_cohorts);
+            % ui select mice to group
+            if strcmpi(answer,yes)
+                % user input number of groups
+                prompt = {'Enter the number of groups:'};
+                dlgtitle = 'Number of Groups';
+                dims = [1 35];
+                definput = {'2'};
+                num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
+                data = SelectCohorts(data,num_cohorts);
 
-        elseif strcmpi(answer,no)
-            for i = 1:length(data)
-                data{i}.GroupID = ' ';
+            elseif strcmpi(answer,no)
+                for i = 1:length(data)
+                    data{i}.GroupID = ' ';
+                end
             end
         end
 
