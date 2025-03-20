@@ -1,5 +1,4 @@
 function OutputInclusionTable(data,path)
-% creates an excel file for each cohort with session level data
 
 for i = 1:length(data.Sessions) % iterate thru sessions
     reachInit = data.Sessions(i).ReachIndexPairs(:,1);
