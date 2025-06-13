@@ -15,7 +15,7 @@ for i = 1:length(data.RawData)
     falseneg = sum(strcmpi('success',behavior) & stims==0);
 
     data.Sessions(i).StimAccuracy = (truepos+trueneg)/(truepos+trueneg+falsepos+falseneg);
-    data.Sessions(i).StimSensitivty = truepos/(truepos+falseneg);
+    data.Sessions(i).StimSensitivity = truepos/(truepos+falseneg);
     data.Sessions(i).StimSpecificity = trueneg/(trueneg+falsepos);
 
     % percentages of failure types
