@@ -11,11 +11,12 @@ for i = 1:length(data) % iterate thru mice
         end
         correlations = thisMouse.Sessions(j).Correlations;
 
-        MouseID{j,1} = thisMouse.MouseID;
+        ID{j,1} = thisMouse.MouseID;
         Group{j,1} = thisMouse.GroupID;
         Phase{j,1} = thisMouse.Phase;
         Experimentor{j,1} = thisMouse.Experimentor;
         SessionID{j,1} = thisMouse.Sessions(j).SessionID;
+        Day{j,1} = j;
 
         AnalyzedReaches{j,1} = thisMouse.Sessions(j).AnalyzedReaches;
         SuccessPercent{j,1} = thisMouse.Sessions(j).PercentSuccess;
@@ -53,7 +54,7 @@ for i = 1:length(data) % iterate thru mice
     end
 
     if exist("SessionID","var")
-        temp = table(SessionID,MouseID,Group,Phase,Experimentor,AnalyzedReaches, ...
+        temp = table(SessionID,ID,Day,Group,Phase,Experimentor,AnalyzedReaches, ...
             NumExcluded,SuccessPercent,ExpertPercent, ...
             CorrAllReachesToExpert,CorrSuccessToExpert,CorrFailToExpert, ...
             PercentImprovement,ShapeConsistency,SpatialConsistency,MeanTargetDistanceFromPellet, ...

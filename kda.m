@@ -56,7 +56,8 @@ uimenu(menu_analysis, 'Text', 'Learning Phase Correlations', 'Callback', @Analys
 
 % export menu
 menu_export = uimenu(window, 'Label', 'Export');
-uimenu(menu_export, 'Text', 'Session Means', 'Callback', @ExportSessionMeans)
+uimenu(menu_export, 'Text', 'Session Means Table', 'Callback', @ExportSessionMeans)
+uimenu(menu_export, 'Text', 'Individual Reach Table', 'Callback',@ExportIndivReaches)
 uimenu(menu_export,'Text','Reach Inclusion Tables','Callback',@ExportInclusionTables)
 uimenu(menu_export, 'Text', 'Individual Trajectories', 'Callback', @ExportIndivTraj)
 uimenu(menu_export, 'Text', 'Session Trajectories', 'Callback', @ExportSessionTraj)
@@ -367,26 +368,28 @@ end
             FileChangeOutPath()
         end
 
-        quest = 'Would you like to group by experimental condition?';
-        dlgtitle = 'Group Option';
-        yes = 'Yes';
-        no = 'No';
-        defbtn = 'Yes';
-        answer = questdlg(quest,dlgtitle,yes,no,defbtn);
+        if ~isfield([data{:}],'GroupID')
+            quest = 'Would you like to group by experimental condition?';
+            dlgtitle = 'Group Option';
+            yes = 'Yes';
+            no = 'No';
+            defbtn = 'Yes';
+            answer = questdlg(quest,dlgtitle,yes,no,defbtn);
 
-        % ui select mice to group
-        if strcmpi(answer,yes)
-            % user input number of groups
-            prompt = {'Enter the number of groups:'};
-            dlgtitle = 'Number of Groups';
-            dims = [1 35];
-            definput = {'2'};
-            num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
-            data = SelectCohorts(data,num_cohorts);
+            % ui select mice to group
+            if strcmpi(answer,yes)
+                % user input number of groups
+                prompt = {'Enter the number of groups:'};
+                dlgtitle = 'Number of Groups';
+                dims = [1 35];
+                definput = {'2'};
+                num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
+                data = SelectCohorts(data,num_cohorts);
 
-        elseif strcmpi(answer,no)
-            for i = 1:length(data)
-                data{i}.GroupID = ' ';
+            elseif strcmpi(answer,no)
+                for i = 1:length(data)
+                    data{i}.GroupID = ' ';
+                end
             end
         end
 
@@ -401,6 +404,58 @@ end
 
         OutputSessionMeans(data,UI)
         disp('Session means successfully exported to output directory.')
+    end
+    
+    function ExportIndivReaches(varargin)
+        % check that mice are loaded and have correct status
+        if isempty(data)
+            err1 = msgbox(['No data to process. Please load kinematic ' ...
+                'data before exporting session means.']);
+            uiwait(err1)
+            return
+        elseif any(cellfun(@(x) ~strcmp(x.Status,'KinematicsExtracted'),data))
+            err2 = msgbox(['Data does not have correct status. ' ...
+                'Please extract kinematics before exporting session means.']);
+            uiwait(err2)
+            return
+        end
+
+        % check if output folder path has been not yet been defined
+        if ~isfield(UI,'OutPath')
+            FileChangeOutPath()
+        end
+
+        if ~isfield([data{:}],'GroupID')
+            quest = 'Would you like to group by experimental condition?';
+            dlgtitle = 'Group Option';
+            yes = 'Yes';
+            no = 'No';
+            defbtn = 'Yes';
+            answer = questdlg(quest,dlgtitle,yes,no,defbtn);
+
+            % ui select mice to group
+            if strcmpi(answer,yes)
+                % user input number of groups
+                prompt = {'Enter the number of groups:'};
+                dlgtitle = 'Number of Groups';
+                dims = [1 35];
+                definput = {'2'};
+                num_cohorts = str2double(inputdlg(prompt,dlgtitle,dims,definput));
+                data = SelectCohorts(data,num_cohorts);
+
+            elseif strcmpi(answer,no)
+                for i = 1:length(data)
+                    data{i}.GroupID = ' ';
+                end
+            end
+        end
+
+        %UI = UserSelections(UI,'OutputSessionMeans');
+        
+        disp('Exporting reach table...')
+
+        OutputReachTable(data,UI)
+        disp('Reach table successfully exported to output directory.')
     end
 
     function ExportInclusionTables(varargin)
