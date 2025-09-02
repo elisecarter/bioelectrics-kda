@@ -161,11 +161,20 @@ for i = 1 : length(RawData) %iterate thru sessions
                 tempeuc(:,3) = interp1(x_Z,zs,xq,"pchip");
                 tempeuc_max = tempeuc(1:frames_max,:);
 
-                % recalculate velocities w interpolated position
-                [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max,UI);
-                [interpVel_end,absVel_end,rawVel_end, ~] = CalculateVelocity(tempeuc,UI);
             end
         end
+
+        figure
+        plot(tempeuc_max(:,1),tempeuc_max(:,2),'DisplayName','raw')
+        hold on
+        % smooth data
+        tempeuc_max = movmean(tempeuc_max,3,1);
+
+        plot(tempeuc_max(:,1),tempeuc_max(:,2),'DisplayName','smoothed')
+
+        % velocity - interpolated, absolute, and raw in mm/sec
+        [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max, UI);
+        [interpVel_end,absVel_end,rawVel_end, flagEnd] = CalculateVelocity(tempeuc, UI);
 
         if isfield(UI,'VelocityTresh')
             % if absolute velocity is greater than thresh, delete this reach
@@ -207,26 +216,11 @@ for i = 1 : length(RawData) %iterate thru sessions
             end
         end
 
-        
-
-        % % delete reaches that do not move in space
-        % % essentially doing the distance formula here
-        % delta = diff(relative_hand_max,1,1);
-        % dist = [];
-        % for n = 1:height(delta)
-        %     dist(n) = norm(delta(n,:));
-        % end
-        % if sum(dist) < 0.5 %mm
-        %     SessionData(i).StimLogical(k) = [];
-        %     SessionData(i).Behavior(k) = [];
-        %     SessionData(i).EndCategory(k) = [];
-        %     tooStill(j) = true;
-        %     continue
-        % end
-
         % hand position interpolation
         [interp_hand_max] = InterpolatePosition(relative_hand_max);
         [interp_hand_end] = InterpolatePosition(relative_hand_end);
+        plot(interp_hand_max(:,1),interp_hand_max(:,2),"DisplayName",'interp')
+        legend()
 
         % dynamic time warping (DTW)
         [DTW_max, flagMax] = DynamicTimeWarping(relative_hand_max);
