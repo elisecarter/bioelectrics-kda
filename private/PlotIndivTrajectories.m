@@ -23,6 +23,7 @@ for i = 1:length(data)
         end
 
         for k = 1:length(data{i}.Sessions(j).InitialToMax)
+            reachNo = data{i}.Sessions(j).InitialToMax(k).ReachNo;
             if strcmp(UI.PlotReach,'max')
                 XData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,1);
                 YData = data{i}.Sessions(j).InitialToMax(k).InterpolatedHand(:,2);
@@ -42,7 +43,7 @@ for i = 1:length(data)
             set(ax, 'box', 'off')
             drawnow
 
-            filename = [data{i}.Sessions(j).SessionID{1} '_reach' num2str(k)];
+            filename = [data{i}.Sessions(j).SessionID{1} '_reach' num2str(reachNo)];
             path = fullfile(subfolder_path,filename);
 
             if strcmp(UI.PlotFileType,'.png') || strcmp(UI.PlotFileType,'both')
