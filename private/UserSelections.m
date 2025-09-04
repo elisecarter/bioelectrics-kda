@@ -45,6 +45,31 @@ switch switch_exp
             UI.SavePlots = 0;
         end
 
+        % smooth trajectories?
+        quest = 'Would you like to smooth the trajectories?';
+        dlgtitle = 'Smoothing Option';
+        btn1 = 'yes';
+        btn2 = 'no';
+        defbtn = 'no';
+        answer = questdlg(quest, dlgtitle, btn1, btn2, defbtn);
+        if strcmpi(answer, btn1) % yes
+            % ask for smoothing method
+            prompt = 'Select smoothing method:';
+            dlgtitle = 'Smoothing Method Selection';
+            btn1 = 'Moving Average';
+            btn2 = 'Moving Median';
+            defbtn = 'Moving Average';
+            answer = questdlg(prompt, dlgtitle, btn1, btn2, defbtn);
+            UI.SmoothingMethod = answer;
+            % ask for window length in samples
+            dims = [1 60];
+            definput = {'3'};
+            windowLength = inputdlg('Enter smoothing window length (samples):', dlgtitle, dims, definput);
+            UI.SmoothingWindowLength = str2double(windowLength{1});
+        else
+            UI.SmoothingMethod = 'none';
+        end
+
         % filter by velocity?
         quest = 'Would you like to filter reaches by absolute velocity?';
         dlgtitle = 'Velocity Filtering Option';
