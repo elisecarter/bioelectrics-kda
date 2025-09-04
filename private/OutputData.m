@@ -17,5 +17,11 @@ if UI.SavePlots == 1
     PlotTrajectories(data,subfolder_path,UI)
 end
 
+% save UI structure as json
+jsonString = jsonencode(UI, 'PrettyPrint', true);
+jsonFilePath = fullfile(OUTpath, 'UI_Settings.json');
+fid = fopen(jsonFilePath, 'w');
+fprintf(fid, '%s', jsonString);
+fclose(fid);
 
 SaveKdaFile(data, OUTpath)
