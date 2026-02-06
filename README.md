@@ -21,3 +21,7 @@ For more detailed information, see the kinematics protocol in the install kit.
 4) In the Analysis menu, select Extract Kinematics. Click through the pop-up menus to input plotting and filtering options. Deleted reaches are shown in the command line. The extracted kinematic features defined in Appendix A are saved as kda files (hdf5 format) in the output directory.
 
 5) In the Export menu, select Session Means. This exports session means to an excel file in the specified output directory. Select “yes” when prompted by the option to group by experimental condition to populate the “group” column in this file.
+
+## Citation
+
+If you use this software, please cite it using the metadata in [CITATION.cff](CITATION.cff).

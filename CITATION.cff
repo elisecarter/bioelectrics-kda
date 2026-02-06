@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the information below."
+title: "Kinematic Data Analysis (KDA)"
+version: "1.0"
+date-released: "2026-02-06"
+authors:
+  - family-names: "Carter"
+    given-names: "Elise"
+    email: "elise.carter@cuanschutz.edu"
+repository-code: "https://github.com/elisecarter/bioelectrics-kda"
+preferred-citation:
+  type: software
+  title: "Kinematic Data Analysis (KDA)"
+  authors:
+    - family-names: "Carter"
+      given-names: "Elise"
+      email: "elise.carter@cuanschutz.edu"
+  version: "1.0"
+  year: 2026
+  url: "https://github.com/elisecarter/bioelectrics-kda"
