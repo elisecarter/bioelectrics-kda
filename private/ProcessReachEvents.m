@@ -164,13 +164,14 @@ for i = 1 : length(RawData) %iterate thru sessions
             end
         end
 
-        figure
-        plot(tempeuc_max(:,1),tempeuc_max(:,2),'DisplayName','raw')
-        hold on
-        % smooth data
-        tempeuc_max = movmean(tempeuc_max,3,1);
-
-        plot(tempeuc_max(:,1),tempeuc_max(:,2),'DisplayName','smoothed')
+        % smooth trajectories
+        if isfield(UI, 'SmoothingMethod')
+            if strcmpi(UI.SmoothingMethod, 'Moving Average')
+                tempeuc_max = movmean(tempeuc_max, UI.SmoothingWindowLength,1);
+            elseif strcmpi(UI.SmoothingMethod, 'Moving Median')
+                tempeuc_max = movmedian(tempeuc_max,UI.SmoothingWindowLength,1);
+            end
+        end
 
         % velocity - interpolated, absolute, and raw in mm/sec
         [interpVel_max,absVel_max,rawVel_max,~] = CalculateVelocity(tempeuc_max, UI);
@@ -247,6 +248,7 @@ for i = 1 : length(RawData) %iterate thru sessions
         
         % store initial to max data
         SessionData(i).InitialToMax(k).RawData = struct2table(init2max);
+        SessionData(i).InitialToMax(k).ReachNo = j;
         SessionData(i).InitialToMax(k).StartIndex = start_ind;
         SessionData(i).InitialToMax(k).EndIndex = max_ind;
         SessionData(i).InitialToMax(k).ReachDuration = duration_max;
@@ -265,6 +267,7 @@ for i = 1 : length(RawData) %iterate thru sessions
 
         % store initial to end data
         SessionData(i).InitialToEnd(k).RawData = struct2table(init2end);
+        SessionData(i).InitialToEnd(k).ReachNo = j;
         SessionData(i).InitialToEnd(k).StartIndex = start_ind;
         SessionData(i).InitialToEnd(k).EndIndex = end_ind;
         SessionData(i).InitialToEnd(k).ReachDuration = duration_end;

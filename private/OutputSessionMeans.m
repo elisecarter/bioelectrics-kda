@@ -44,7 +44,7 @@ for i = 1:length(data) % iterate thru mice
 
         StimAccuracy{j,1} = thisMouse.Sessions(j).StimAccuracy;
         StimSpecificity{j,1} = thisMouse.Sessions(j).StimSpecificity;
-        StimSensitivity{j,1} = thisMouse.Sessions(j).StimSensitivty;
+        StimSensitivity{j,1} = thisMouse.Sessions(j).StimSensitivity;
 
         PercentFailureType_Grasp{j,1} = thisMouse.Sessions(j).PercentFailuresGrasp;
         PercentFailureType_Reach{j,1} = thisMouse.Sessions(j).PercentFailuresReach;

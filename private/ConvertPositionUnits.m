@@ -3,7 +3,7 @@ function data = ConvertPositionUnits(data)
 
 % hand position has 100x multiplier, 9 pixels/mm
 data.handX = data.handX_100/900; 
-data.handY = -1*data.handY_100/900; 
+data.handY = data.handY_100/900; 
 data.handZ = data.handZ_100/900; 
 
 % remove old data
