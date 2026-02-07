@@ -1,4 +1,4 @@
-# Kinematic Data Analysis (KDA)
+# Kinematic Data Analysis (KDA) Pipeline
 
 ## Author
 
@@ -25,3 +25,4 @@ For more detailed information, see the kinematics protocol in the install kit.
 ## Citation
 
 If you use this software, please cite it using the metadata in [CITATION.cff](CITATION.cff).
+
