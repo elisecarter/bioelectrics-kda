@@ -23,6 +23,6 @@ For more detailed information, see the kinematics protocol in the install kit.
 5) In the Export menu, select Session Means. This exports session means to an excel file in the specified output directory. Select “yes” when prompted by the option to group by experimental condition to populate the “group” column in this file.
 
 ## Citation
+[![DOI](https://zenodo.org/badge/457915563.svg)](https://doi.org/10.5281/zenodo.18511810)
 
-If you use this software, please cite it using the metadata in [CITATION.cff](CITATION.cff).
 
